@@ -6,7 +6,7 @@ each slice ends in a demonstrable leaderboard or ledger result. V1 confronts the
 
 # Epic A: Compile
 
-## V1: Baseline on the board (by 2026-11-17, scored entry before 11-20)
+## V1: Pipeline proven on the baseline (by 2026-11-14)
 
 **Delivers:** R0 (baseline 1.0), R1, R2, R4 (partial), R6 (measurement), R7
 
@@ -49,30 +49,65 @@ changes step 6 only.
 - Ledger append and parse round-trip; circuit sha256 stable across runs.
 - Packager refuses to assemble when any `best/<bench>` is missing.
 
-## V2: invsqrt (fusion) beats baseline
+## V1b: Public-circuit portfolio on the board (target: about 25 before 2026-11-20)
 
-**Delivers:** R0, R1, R3
+**Delivers:** R0, R1, R2, R8, R9 (ADR-0007)
 
 **Build plan**
 
-1. Study the reference (`nr_reference_circuit.py`): Newton-Raphson initial guess, iteration count,
-   fixed-point widths, error bound 2^-24.
-2. Write a parameterised generator `src/invsqrt/` (initial-guess table or polynomial, bit widths, number of
-   iterations, uncomputation by MBUC).
-3. Search the parameter space with an unattended script, using reduced-shot verify, then full-shot
-   verify under 10 salts for promotion.
-4. `bench promote`, pack, submit.
+1. Fetch the public circuits the notebooks point to (Kaggle datasets and notebook outputs) with
+   `scripts/fetch_public.sh`; hash them; write `docs/PROVENANCE.md` (author, source, stated licence, cost).
+2. Verify every candidate per benchmark with `bench verify` at several salts; log failures (DQI
+   hidden-seed risk).
+3. Assemble the best verified candidate per benchmark into `best/`, and pack.
+4. Submit; confirm the board score is near the notebook-reported value; publish the notebook with
+   attribution and a forum link.
 
-**Demo:** ledger shows invsqrt cost reduced by x% with margin >= policy; leaderboard score rises.
+**Demo:** the leaderboard shows a score near 25 and `docs/PROVENANCE.md` lists every circuit used.
 
-**Rests on assumptions:** Q10. If local kickmix fails, inner loop moves to Kaggle.
+**Rests on assumptions:** Q19, Q20 (see PLAN). If the public scores are not reproducible, the slice reports
+the real number and the plan re-centres on that.
 
 ### Test plan
 
 #### End-to-end
 
-- Packed submission with the new invsqrt scores > the previous submission on Kaggle.
-- Official verifier passes at 10 distinct salts with 0 failures.
+- Board score is within 2% of the score the portfolio gets from our own full-shot verification.
+- Every file in the submitted archive has a provenance row.
+
+#### Integration
+
+- The same circuit verified at 5 distinct salts yields 0 failures or is excluded from `best/`.
+
+#### Unit
+
+- Provenance check script fails if any `best/` file lacks a row.
+
+## V2: invsqrt (fusion): audit and squeeze the public design
+
+Expect small gains. Public work claims 62 qubits and about 1.5% per remaining qubit, so this slice is
+about verifying that claim and testing whether anyone has missed a structural change.
+
+**Delivers:** R0, R1, R3, R8
+
+**Build plan**
+
+1. Model the cost (qubits x (Toffolis + T/4)) and break the public circuit down by stage.
+2. Write our own parameterised generator for the table plus quadratic (Horner) design, reproducing
+   the public cost at the public parameters.
+3. Probe unexplored directions: different segment counts or polynomial degrees, tolerance use
+   (the best circuit is reported at about 0.945 of the error tolerance), alternative normalisation,
+   and shared carry/borrow tricks. Search with reduced-shot verify; promote with the full gate.
+
+**Demo:** ledger shows an invsqrt cost at or below the public best, from our own generator, with 0
+failures across 10 salts.
+
+### Test plan
+
+#### End-to-end
+
+- Packed submission with our own invsqrt scores at least as well on Kaggle as the public circuit.
+- Official verifier passes at 10 distinct salts.
 
 #### Integration
 
@@ -80,65 +115,72 @@ changes step 6 only.
 
 #### Unit
 
-- Fixed-point reference model matches the ideal 1/sqrt(x) within 2^-24 on the whole domain
-  (n_p = 10, exhaustively).
+- Fixed-point model matches the ideal 1/sqrt(x) within 2^-24 over the whole domain (n_p = 10).
 
-## V3: dfthcsos (chemistry) first improvement
+## V3: dfthcsos (chemistry): attack the 7-bit cliff and the factorization
 
-**Delivers:** R0, R1, R3
+Highest expected gain per effort: the lowest ratio so far (about 11x) and an open lever.
+
+**Delivers:** R0, R1, R3, R8
 
 **Build plan**
 
-1. Read `SCORING_README.md` and `verify.py`; model the cost `lambda_eff * T_total * Q_total` and gates
-   (`Lambda > 49.0`, `E_gap > 3.914898`).
-2. Start with the cheap levers: QROM batching/ADDRESS layout and angle bit-width `brot`, tree shape
-   (path vs log-depth), reusing the baseline factorization.
-3. Then the deep lever: re-factorize (R, B, C) trading accuracy against QROM data size; accept only
-   with margin on the accuracy gates.
-4. Promote and submit.
+1. Model `lambda_eff * T_total * Q_total` and the gates (`Lambda > 49.0`, `E_gap > 3.914898`, error2 gate)
+   from the verifier; reproduce the public cost.
+2. Attack the cost-model cliff at `brot` <= 7 (temporary qubits roughly halve; reported 7-bit
+   quantization-aware training plateaus near error2 0.11 against a 0.02 gate).
+3. Search factorization shapes (R, B, C) beyond the public 8 x 143 x 44 and the loader count.
+4. Hypotheses (ours, unverified): mixed bit-widths per factor or per angle word; error-aware
+   rounding that targets the energy gate rather than angle error.
+5. Promote only with measured gate margins.
 
-**Demo:** ledger shows a lower dfthcsos score with gate margins recorded.
+**Demo:** ledger shows a lower dfthcsos cost with gate margins recorded, from our own pipeline.
 
 ### Test plan
 
 #### End-to-end
 
-- Packed submission with new dfthcsos scores higher on Kaggle; official verify passes at 10 salts.
+- Packed submission with the new dfthcsos scores higher on Kaggle; official verify passes at 10 salts.
 
 #### Integration
 
-- Circuits' loaded angle words decode on the submitted `tree_edges` to unit vectors within tolerance.
+- Loaded angle words decode on the submitted `tree_edges` to unit vectors within tolerance.
 
 #### Unit
 
-- Our cost model reproduces the verifier's `resource_costs` for the baseline.
+- Our cost model reproduces the verifier's `resource_costs` for the public circuit.
 
-## V4: DQI first improvement
+## V4: DQI: cut qubits and the Forney/BM stages, and quantify hidden-seed risk
 
-**Delivers:** R0, R1, R3, R6
+Largest circuit and most levers. Public circuits use a Berlekamp-Massey / Schur decoder; reported
+breakdown: BM forward pass about 25% of Toffolis, Forney sweep about 56%, one 42-AND GF(2^12)
+multiplier throughout. Qubits count twice in the cost.
+
+**Delivers:** R0, R1, R3, R6, R8
 
 **Build plan**
 
-1. Read `dqi_reference_circuit.py` and the DQI verifier; understand the syndrome decoder
-   (extended Euclid or equivalent, MBUC).
-2. Identify the dominant Toffoli consumers and the allowed approximation (decoding failure rate in
-   the score).
-3. Build smaller-scale instances (small field) for fast iteration; then full RS(4095,4025).
-4. Promote after full-scale verification on Kaggle/RunPod (ADR-0002).
+1. Reproduce the public breakdown; build small-field instances for fast iteration.
+2. Quantify hidden-seed failure risk of each candidate: failures per salt, and behaviour at the known
+   hard error weights; choose the safest circuit, not just the cheapest.
+3. Look for new levers: qubit reuse and borrowing, restructuring the Forney sweep, cheaper
+   multiplier or constant-multiplier structure, approximations priced into the repetition factor.
+4. Full-size verification on the chosen executor (ADR-0002) before promotion.
 
-**Demo:** ledger shows a DQI cost reduction with a measured failure rate within the score model.
+**Demo:** ledger shows a lower DQI cost, a measured failure rate per salt, and a risk table of
+candidates.
 
-**Rests on assumptions:** Q16 (circuit sizes drop), ADR-0002 memory measurement.
+**Rests on assumptions:** Q16, ADR-0002 memory measurement.
 
 ### Test plan
 
 #### End-to-end
 
-- Full-size DQI verification on the chosen executor passes; Kaggle score rises on submission.
+- Full-size DQI verification passes at 10 salts; Kaggle score rises on submission.
 
 #### Integration
 
-- Small-field instance passes the same verifier code path as the full instance.
+- Small-field instance runs through the same verifier code path as the full instance.
 
 #### Unit
 
