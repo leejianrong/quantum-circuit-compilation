@@ -10,3 +10,4 @@ __pycache__/
 .kaggle/
 kaggle.json
 credentials.json
+site/
