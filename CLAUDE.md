@@ -2,7 +2,8 @@
 
 Kaggle competition (deadline 2027-01-20): shrink three kickmix circuits (`invsqrt`, `dqi`,
 `dfthcsos`). Score = geometric mean of `baseline_cost / cost`; any verifier failure rejects the whole
-submission. Plan: `docs/PLAN.md`. Slices: `docs/SLICES.md`. Decisions: `docs/adr/`.
+submission. Start with `docs/COMPETITION.md` (what it is, scoring, benchmarks, prizes) and
+`docs/COMPETITION_RULES.md` (legal rules). Plan: `docs/PLAN.md`. Slices: `docs/SLICES.md`. Decisions: `docs/adr/`.
 Board: Pandan `QCC` (use the `pandan` skill). Trust the code over the docs; the plan is ahead of the repo.
 
 ## Status

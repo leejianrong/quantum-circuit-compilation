@@ -21,9 +21,9 @@ None. Round 1 closed.
 | Q8 | Learning material? | DECIDED | Epic B, markdown plus Zensical site | ADR-0006 |
 | Q9 | Which benchmarks must be in every submission? | ASSUMED | All three (metric requires it) | ADR-0003 |
 | Q10 | Can kickmix run locally? | ASSUMED | Yes via Qualtran or the `.so`; unchecked: execution of the downloaded `.so` was blocked, needs Jian's OK | PLAN, V1 |
-| Q11 | Do the rules allow a public repo and notebook? | ASSUMED | Yes; rules unread | V1 step 1 |
-| Q12 | Submission is a file upload? | ASSUMED | Yes, per metric docstring | V1 step 6 |
-| Q13 | Is the daily cap non-binding? | ASSUMED | Yes at about 1 per day | PLAN |
+| Q11 | Do the rules allow a public repo and notebook? | DECIDED | Yes with conditions: sharing is allowed if available to all Participants (C.5.d, forums named as the route), so post a forum link with the repo/notebook; never redistribute Competition Data (B.4.b); reused third-party code must be Apache-2.0-compatible (C.14.a, B.7.b). Milestone/Longest Leader notebook rules are on the Overview tab | docs/COMPETITION_RULES.md, ADR-0004 |
+| Q12 | Submission is a file upload? | ASSUMED | Rules allow 'model, notebook, prediction file, or other format' and defer to the website (C.18). Still probably a file upload; confirm on first submit | QCC-8 |
+| Q13 | Is the daily cap non-binding? | DECIDED | Cap is 5 per day (B.2.a); non-binding at our pace. Caveat: team-merger cap counts total submissions (B.1.b), so avoid burning slots early. Up to 2 final submissions (B.2.b) | docs/COMPETITION_RULES.md |
 | Q14 | Ledger format? | ASSUMED | JSONL | PLAN §Shape S2 |
 | Q15 | LLM API spend? | ASSUMED | None | ADR-0005 |
 | Q16 | Optimised DQI circuits are smaller than baseline? | ASSUMED | Yes | PLAN, V4 |
