@@ -1,0 +1,54 @@
+[project]
+site_name = "Quantum circuit compilation: learning track"
+site_description = "A newcomer curriculum for the Verifiable Quantum Circuit Compilation competition"
+docs_dir = "docs"
+site_dir = "site"
+use_directory_urls = true
+
+# Every page under docs/learn/ is listed here. The build tolerates a listed page that does not
+# exist yet (it prints a warning and exits 0), so pages can land in any order.
+nav = [
+  { "Start here" = "learn/index.md" },
+  { "Foundations" = [
+    { "Qubits and gates" = "learn/qubits-and-gates.md" },
+    { "Reversible logic" = "learn/reversible-logic.md" },
+  ] },
+  { "The competition's ideas" = [
+    { "Costs and MBUC" = "learn/costs-and-mbuc.md" },
+    { "Classical verification" = "learn/classical-verification.md" },
+  ] },
+  { "Benchmark primers" = [
+    { "invsqrt" = "learn/primer-invsqrt.md" },
+    { "dqi" = "learn/primer-dqi.md" },
+    { "dfthcsos" = "learn/primer-dfthcsos.md" },
+  ] },
+  { "Hands-on kickmix" = "learn/kickmix-hands-on.md" },
+  { "Glossary" = "learn/glossary.md" },
+  { "Competition" = "COMPETITION.md" },
+]
+
+[project.theme]
+language = "en"
+features = [
+  "content.code.copy",
+  "navigation.sections",
+  "navigation.top",
+  "search.highlight",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to system preference"

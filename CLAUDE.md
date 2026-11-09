@@ -12,6 +12,7 @@ locally yet (QCC-3).
 
 ## Commands
 - `make install` / `make check` (lint + mypy + fast tests) / `make hooks` (pre-push, run once)
+- `make docs` builds the learning site (`docs/learn/`, config in `zensical.toml`); every `python` block there is run by the tests (`no-run` skips one)
 - `make fetch-data` downloads competition data to `data/` (gitignored, about 1.1 GB, never commit it)
 - Tests marked `integration` need kickmix and the data; they are skipped by default.
 
