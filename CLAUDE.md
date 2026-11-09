@@ -7,7 +7,7 @@ submission. Start with `docs/COMPETITION.md` (what it is, scoring, benchmarks, p
 Board: Pandan `QCC` (use the `pandan` skill). Trust the code over the docs; the plan is ahead of the repo.
 
 ## Status
-Scaffold only. `src/bench/` is a stub; the harness is built under QCC-4. kickmix has not been run
+`bench verify <invsqrt|dqi|dfthcsos> CIRCUIT --salts N` (src/bench/) logs to `ledger/results.jsonl`. kickmix has not been run
 locally yet (QCC-3).
 
 ## Commands
