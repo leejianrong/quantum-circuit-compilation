@@ -1,0 +1,95 @@
+# Provenance of public circuits (QCC-34, ADR-0007)
+
+Every public circuit we might use is listed here with its source, the licence **as stated**, its
+sha256 and its cost. Nothing is used without a row. Circuits are fetched by
+`bash scripts/fetch_public.sh` into `public/` (gitignored; third-party circuits are not committed).
+`public/MANIFEST.tsv` (path, bytes, sha256, including members of zips and the decompressed content of
+`.xz` files) is produced by the same script. All fetched on 2026-11-09 (UTC).
+
+**Costs are as reported by the source's own logs or text. None is verified by us yet** (QCC-35).
+Reference (baseline) costs from the sources' release manifests: invsqrt 2,076,774.23, dqi
+24,439,463,583,672.9, dfthcsos 3,355,599,588.32. Fetched files are untrusted data and were only
+hashed, never executed.
+
+## Licence summary (read before reuse)
+
+- Dataset licences below are the Kaggle metadata field. Notebook sources expose no licence field
+  through the CLI, so their licence is "unstated in metadata"; the notebook text is quoted instead.
+- Every source states, in substance: "our own work is Apache-2.0; every other component keeps its
+  upstream terms". A circuit file is a derivative chain, so an Apache-2.0 label on a dataset does not
+  by itself cover the circuit.
+- **DQI risk (`e9f54be3` and the whole 892-qubit lineage):** heliosli's `LICENSE.md` (and kirilltym's,
+  yoyobar's and daifanhao's notices) say the decoder design comes from jday96314's QuantumAI
+  repository, "which states no licence: only the compiled circuit, as already published in public
+  Kaggle notebook outputs, is included". So the licence at the root of every public DQI circuit is
+  **unstated**. ADR-0007 rule 2 applies: replace it or clear it before choosing Final Submissions.
+- Credit chains (long) are in each source's `CREDITS.md`; principal authors are named per row.
+
+## Sources
+
+| # | Source (author) | URL | Licence as stated | Contents |
+|---|---|---|---|---|
+| S1 | heliosli, dataset `qcc-circuits-live` | kaggle.com/datasets/heliosli/qcc-circuits-live | metadata apache-2.0; LICENSE.md: own work Apache-2.0, other components keep upstream terms, DQI decoder design from a no-licence repo | invsqrt, dqi.kmb.xz, 15 angle circuits, npz |
+| S2 | isabe11am00re, dataset `qcc-v84337cb049akt21-circuits` | kaggle.com/datasets/isabe11am00re/qcc-v84337cb049akt21-circuits | metadata apache-2.0; LICENSE.md as S1 | same layout |
+| S3 | isabe11am00re, dataset `qcc-v96mxfu6mxf-circuits` | kaggle.com/datasets/isabe11am00re/qcc-v96mxfu6mxf-circuits | metadata apache-2.0 | same layout |
+| S4 | yoyobar, dataset `qcc-local-sota-20261031` | kaggle.com/datasets/yoyobar/qcc-local-sota-20261031 | metadata "other"; LICENSE_SCOPE.md: yoyobar's code and prose Apache-2.0, third-party circuits retain their own terms, "public availability does not itself supply a license for unlicensed source-code ancestors" | submission/ (3 tasks) |
+| S5 | pramitdas, dataset `qcc-public-frontier-submission` | kaggle.com/datasets/pramitdas/qcc-public-frontier-submission | metadata apache-2.0; README: "portfolio of public Apache-2.0 circuits plus small public improvements" (no per-circuit terms) | submission/ (same content as S6) |
+| S6 | maoxin123, notebook output `lb-25-218-combined-invsqrt-refit-chem` | kaggle.com/code/maoxin123/lb-25-218-combined-invsqrt-refit-chem | unstated in metadata; text: "their code Apache-2.0, each circuit keeps its authors' terms" | submission.zip, log |
+| S7 | atakanaldemir, notebook output `qcc-terminal-readout-and-phase-folds` | kaggle.com/code/atakanaldemir/qcc-terminal-readout-and-phase-folds | unstated in metadata | submission.zip, verifier JSON, log |
+| S8 | kirilltym, notebook output `quantum-circuits-conditional-uncompute-audit` | kaggle.com/code/kirilltym/quantum-circuits-conditional-uncompute-audit | unstated in metadata; text: own code Apache-2.0, inherited circuits keep their original licence scopes; many CREDITS/LICENSE files shipped | submission.zip, verification_summary.json |
+| S9 | alexchilton, notebook output `24-94-lb-verified-three-task-portfolio` | kaggle.com/code/alexchilton/24-94-lb-verified-three-task-portfolio | unstated in metadata; text: "None of the circuits is ours" | submission.zip, v5/invsqrt.kmb, log |
+| S10 | yoyobar, notebook output `lb-22-99-invsqrt-101-62-qubits` | kaggle.com/code/yoyobar/lb-22-99-invsqrt-101-62-qubits | unstated in metadata | submission.zip (same content as S4) |
+| S11 | daifanhao, dataset `qcc-2494096-c44-dqi-reproduction` | kaggle.com/datasets/daifanhao/qcc-2494096-c44-dqi-reproduction | metadata "other"; LICENSE.md: orchestration code Apache-2.0, imported circuits keep upstream terms | git bundles of a scored 24.94096 submission, official-verifier reports, scripts (bundled wheels not installed) |
+| S12 | dmitriigluzdov, dataset `vqcc-femoco-public-factorization` | kaggle.com/datasets/dmitriigluzdov/vqcc-femoco-public-factorization | metadata apache-2.0 | FeMoCo factorization words (npz/csv), circuit_sources, open_circuits_v21..v61 (older dqi/invsqrt/chemistry variants; hashes in MANIFEST.tsv, costs not recorded) |
+| S13 | ozertuu, notebook `25-218-starter-notebook` | kaggle.com/code/ozertuu/25-218-starter-notebook | unstated in metadata | no output files; reads dataset S2 (title claims 25.218; not checked) |
+
+Not fetched (leads): ahmedberatozer/vqcc-v23-portfolio, atakanaldemir/qcc-c44-five-helper-release-sources,
+jesse840/qcc-dqi-both-salt-e9f54be3 (a hidden-seed screen of e9f54be3), jessehermes840/qcc-interim-sweep-screen-dataset-v2,
+the somejoint, syed3000 and hosen42 notebooks, and `ozertuu/25-137-starter-notebook`. Add rows when pulled.
+
+## Candidates per benchmark
+
+Hashes are sha256 of the plain `.kmb`; full values are in `public/MANIFEST.tsv`. The 8-character
+prefixes are the names the community uses.
+
+### invsqrt (62 qubits where stated)
+
+| Prefix | sha256 | Seen in | Reported cost | Author / lineage |
+|---|---|---|---|---|
+| c6519219 | `c6519219f598c1b621c00e51d5c5d8b74e450a68586f56c58e569f1ca4f84536` | S5, S6 | 94,599.61, Q62 (S6 log; ratio about 21.95) | maoxin123 CSWAP-reduced variant of the 13b5bf7a line (ozertuu, kirilltym, Atakan Aldemir, Hosen42, syed3000, mrmeows, busyaprime, yoyobar) |
+| 034c7c2a | `034c7c2a54d51e13aff6e62ec4c14997d3968b6c11122146c57290b1a1b8c7e2` | S1, S7, S8, S9 | 95,345.54, Q62; PASS at 200,540,928 shots in S7's log | maoxin123 (earlier version) |
+| 46743f7f | `46743f7f8f9b85c76124fcd4062a6250706442971f56587e62cd797de000bfdd` | S4, S10 | about 95,345.55 (yoyobar local estimate, no board score) | yoyobar |
+| 95621d7e | `95621d7ee3e13d91d27b2ee8627cd96d861a2ce696a0fa3afee2e1e01465316d` | S2 | not recorded (62 qubits per its CREDITS.md) | Hosen42 rewrite of syed3000 v11 |
+| 1c5b1ee2 | `1c5b1ee282904faf4c1a09d2a440577de1866c47462ff7df9714768f9ed2a56a` | S3 | not recorded | Hosen42 q25 merge on 13b5bf7a |
+| 3132ecab | `3132ecabb304c0582f8ffe5b8d087b4dcc22aa9b724b1ad0ca17f079dd7f4669` | S9 (v5/) | not recorded | alexchilton earlier build |
+
+### dqi (892 qubits where stated)
+
+| Prefix | sha256 (decompressed) | Seen in | Reported cost | Author / lineage |
+|---|---|---|---|---|
+| e9f54be3 | `e9f54be304cbdcda7306729c335b1a2314a45d0ca818e05cf60e45ddee969bc4` | S1 (xz), S5, S6, S7, S8, S9 | 374,686,873,087 at the default salt, 0 value and 0 phase errors (S7 log; ratio about 65.23). **S8's own run records 1 phase error and cost 376,407,597,314 (`verification_summary.json`), so hidden-seed risk is real** | Atakan Aldemir phase folds on ozertuu V70 readout rewrite, shipped by heliosli; root: jday96314 (no licence) |
+| 4432ec5f | `4432ec5fd63d7d70aab92d32f719d47539d0ff66ae0cb0b964c914e01fece431` | S2 (xz), S4, S10 | about 374,735,446,629 (yoyobar estimate; board score unknown) | Kirill Tymchishin and others |
+| b71b21ca | `b71b21ca52e99cb214d98af017a2f47fddf1d210cceef8eac9d08d3d0e476fbb` | S3 (xz) | dearer than e9f54be3 per S9 text; no number | Isabe11aM00re |
+| 1ab3ac53 and about 25 older variants | see MANIFEST.tsv (S12 `open_circuits_v21..v61`) | S12 | not recorded | older community lineage |
+
+### dfthcsos (15 `angle_k` circuits plus `submission.npz`; 427 qubits)
+
+| npz prefix | sha256 of submission.npz | Seen in | Reported cost | Author / lineage |
+|---|---|---|---|---|
+| 91d0ad25 | `91d0ad2554e0c039ad8268b810812dab03110ca671bbdb65976dc6f82abd909b` | S5, S6 | 299,614,422.44 (S6 log; ratio about 11.20); (R,B,C) = (8,143,44) refit | maoxin123 weight refit on syed3000 loaders |
+| ad1a4d28 | `ad1a4d28e66585e4b94a3b3111c4f64aff81f25f52611fce5c690bbce0e5e6ec` | S1, S9 | 299,654,754.95 (S9 log) | heliosli refit |
+| 8faa7e0b | `8faa7e0bc40ea80793162639af856b0272bc8680eb2e36cca65a69bb3531fe9f` | S7, S8 | 299,654,755.24 (S7 log, S8 summary) | Atakan Aldemir |
+| 3f72cbe5 | `3f72cbe5054043741683a3c487f9cdffb7cb62770b0399a2f96184d2449a0595` | S4, S10 | about 299,654,755.41 (yoyobar estimate) | yoyobar column-scale polish |
+| 5bd35757 | `5bd3575736fdf340231b18dcbbe35f1ff9e0e8606f6081258aa54f4d0f9e59eb` | S2 | not recorded | Isabe11aM00re |
+| 9cd87121 | `9cd871218e49f8470360d6eb8af586bdfb48d4a7a04d50ef787fdda0bf11ec94` | S3 | not recorded | Isabe11aM00re |
+
+The 15 angle circuits are hashed one by one in `public/MANIFEST.tsv`. Two angle sets exist
+(set fingerprint 0858d7f0 in S2, S3, S4, S7, S8, S9, S10; b13d1525 in S1, S5, S6; fingerprint = first
+8 hex of sha256 over the sorted name+sha lines). Pack an npz with the angle set it shipped with.
+
+### Best reported combination (unverified)
+
+invsqrt c6519219 + dqi e9f54be3 + dfthcsos 91d0ad25 with S6's angle set, the content of S5/S6.
+S5's SHA256SUMS gives its `submission.zip` sha256 as
+`10e0f2a3d18bcde8c2e6fe41a5391f4630fc73414178ec90f1274ba3cb74ab2c`. The reported costs give a
+geometric-mean score of about 25.21 (S5 and S6 claim 25.218 on the board). Not verified by us.
