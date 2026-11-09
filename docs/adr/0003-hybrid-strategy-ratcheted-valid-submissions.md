@@ -1,6 +1,6 @@
 # ADR-0003: Hybrid strategy: cheapest ratio gains first, per-task prizes, and a never-partial best-known-good store
 
-- Status: Accepted
+- Status: Accepted. The ordering below is superseded by ADR-0007; the never-partial rule stands.
 - Date: 2026-11-10
 - Deciders: Jian (F3, F5: "as optimistic and ambitious as possible")
 

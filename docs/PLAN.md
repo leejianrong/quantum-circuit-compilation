@@ -29,7 +29,8 @@ Two tracks that share a repo.
 - **Track B, Learn:** a Zensical docs site (plus plain markdown that renders on GitHub) that takes a
   Python-literate newcomer to the knowledge needed to work on this competition, with runnable examples.
 
-Prize targets: top-6 leaderboard (overall), the three $10k single-task prizes (invsqrt, dqi,
+Starting point (ADR-0007): a verified portfolio of the best public circuits (about 25x), then our own
+improvements where others have not looked. Prize targets: top-6 leaderboard (overall), the three $10k single-task prizes (invsqrt, dqi,
 dfthcsos each), Longest Leader, and, on a "get on the board" basis only, the 2026-11-20 milestone.
 
 ## Users and actors
@@ -53,7 +54,7 @@ dfthcsos each), Longest Leader, and, on a "get on the board" basis only, the 202
 - Real quantum hardware or non-kickmix circuits (not scoreable).
 - Training ML models on data (no dataset exists; "agents" means coding agents).
 - A custom multi-agent orchestration layer (ADR-0005 explains why).
-- Beating the 11/20 milestone leaderboard (target is only a working non-zero entry).
+- Guaranteeing the 11/20 milestone prize; we aim for about 25 (R9) but the board is crowded.
 
 ## Requirements
 
@@ -61,12 +62,14 @@ dfthcsos each), Longest Leader, and, on a "get on the board" basis only, the 202
 |----|-------------|--------|
 | R0 | Maximise the Kaggle score: geometric mean of baseline/cost over the three benchmarks | Core goal |
 | R1 | Every submission passes the official verifier; margin on approximations is measured, not guessed | Must-have |
-| R2 | A scored (non-zero) entry exists on the leaderboard before 2026-11-20 23:59 UTC | Must-have |
+| R2 | A scored (non-zero) entry exists on the leaderboard before 2026-11-20 23:59 UTC | Must-have (R9 raises the target) |
 | R3 | Each benchmark has an independent improvement workstream and its own cost history | Must-have |
 | R4 | The best submission is reproducible from the public repo/notebook (prize eligibility) | Must-have |
 | R5 | A newcomer with Python plus undergrad maths can follow the learning track to the point of reading a kickmix circuit and the three benchmark specs | Must-have |
 | R6 | DQI full-size verification is runnable within the memory budget in ADR-0002 | Must-have |
 | R7 | Repo is public, Apache-2.0, contains no competition-restricted data (see Open risks) | Must-have |
+| R8 | Every circuit we submit has a provenance row (author, source, licence, hash, cost); verbatim third-party files are replaced or licence-cleared before Final Submissions | Must-have |
+| R9 | A scored entry near the public frontier (about 25) exists before 2026-11-20 | Must-have |
 
 ## Shape
 
@@ -78,6 +81,7 @@ dfthcsos each), Longest Leader, and, on a "get on the board" basis only, the 202
 | S4 | Heavy-run executor: Kaggle notebook as primary for DQI full verification, RunPod high-RAM pod as fallback; memory measured once and recorded | 0002 |
 | S5 | Per-benchmark generators in `src/<bench>/` that emit `.kmx/.kmb` from parameters (so the search space is parameters, not hand-edited files) | 0003 |
 | S6 | Public reproducibility notebook that rebuilds `best/` and reruns the verifier | 0004 |
+| S8 | Provenance log `docs/PROVENANCE.md` and a public-circuit fetcher (`scripts/fetch_public.sh`) that downloads and hashes circuits from public datasets | 0007 |
 | S7 | Docs: `docs/learn/*.md` with a Zensical site, deployed from CI | 0006 |
 
 ## Affordances
@@ -127,6 +131,8 @@ internals, only behaviour under the verifier. Quality gates per `dev-playbook`.
 | Q13 | Daily submission cap is not binding at about 1/day cadence | Fewer, more carefully margin-checked submissions |
 | Q14 | Ledger as JSONL (diffable, greppable), not a database | Trivial migration |
 | Q15 | No LLM API spend; Claude Code sessions are the agent | n/a |
+| Q19 | Public circuits are legitimately reusable as a starting point (rules C.5.d) and licences can be cleared or replaced before finals | A circuit must be rewritten or dropped late; the generators from ADR-0007 are the mitigation |
+| Q20 | The notebook-reported scores (about 25) are real | Entry target is lower; the portfolio card (QCC-35) measures it |
 | Q16 | DQI optimised circuits are smaller than the 886 MB baseline, so memory shrinks as we win | RAM estimate in ADR-0002 is worst case, so cost is low |
 
 ## Open risks
