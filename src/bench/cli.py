@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import ledger
+from bench import ledger, pack
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -104,7 +104,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="competition data dir holding kickmix/ and verifiers/ (default $QCC_DATA or ./data)",
     )
     v.add_argument("--ledger", type=pathlib.Path, default=ledger.DEFAULT_LEDGER)
+    pack.add_parser(sub)
     a = p.parse_args(argv)
+    if a.cmd == "pack":
+        return pack.run(a.best, a.out)
     row = run(
         a.bench,
         a.circuit,
