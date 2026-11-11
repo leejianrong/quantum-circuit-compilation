@@ -6,8 +6,9 @@ import pathlib
 import socket
 import subprocess
 from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 
-SCHEMA = 1
+SCHEMA = 2  # readers accept 1 and 2; schema 1 rows lack the v2 fields (they read as None)
 DEFAULT_LEDGER = pathlib.Path("ledger/results.jsonl")
 
 
@@ -28,9 +29,24 @@ class Row:
     git_sha: str
     host: str = ""
     schema: int = SCHEMA
+    # v2 (docs/MEASUREMENT.md); None on schema 1 rows
+    ts: str | None = None  # UTC ISO timestamp
+    experiment: str | None = None
+    parent_sha: str | None = None
+    kind: str | None = None  # screen | full | leaderboard | public-reference
+    toffolis: float | None = None
+    qubits: int | None = None
+    depth: int | None = None
+    stage_shares: dict[str, float] | None = None
+    salt_costs: list[float] | None = None
+    leaderboard_score: float | None = None
 
     def __post_init__(self) -> None:
         self.host = self.host or socket.gethostname()
+
+
+def now() -> str:
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 def sha256_path(path: pathlib.Path) -> str:
@@ -61,4 +77,5 @@ def append(row: Row, path: pathlib.Path = DEFAULT_LEDGER) -> None:
 
 
 def read(path: pathlib.Path = DEFAULT_LEDGER) -> list[Row]:
+    """Read schema 1 and 2 rows; v2 fields missing from old lines come back as None."""
     return [Row(**json.loads(line)) for line in path.read_text().splitlines() if line]

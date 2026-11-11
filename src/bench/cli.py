@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import ledger, pack
+from bench import ledger, pack, stats
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -55,7 +55,16 @@ def make_runner(bench: str, circuit: pathlib.Path, data: pathlib.Path, divisor: 
 
 
 def run(
-    bench: str, circuit: pathlib.Path, salts: int, divisor: int, runner: Callable[[], Runner]
+    bench: str,
+    circuit: pathlib.Path,
+    salts: int,
+    divisor: int,
+    runner: Callable[[], Runner],
+    *,
+    stats_fn: Callable[[], dict[str, Any]] | None = None,
+    experiment: str | None = None,
+    parent_sha: str | None = None,
+    kind: str | None = None,
 ) -> ledger.Row:
     """Verify under `salts` salts. Any exception (e.g. a corrupted circuit) is a FAIL row."""
     start = time.monotonic()
@@ -70,6 +79,12 @@ def run(
             costs.append(verify(salt_for(i)))  # type: ignore[misc]
         except FAILURES as err:
             failures, error = failures + 1, error or f"salt {i}: {type(err).__name__}: {err}"
+    structure: dict[str, Any] = {}
+    if stats_fn:
+        try:
+            structure = stats_fn()
+        except Exception:  # noqa: BLE001 - statistics are informative; never lose the verify result
+            structure = {}
     return ledger.Row(
         bench=bench,
         circuit=str(circuit),
@@ -84,6 +99,12 @@ def run(
         error=error,
         wall_s=round(time.monotonic() - start, 3),
         git_sha=ledger.git_sha(),
+        ts=ledger.now(),
+        experiment=experiment,
+        parent_sha=parent_sha,
+        kind=kind or ("screen" if divisor > 1 else "full"),
+        salt_costs=list(costs),
+        **structure,
     )
 
 
@@ -103,6 +124,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=pathlib.Path(os.environ.get("QCC_DATA", "data")),
         help="competition data dir holding kickmix/ and verifiers/ (default $QCC_DATA or ./data)",
     )
+    v.add_argument("--experiment", help="experiment id this run belongs to")
+    v.add_argument("--parent", help="sha256 of the circuit this one was derived from")
+    v.add_argument("--kind", choices=("screen", "full"), help="default: screen if reduced shots, else full")
     v.add_argument("--ledger", type=pathlib.Path, default=ledger.DEFAULT_LEDGER)
     pack.add_parser(sub)
     a = p.parse_args(argv)
@@ -114,6 +138,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         a.salts,
         a.shots_divisor,
         lambda: make_runner(a.bench, a.circuit, a.data, a.shots_divisor),
+        stats_fn=lambda: stats.path_stats(a.circuit),
+        experiment=a.experiment,
+        parent_sha=a.parent,
+        kind=a.kind,
     )
     ledger.append(row, a.ledger)
     print(
