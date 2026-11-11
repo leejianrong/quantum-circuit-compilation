@@ -19,7 +19,9 @@ alphabetical order. Each entry says what the term means here and points to where
 | GHZ state | The generalisation of the Bell state to three or more qubits: `(\|000> + \|111>) / sqrt(2)`. |
 | Gate | An operation on qubits, represented by a unitary matrix. |
 | Hadamard (`H`) | The one-qubit gate that turns `\|0>` into an equal superposition; `H H = I`. |
+| HMR | The kickmix instruction that measures a qubit in the X basis into a classical bit and resets it to 0. Pronounced "hammer". See [hands-on kickmix](kickmix-hands-on.md). |
 | Interference | Amplitudes adding or cancelling when paths recombine, which probabilities cannot do because they are never negative. |
+| `.kmx` and `.kmb` | The text and binary kickmix file formats. `Circuit.to_file` writes text unless given `format='kmb'`. See [hands-on kickmix](kickmix-hands-on.md). |
 | Kickmix circuit | A circuit of reversible classical gates, phase gates and measurement-based uncomputation, cheap to verify classically. |
 | Ket | The notation `\|x>` for a state vector. `\|0>` is `[1, 0]` and `\|1>` is `[0, 1]`. |
 | Logical qubit | A qubit as the algorithm sees it, after error correction. The competition counts these. |
