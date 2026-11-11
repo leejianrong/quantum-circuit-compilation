@@ -18,9 +18,9 @@ scratch qubit to 0, and apply a phase `theta` (in turns, where one turn is a ful
 ```
 
 So the tolerance is relative: the phase may be wrong by one part in `2^24`, about `5.96e-8`. That
-is the error budget. The input range is `max_x = 3 (2^10 - 2)^2 = 3,133,452` and the paper says the
-earlier fusion estimates used `n_p = 6`. I found no stated reason for 10 beyond the instance being
-larger; that part is unverified.
+is the error budget. The input range is `max_x = 3 (2^10 - 2)^2 = 3,133,452`. The paper says the
+earlier fusion resource estimates used `n_p = 6` and that the competition benchmark uses `n_p = 10`
+(2^18 electrons), a larger instance with a 22-bit input.
 
 Two consequences follow from the phase being a plain number of turns. First, adding phases is
 addition of turns, so if `y` is an integer meaning `y / 2^F` turns, you can apply it with one
@@ -95,7 +95,9 @@ sits in a fixed range.
    `sqrt(4^s) = 2^s`.
 2. **Initial guess.** Pick one of four intervals (`[1,1.5)`, `[1.5,2)`, `[2,3)`, `[3,4)`) from
    the top three bits, load the cubic's four coefficients from a small table with cheap gates
-   (the source says this is Clifford, so no Toffolis), and evaluate by Horner's rule:
+   (the source says this is Clifford, so no Toffolis), and evaluate by Horner's rule. Only two
+   cubics are fitted, one for `[1, 1.5)` and one for `[1.5, 2)`; the other two intervals reuse them
+   with rescaled coefficients (`POLY_A` and `POLY_B` in the reference source, four coefficients each):
    `y0 = c0 - T(r2 d)` with `r2 = c1 - T(r1 d)` and `r1 = c2 - T(c3 d)`, where `d` is `M` minus the
    interval start.
 3. **One Newton step.** `p = y0 (3 - M y0^2)`, which is about `2/sqrt(M)`, then shift back by `s`
@@ -179,7 +181,9 @@ multiplications account for about 88% of that sum (3,423 of 3,871). The `Z_POW` 
 `0.56 log2(1/eps) + 5.3` T gates and `eps` is the margin left after the arithmetic error. From the
 reference numbers (inferred, not in the paper): the margin gives `eps` near `2^-39`, so about 27
 T gates per rotation and 1,012 T in total, which is the 253 Toffoli equivalents between 7,735
-and 7,988.
+and 7,988. The verifier computes `eps` as `pi * min_margin / 2^64 / n_rot` from the simulated
+error margin, so the exact figure needs the full 200M-shot run; the Kaggle-measured baseline cost
+of 2,076,774 against `260 * 7,988 = 2,076,880` agrees with this to five digits.
 
 The cost has three parts to push on: fewer or narrower multiplications, a better starting guess so
 the Newton step can be cheaper, and qubit count, since the score multiplies `Q` by `C`. The reference
@@ -188,10 +192,14 @@ registers is the obvious first idea. The public notebooks listed in
 [COMPETITION.md](../COMPETITION.md) report a table plus quadratic evaluation in place of Newton.
 We have not verified that.
 
-Unverified: I count 231 qubits from the named registers in the reference source (22 for `x`, 40
-for `y1`, 10 flags, 3 selectors, 68 for the four coefficients, 28, 30 and 30 for the square,
-`z` and scratch) against the paper's 260. The gap is probably temporaries allocated inside
-subroutines.
+Checked against the source: building the reference circuit with kickmix gives 260 qubits, 7,735
+Toffolis, 1 T-like gate and 40 `Z_POW` rotations (2 Clifford, 1 T and 37 others, matching the
+paper's 37 non-Clifford rotations). The shipped baseline `invsqrt.kmb` has the same counts. The
+registers the source names add up to only 231 qubits (22 for `x`, 40 for `y1`, 10 flags, 3
+selectors, 68 for the four coefficients, 28, 30 and 30 for the square, `z` and scratch). The other
+29 are not in any named register. The top-level code allocates nothing else, so they must come from
+scratch space that the kickmix routines it calls (multipliers, shifts) allocate internally. We have
+not traced which routine uses how many.
 
 ## Exercises
 

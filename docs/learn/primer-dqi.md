@@ -47,8 +47,12 @@ def gf_mul(a, b, poly, degree):
 print("GF(16): 7 + 9 =", 7 ^ 9, "  7 * 9 =", gf_mul(7, 9, 0b10011, 4))
 
 # GF(2^12) with x^12 + x^6 + x^4 + x + 1, the field used by the benchmark (m = 4095 = 2^12 - 1).
-# Any irreducible polynomial gives an equivalent field; which one kickmix uses is not checked here.
+# Any irreducible polynomial gives an equivalent field. This one matches the paper
+# (alpha^12 + alpha^6 + alpha^4 + alpha + 1) and kickmix: GF2Field(12).modulus == 0x1053.
 POLY, DEG = 0x1053, 12
+import kickmix as km
+
+assert km.GF2Field(12).modulus == POLY  # the same field kickmix uses
 antilog = [1]
 for _ in range(4094):
     antilog.append(gf_mul(antilog[-1], 2, POLY, DEG))  # powers of alpha = x

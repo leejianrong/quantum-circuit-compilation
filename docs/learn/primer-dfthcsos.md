@@ -70,7 +70,8 @@ print("numbers stored:", n * n, "vs rank 5:", 5 * (2 * n + 1))
 ```
 
 The same idea, applied to the tensor `h2`, is what "factorization" means here. The benchmark fixes
-the form (called DFTHC in the paper; I did not verify what the letters stand for). Each of `R`
+the form (called DFTHC in the paper and DF-THC in the verifier README; neither spells it out, so we read it as
+double-factorized tensor hypercontraction, which fits the structure but is our reading). Each of `R`
 components has `B` unit vectors `u_b` of length `N`. For each of `C` coefficient copies of a
 component there is a matrix `X = sum_b w_b u_b u_b^T` with its own weights, and the two-body tensor
 is the sum over components and copies of products `X (x) X`. You choose `R`, `B` and `C`, the
@@ -169,8 +170,8 @@ Q_total = persistent state-prep qubits + J * brot + max(outer, inner, angles tem
 ```
 
 `E_gap` is a fixed upper bound on the ground-state energy minus an energy computed from the
-submitted factorization (the README calls it the SOS energy; I have not checked what SOS stands
-for). A submission is rejected if any of these fail:
+submitted factorization (the README calls it the SOS energy; the paper defines it as the "sum-of-squares energy shift", a
+lower bound on the Hamiltonian's spectrum, so `E_gap` measures how far the true ground state sits above it). A submission is rejected if any of these fail:
 
 | Check | Rule |
 |---|---|
@@ -222,7 +223,8 @@ formulas. `Q_total = 730` is 186 persistent qubits (90 for state preparation, 96
 angle words) plus 544 of shared temporary space. The Toffolis are dominated by the lookup, which we write. The 544 temporary qubits cannot
 come from the angle circuits (their cap is 128 qubits, and 12 selection plus 96 word qubits leave at
 most 20), so by elimination they come from the state-preparation formulas, which we do not build.
-That is my inference, not a README statement. `lambda_eff` is 49.3
+The README's formula says the same thing: the shared workspace is
+`max(outer_temp, inner_temp, angles_temp)`. `lambda_eff` is 49.3
 and moves with the factorization.
 
 Levers that follow from the formula, without going beyond it:
