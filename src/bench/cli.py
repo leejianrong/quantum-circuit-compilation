@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import ledger, pack, stats
+from bench import experiments, ledger, pack, stats
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -127,11 +127,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     v.add_argument("--experiment", help="experiment id this run belongs to")
     v.add_argument("--parent", help="sha256 of the circuit this one was derived from")
     v.add_argument("--kind", choices=("screen", "full"), help="default: screen if reduced shots, else full")
+    v.add_argument("--experiments", type=pathlib.Path, default=experiments.DEFAULT_LOG)
     v.add_argument("--ledger", type=pathlib.Path, default=ledger.DEFAULT_LEDGER)
     pack.add_parser(sub)
+    experiments.add_parser(sub)
     a = p.parse_args(argv)
     if a.cmd == "pack":
         return pack.run(a.best, a.out)
+    if a.cmd == "exp":
+        return experiments.run(a)
+    if a.experiment and a.experiment not in experiments.read(a.experiments):
+        print(f"error: unknown experiment {a.experiment} (create it with `bench exp new`)")
+        return 2
     row = run(
         a.bench,
         a.circuit,
