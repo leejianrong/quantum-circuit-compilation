@@ -1,6 +1,7 @@
 [project]
 site_name = "Quantum circuit compilation: learning track"
 site_description = "A newcomer curriculum for the Verifiable Quantum Circuit Compilation competition"
+site_url = "https://leejianrong.github.io/quantum-circuit-compilation/"
 docs_dir = "docs"
 site_dir = "site"
 use_directory_urls = true
@@ -8,7 +9,8 @@ use_directory_urls = true
 # Every page under docs/learn/ is listed here. The build tolerates a listed page that does not
 # exist yet (it prints a warning and exits 0), so pages can land in any order.
 nav = [
-  { "Start here" = "learn/index.md" },
+  { "Start here" = "index.md" },
+  { "Learning track" = "learn/index.md" },
   { "Foundations" = [
     { "Qubits and gates" = "learn/qubits-and-gates.md" },
     { "Reversible logic" = "learn/reversible-logic.md" },
@@ -25,6 +27,7 @@ nav = [
   { "Hands-on kickmix" = "learn/kickmix-hands-on.md" },
   { "Glossary" = "learn/glossary.md" },
   { "Competition" = "COMPETITION.md" },
+  { "Plan" = "PLAN.md" },
 ]
 
 [project.theme]

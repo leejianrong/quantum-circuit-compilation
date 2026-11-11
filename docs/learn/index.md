@@ -1,4 +1,4 @@
-# Start here
+# The learning track
 
 This track teaches you enough quantum computing to work on the Verifiable Quantum Circuit
 Compilation competition. You need Python and undergraduate engineering maths (complex numbers,
