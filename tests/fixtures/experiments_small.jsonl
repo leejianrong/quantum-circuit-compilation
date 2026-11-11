@@ -1,0 +1,3 @@
+{"benchmark": "invsqrt", "closed": "2026-11-12T09:00:00+00:00", "hypothesis": "h1", "id": "E001", "notes": null, "opened": "2026-11-11T07:00:00+00:00", "outcome": "promoted", "parent": null, "status": "closed"}
+{"benchmark": "dqi", "closed": "2026-11-11T12:00:00+00:00", "hypothesis": "h2", "id": "E002", "notes": null, "opened": "2026-11-11T08:00:00+00:00", "outcome": "rejected", "parent": null, "status": "closed"}
+{"benchmark": "dfthcsos", "closed": null, "hypothesis": "h3", "id": "E003", "notes": null, "opened": "2026-11-12T08:00:00+00:00", "outcome": null, "parent": null, "status": "open"}
