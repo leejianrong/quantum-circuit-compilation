@@ -362,3 +362,19 @@ optimisation levers.
 #### Unit
 
 - n/a
+
+# Epic C: Measure and showcase
+
+Plan: `docs/MEASUREMENT.md`; decisions: ADR-0008. Cards QCC-39 to QCC-48.
+
+| Slice | Card | Demo |
+|---|---|---|
+| C1 Ledger v2 with circuit statistics | QCC-39 | `bench verify` writes a schema 2 row with Toffolis and qubits |
+| C2 Experiment log | QCC-40 | open, verify against and close an experiment |
+| C3 Backfill and leaderboard rows | QCC-41 | ledger holds the 2026-11-11 portfolio, public references and Kaggle score |
+| C4/C5 Plots | QCC-42, QCC-43 | `bench plots` writes six PNGs |
+| C6 Dashboard scaffold | QCC-44 | `make dashboard` shows real ledger rows |
+| C7 Cost explorer | QCC-45 | sliders reproduce 299.6M and show the 7-bit cliff |
+| C8 Anatomy and verifier theatre | QCC-46 | flame chart and salt ticks for a ledger entry |
+| C9 Lineage graph | QCC-47 | baseline to public to ours, licence risk visible |
+| C10 Docs and README | QCC-48 | site page and README plots |
