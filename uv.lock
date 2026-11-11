@@ -228,6 +228,29 @@ wheels = [
 ]
 
 [[package]]
+name = "kickmix"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/52/2e/0767045af37d74ca768ff110dc1118c40f36391f1fab8909540c42f33a58/kickmix-1.0.0.tar.gz", hash = "sha256:d8d5006e52b80222eee20e9e79e45fa99c1f3595bacdd4156638ce1e1dc69461", size = 226368, upload-time = "2026-10-27T22:22:54.434Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/28/2851b73c521fb34fc06140dcb8c576fd12b3f9004044647e6d9467588472/kickmix-1.0.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:799d3576ca173b65f59e3cf26f8c05bb47542151988896371753c2da6a10e194", size = 775539, upload-time = "2026-10-27T22:22:34.434Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/82/60f294a277b58fff271c19f6c8d8a709acb9f6d1188c057150225ae7a9f4/kickmix-1.0.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:aedba8f9fc31f88d3a96e6f668d5cfd7a9fa9964e721c44246c54484e98518f0", size = 730706, upload-time = "2026-10-27T22:22:35.889Z" },
+    { url = "https://files.pythonhosted.org/packages/33/ac/e079cb1914fcb333a62c85559912e59de558f3362547fbeb30d7d75fe63a/kickmix-1.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:cc26abcd5efa5e72f373148d5cca2ffa43e158a724e94c213b97622f23c6241a", size = 1106499, upload-time = "2026-10-27T22:22:37.496Z" },
+    { url = "https://files.pythonhosted.org/packages/03/43/f424a96d6bb021b61e2e3c6620cba7ad1df087e583efdd8580a4cb7fd4a4/kickmix-1.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:16c01444215ec25563110b29fa1883291ddfdf6ea98bb5f6e2851a087d7f4007", size = 714752, upload-time = "2026-10-27T22:22:39.071Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/0c/0e2ef68b02aa8d2f69c320af53f41cec36f3388f30f3d8f1fcc81d976e91/kickmix-1.0.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:f370ebfa5298a774cea271c1f3c64707ad5900bbb9e99e0f09ce75cac6e08894", size = 775559, upload-time = "2026-10-27T22:22:41.028Z" },
+    { url = "https://files.pythonhosted.org/packages/46/c7/ea759c40408c471a4277c5b25478a4c76f50f619955d7333bb9f2e563999/kickmix-1.0.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:ec34e4d10e5ee1adfb21542df72db4359965c1b540a7a273e99125d054556176", size = 730757, upload-time = "2026-10-27T22:22:42.591Z" },
+    { url = "https://files.pythonhosted.org/packages/a4/d1/a0d8957f5576a5a349c30576d36d320aa9cd05a336cd0850286c45d024d3/kickmix-1.0.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:54f9272f792de4c37104212e331febc865dba66ac929eeb23bf2c48839354c5e", size = 1105886, upload-time = "2026-10-27T22:22:44.266Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/63/f52ef617a04a064e82e16dec72b21dc7ce38a62f6bcb26092c5a6757b453/kickmix-1.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:d5ac9b393f1227011c08307063962221f0fa6b4165f9ecf09d0d2d7c39db73b2", size = 714858, upload-time = "2026-10-27T22:22:45.97Z" },
+    { url = "https://files.pythonhosted.org/packages/40/dc/2914b8bfea37f579e8ff3428feae289ac1af765b55c711c33f2ea02524ef/kickmix-1.0.0-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:69a8c808ddc47ec7ac6e2e87cfbd34c80d261e7b6f7f26fde9b40dc51201e7c8", size = 776044, upload-time = "2026-10-27T22:22:47.605Z" },
+    { url = "https://files.pythonhosted.org/packages/11/06/e2f5fbe93ad878cf1c1d2733813cc3890f77c877c28403670b3be136419e/kickmix-1.0.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:f2d5180cfc2b9748cb9a733f876213d5103ab89f36c8c902edce58c6f9188b9e", size = 732150, upload-time = "2026-10-27T22:22:49.176Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/ef/3f47d224e4af3b31d51dffc5d99ea7a161e3f10e997ba557062a5af3689d/kickmix-1.0.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4c684f55fd304cfd361b0ddc337b16a788222fc5d2e9f5f17aab360d619546b0", size = 1106869, upload-time = "2026-10-27T22:22:51.364Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/48/c2e33b4987cd6756aad7b8cb7c650f0d7efe344caeb37d9ce8c171c647bb/kickmix-1.0.0-cp314-cp314-win_amd64.whl", hash = "sha256:34d6c25b92aa668c020303a9af54f58799847c6e0c3b49983e7d8c12c51a7fe8", size = 729005, upload-time = "2026-10-27T22:22:52.932Z" },
+]
+
+[[package]]
 name = "librt"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -790,6 +813,7 @@ name = "qcc-bench"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "kickmix" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "scipy" },
@@ -806,6 +830,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "kickmix", specifier = ">=1.0.0" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "scipy" },

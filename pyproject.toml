@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Harness for the Google Quantum AI verifiable circuit compilation competition"
 requires-python = ">=3.12"
 license = { text = "Apache-2.0" }
-dependencies = ["numpy", "scipy", "pandas"]
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "kickmix>=1.0.0",
+]
 
 [project.scripts]
 bench = "bench.cli:main"
