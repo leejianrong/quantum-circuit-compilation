@@ -1,0 +1,91 @@
+# Measurement, workflow and the dashboard
+
+How we know whether a circuit is better, how an experiment moves from idea to submission, what we
+record, what we plot, and how the dashboard tells the story. Decisions are in
+[ADR-0008](adr/0008-measurement-ledger-v2-and-dashboard.md). Cards are Epic C on the board
+(QCC-39 to QCC-48). The ledger today is `ledger/results.jsonl` (schema 1, `src/bench/ledger.py`).
+
+## What we measure
+
+| Layer | Metric | Source | Why it matters |
+|---|---|---|---|
+| Official | worst-salt cost and ratio per benchmark; geometric-mean score | official verifiers | the oracle; promotion ranks on the **worst** salt, not the mean |
+| Safety | failures per salt; cost spread across salts; margin on accuracy gates (dfthcsos `Lambda`, `E_gap`) | `bench verify` | one failed hidden-seed test rejects the whole submission |
+| Structure | Toffoli (CCZ) count, qubits, reaction depth, per-stage share | kickmix `operation_statistics()`, `num_qubits`, `reaction_depth`, `mark` blocks | shows where to cut next |
+| Process | verify wall time, screen-to-full pass rate, experiments per day, host | ledger and experiment log | our real throughput |
+| Outside | leaderboard score, rank, public-reference costs | `kaggle competitions submissions`, PROVENANCE | the frontier we are chasing |
+
+Rules: a reduced-shot run (`reduced_shots`) never gates promotion. A public-reference row is
+**unverified** unless we ran it ourselves (`kind` says which).
+
+## Workflow
+
+```mermaid
+flowchart LR
+  H[Hypothesis] --> G[Change generator parameter]
+  G --> S[Screen: reduced shots, flagged]
+  S -->|pass| F[Full multi-salt verify]
+  S -->|fail| X[Close experiment: outcome]
+  F -->|failures| X
+  F -->|0 failures| P[bench promote: margin policy]
+  P --> B[best/]
+  B --> U[Submit]
+  U --> L[Leaderboard row]
+```
+
+Every attempt is one **experiment** with a hypothesis, a parent circuit hash and an outcome, including
+failures. Verification runs link to an experiment, so the dashboard can show attempts, not only wins.
+DQI full runs go to Kaggle (ADR-0002); everything else runs locally.
+
+## Ledger v2
+
+Append-only JSONL. Old rows stay valid. Fields added to schema 1:
+
+| Field | Meaning |
+|---|---|
+| `schema` | 2 |
+| `ts` | UTC ISO timestamp of the run |
+| `experiment` | experiment id, or null |
+| `parent_sha` | circuit sha256 this one was derived from, or null |
+| `kind` | `screen`, `full`, `leaderboard`, `public-reference` |
+| `toffolis`, `qubits`, `depth` | from kickmix statistics |
+| `stage_shares` | cost share per `mark` block, where the circuit has marks |
+| `salt_costs` | cost per salt, in salt order (schema 1 already has `costs`) |
+| `leaderboard_score` | set on `kind=leaderboard` rows |
+
+`ledger/experiments.jsonl` holds the experiment records (id, hypothesis, benchmark, parent, outcome).
+
+## Plots (matplotlib, `bench plots`, static PNGs in `out/plots/`)
+
+1. Score and per-benchmark ratio over time as a staircase, with the public frontier as a reference line.
+2. Cost by stage as stacked bars per circuit.
+3. Salt-spread strip plot for each promoted circuit.
+4. Pareto scatter of Toffolis against qubits, with iso-cost curves.
+5. Experiment funnel: screened, full verified, promoted, submitted.
+6. Verify wall time per benchmark and host.
+
+Plots are drawn from the ledger only, with fixture-ledger tests. The committed PNGs go in the README
+and the docs site.
+
+## Dashboard (indah, `dashboard/`, local first)
+
+An optional extra (`uv sync --extra dashboard`), run with `make dashboard`. It reads `ledger/` and nothing
+else. Tabs:
+
+| Tab | Shows | Why |
+|---|---|---|
+| Scoreboard | `Stat` cards for score and ratios; ratio-over-time chart | where we stand |
+| Cost explorer | sliders for the dfthcsos cost model (factorization shape, `brot`); redraws `lambda_eff x T_total x Q_total` and the gates | cost is a product, and one knob makes a cliff |
+| Anatomy | kickmix flame chart and stage shares for any ledger entry | what a circuit is made of |
+| Verifier theatre | per-salt pass/fail ticks and cost spread | why one failure matters |
+| Lineage | graph from baseline through public circuits to ours; no-licence ancestors dashed | provenance and what is ours |
+| Experiments | table of attempts and outcomes | the story, failures included |
+
+It is not hosted publicly until we have our own results, because the lineage tab shows third-party
+circuits.
+
+## Build order
+
+QCC-39 ledger v2, then QCC-40 experiment log, QCC-41 backfill and leaderboard rows, QCC-42/43 plots,
+QCC-44 dashboard scaffold, QCC-46/47 dashboard tabs, QCC-45 cost explorer (needs the cost model from
+QCC-14), QCC-48 docs and README.
