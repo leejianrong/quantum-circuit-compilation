@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import experiments, ledger, pack, stats
+from bench import experiments, ledger, outside, pack, stats
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -131,9 +131,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     v.add_argument("--ledger", type=pathlib.Path, default=ledger.DEFAULT_LEDGER)
     pack.add_parser(sub)
     experiments.add_parser(sub)
+    outside.add_parsers(sub)
     a = p.parse_args(argv)
     if a.cmd == "pack":
         return pack.run(a.best, a.out)
+    if a.cmd in ("backfill", "lb"):
+        return outside.run(a)
     if a.cmd == "exp":
         return experiments.run(a)
     if a.experiment and a.experiment not in experiments.read(a.experiments):
