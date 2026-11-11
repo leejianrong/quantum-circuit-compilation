@@ -12,7 +12,7 @@ import random
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from bench import ledger
+from bench import experiments, ledger
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 # Baseline (reference) costs from docs/PROVENANCE.md; score = geometric mean of baseline / cost.
@@ -340,8 +340,257 @@ def render_salt_spread(rows: list[ledger.Row], out: pathlib.Path) -> pathlib.Pat
     return _save(fig, out, "salt_spread.png")
 
 
-def render_all(rows: list[ledger.Row], out: pathlib.Path = DEFAULT_OUT) -> list[pathlib.Path]:
-    return [render_progress(rows, out), render_salt_spread(rows, out)]
+def stage_bars(rows: list[ledger.Row]) -> list[tuple[str, dict[str, float]]]:
+    """One (label, shares) per distinct circuit that has stage shares; the remainder is "other"."""
+    latest: dict[tuple[str, str], ledger.Row] = {}
+    for r in rows:
+        if r.stage_shares and r.kind in (None, "full", "screen"):
+            latest[(r.bench, r.circuit_sha256)] = r
+    out = []
+    for (b, sha), r in sorted(latest.items()):
+        shares = dict(r.stage_shares or {})
+        rest = 1.0 - sum(shares.values())
+        if rest > 0.005:
+            shares["other (unmarked)"] = rest
+        out.append((f"{b}\n{sha[:8]}", shares))
+    return out
+
+
+def structure_points(rows: list[ledger.Row]) -> list[tuple[str, str, int, float]]:
+    """(bench, kind, qubits, toffoli-like count) per distinct circuit with statistics.
+
+    kind is "verified", "public-reference" or "failed"; a failed run has no verified cost.
+    """
+    seen: dict[tuple[str, str], tuple[str, str, int, float]] = {}
+    ok = {id(r) for r in verified(rows)}
+    for r in rows:
+        if r.toffolis is None or r.qubits is None or r.kind not in (None, "full", "public-reference"):
+            continue
+        kind = "public-reference" if r.kind == "public-reference" else "verified" if id(r) in ok else "failed"
+        seen[(r.bench, r.circuit_sha256)] = (r.bench, kind, r.qubits, float(r.toffolis))
+    return list(seen.values())
+
+
+def pareto_front(points: list[tuple[int, float]]) -> list[tuple[int, float]]:
+    """Non-dominated (qubits, toffolis) points, both minimised, sorted by qubits."""
+    front: list[tuple[int, float]] = []
+    for q, t in sorted(set(points)):
+        if not front or t < front[-1][1]:
+            front.append((q, t))
+    return front
+
+
+FUNNEL_KEYS = (*BENCHES, "all")
+
+
+def funnel_counts(
+    rows: list[ledger.Row], exps: dict[str, experiments.Experiment]
+) -> list[tuple[str, dict[str, int]]]:
+    """Screened, full verified, promoted, submitted, each split by benchmark ("all" for submissions)."""
+
+    def tally(items: list[tuple[str, str]]) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for b, _ in set(items):
+            out[b] = out.get(b, 0) + 1
+        return out
+
+    screened = [(r.bench, r.circuit_sha256) for r in rows if r.kind == "screen"]
+    full = [(r.bench, r.circuit_sha256) for r in verified(rows)]
+    promoted = [(e.benchmark, e.id) for e in exps.values() if e.outcome == "promoted"]
+    submitted = [(r.bench, r.circuit) for r in rows if r.kind == "leaderboard"]
+    return [
+        ("screened (reduced shots)", tally(screened)),
+        ("full verified", tally(full)),
+        ("promoted", tally(promoted)),
+        ("submitted", tally(submitted)),
+    ]
+
+
+def wall_groups(rows: list[ledger.Row]) -> list[tuple[str, list[tuple[float, str]]]]:
+    """Per (bench, host): (minutes per salt, run kind) for runs that did work."""
+    groups: dict[tuple[str, str], list[tuple[float, str]]] = {}
+    for r in rows:
+        if r.kind not in (None, "full", "screen") or r.wall_s <= 0:
+            continue
+        kind = "failed" if r.status == "FAIL" else "screen" if r.reduced_shots else "full"
+        groups.setdefault((r.bench, r.host), []).append((r.wall_s / 60 / max(r.salts, 1), kind))
+
+    def order(k: tuple[str, str]) -> tuple[int, str]:
+        return (BENCHES.index(k[0]) if k[0] in BENCHES else len(BENCHES), k[1])
+
+    return [(f"{b}\n{h}", groups[(b, h)]) for b, h in sorted(groups, key=order)]
+
+
+def render_stages(rows: list[ledger.Row], out: pathlib.Path) -> pathlib.Path:
+    """Stacked bars of the static toffoli-like count by marked stage (not the official cost)."""
+    plt = _plt()
+    bars = stage_bars(rows)
+    fig, ax = plt.subplots(figsize=(max(7.0, 1.6 * len(bars) + 4), 5.5))
+    ax.set_title("Where the toffoli-like count goes, by stage")
+    if not bars:
+        _no_data(ax, "no data yet\n(needs a circuit with `mark` stages in the ledger)")
+        return _save(fig, out, "stages.png")
+    names = sorted({n for _, sh in bars for n in sh}, key=lambda n: (n.startswith("other"), n))
+    cmap = plt.get_cmap("tab20")
+    for j, name in enumerate(names):
+        bottoms = [sum(v for k, v in sh.items() if names.index(k) < j) * 100 for _, sh in bars]
+        vals = [sh.get(name, 0.0) * 100 for _, sh in bars]
+        color = "#cccccc" if name.startswith("other") else cmap(j % 20)
+        ax.bar(range(len(bars)), vals, bottom=bottoms, label=name, color=color, edgecolor="white")
+    ax.set_xticks(range(len(bars)), [b for b, _ in bars])
+    ax.set_ylim(0, 100)
+    ax.set_ylabel("share of toffoli-like count (%)")
+    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1), fontsize=8)
+    note = "static toffoli-like count (CCX+CCZ+CSWAP), not the official cost"
+    fig.text(0.5, 0.01, note, ha="center", fontsize=8, color="#777777")
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    return _save(fig, out, "stages.png")
+
+
+def render_pareto(rows: list[ledger.Row], out: pathlib.Path) -> pathlib.Path:
+    """Toffoli-like count against qubits, log-log, with iso-product curves and per-benchmark fronts."""
+    plt = _plt()
+    lines = importlib.import_module("matplotlib.lines")
+    pts = structure_points(rows)
+    fig, ax = plt.subplots(figsize=(8.5, 6))
+    ax.set_title("Toffoli-like count vs qubits (down and left is better)")
+    if not pts:
+        _no_data(ax, "no data yet\n(needs ledger rows with toffolis and qubits)")
+        return _save(fig, out, "pareto.png")
+    qs, ts = [p[2] for p in pts], [p[3] for p in pts]
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    qlo, qhi, tlo, thi = min(qs) / 1.6, max(qs) * 1.6, min(ts) / 1.6, max(ts) * 1.6
+    ax.set_xlim(qlo, qhi)
+    ax.set_ylim(tlo, thi)
+    for e in range(math.floor(math.log10(qlo * tlo)), math.ceil(math.log10(qhi * thi)) + 1):
+        ax.plot([qlo, qhi], [10.0**e / qlo, 10.0**e / qhi], color="#bbbbbb", lw=0.8, ls=":", zorder=0)
+        x_lab = min(qhi, 10.0**e / tlo)
+        if qlo < x_lab and tlo <= 10.0**e / x_lab <= thi:
+            ax.annotate(
+                f"Q x T = 1e{e}",
+                (x_lab, 10.0**e / x_lab),
+                fontsize=7,
+                color="#888888",
+                ha="right",
+                va="bottom",
+            )
+    for bench in BENCHES:
+        mine = [p for p in pts if p[0] == bench]
+        col = COLORS[bench]
+        front = pareto_front([(p[2], p[3]) for p in mine if p[1] != "failed"])
+        if len(front) > 1:
+            ax.step([q for q, _ in front], [t for _, t in front], where="post", color=col, lw=1.2, alpha=0.6)
+        for _, kind, q, t in mine:
+            if kind == "verified":
+                ax.plot(q, t, "o", color=col, ms=9, mec="white")
+            elif kind == "public-reference":
+                ax.plot(q, t, "o", mfc="none", mec=col, mew=1.8, ms=9)
+            else:
+                ax.plot(q, t, "x", color=COLORS["fail"], ms=9, mew=2)
+    ticker = importlib.import_module("matplotlib.ticker")
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x:g}"))
+    ax.xaxis.set_minor_formatter(
+        ticker.FuncFormatter(
+            lambda x, _: f"{x:g}" if round(x / 10 ** math.floor(math.log10(x))) in (2, 5) else ""
+        )
+    )
+    ax.set_xlabel("qubits (count)")
+    ax.set_ylabel("toffoli-like count (CCX+CCZ+CSWAP, static)")
+    handles = [lines.Line2D([], [], color=COLORS[b], marker="o", ls="", label=b) for b in BENCHES]
+    handles += [
+        lines.Line2D([], [], color="#444444", marker="o", ls="", label="verified (filled)"),
+        lines.Line2D(
+            [], [], mfc="none", mec="#444444", marker="o", ls="", label="public, unverified (hollow)"
+        ),
+        lines.Line2D([], [], color=COLORS["fail"], marker="x", ls="", mew=2, label="failed"),
+    ]
+    ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(1.01, 1), fontsize=8)
+    fig.tight_layout()
+    return _save(fig, out, "pareto.png")
+
+
+def render_funnel(
+    rows: list[ledger.Row], exps: dict[str, experiments.Experiment], out: pathlib.Path
+) -> pathlib.Path:
+    """Experiment funnel from ledger kinds and the experiment log, split by benchmark."""
+    plt = _plt()
+    stages = funnel_counts(rows, exps)
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
+    ax.set_title(f"Experiment funnel ({len(exps)} experiments opened)")
+    if not any(c for _, c in stages):
+        _no_data(ax)
+        return _save(fig, out, "funnel.png")
+    ys = list(range(len(stages)))[::-1]
+    left = [0] * len(stages)
+    for key in FUNNEL_KEYS:
+        vals = [c.get(key, 0) for _, c in stages]
+        label = "submission (all benchmarks)" if key == "all" else key
+        color = COLORS.get(key, COLORS["leaderboard"])
+        ax.barh(ys, vals, left=left, color=color, label=label, edgecolor="white")
+        left = [a + b for a, b in zip(left, vals, strict=True)]
+    for y, total in zip(ys, left, strict=True):
+        ax.text(total + 0.05, y, str(total), va="center", fontsize=10)
+    ax.set_yticks(ys, [n for n, _ in stages])
+    ax.set_xlabel("count (distinct circuits; promoted = experiments)")
+    ax.xaxis.get_major_locator().set_params(integer=True)
+    ax.set_xlim(0, max(left) * 1.12 + 0.5)
+    ax.legend(loc="lower right", fontsize=8)
+    ax.grid(axis="y", visible=False)
+    fig.tight_layout()
+    return _save(fig, out, "funnel.png")
+
+
+def render_wall_time(rows: list[ledger.Row], out: pathlib.Path) -> pathlib.Path:
+    """Verify wall time per salt for each benchmark and host."""
+    plt = _plt()
+    lines = importlib.import_module("matplotlib.lines")
+    groups = wall_groups(rows)
+    fig, ax = plt.subplots(figsize=(max(7.0, 1.4 * len(groups) + 3), 5))
+    ax.set_title("Verify wall time per salt")
+    if not groups:
+        _no_data(ax)
+        return _save(fig, out, "wall_time.png")
+    rng = random.Random(0)
+    allv = [v for _, g in groups for v, _ in g]
+    for i, (label, g) in enumerate(groups):
+        col = COLORS.get(label.split("\n")[0], "#444444")
+        for v, kind in g:
+            x = i + rng.uniform(-0.15, 0.15)
+            if kind == "full":
+                ax.plot(x, v, "o", color=col, ms=8, mec="white")
+            elif kind == "screen":
+                ax.plot(x, v, "o", mfc="none", mec=col, mew=1.8, ms=8)
+            else:
+                ax.plot(x, v, "x", color=COLORS["fail"], ms=8, mew=2)
+    ax.set_xticks(range(len(groups)), [g[0] for g in groups])
+    ax.set_xlim(-0.6, len(groups) - 0.4)
+    if min(allv) > 0 and max(allv) / min(allv) >= 10:
+        ax.set_yscale("log")
+    ax.set_ylabel("wall time per salt (minutes)")
+    handles = [
+        lines.Line2D([], [], color="#444444", marker="o", ls="", label="full"),
+        lines.Line2D([], [], mfc="none", mec="#444444", marker="o", ls="", label="screen (reduced shots)"),
+        lines.Line2D([], [], color=COLORS["fail"], marker="x", ls="", mew=2, label="failed"),
+    ]
+    ax.legend(handles=handles, loc="upper left", fontsize=8)
+    fig.tight_layout()
+    return _save(fig, out, "wall_time.png")
+
+
+def render_all(
+    rows: list[ledger.Row],
+    out: pathlib.Path = DEFAULT_OUT,
+    exps: dict[str, experiments.Experiment] | None = None,
+) -> list[pathlib.Path]:
+    return [
+        render_progress(rows, out),
+        render_salt_spread(rows, out),
+        render_stages(rows, out),
+        render_pareto(rows, out),
+        render_funnel(rows, exps or {}, out),
+        render_wall_time(rows, out),
+    ]
 
 
 # ---- CLI ---------------------------------------------------------------------------------------
@@ -350,6 +599,7 @@ def render_all(rows: list[ledger.Row], out: pathlib.Path = DEFAULT_OUT) -> list[
 def add_parser(sub: "argparse._SubParsersAction[argparse.ArgumentParser]") -> None:
     p = sub.add_parser("plots", help="draw PNGs from the ledger into out/plots/ (needs the plots extra)")
     p.add_argument("--ledger", type=pathlib.Path, default=ledger.DEFAULT_LEDGER)
+    p.add_argument("--experiments", type=pathlib.Path, default=experiments.DEFAULT_LOG)
     p.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
 
 
@@ -360,6 +610,6 @@ def run(a: argparse.Namespace) -> int:
         print("error: matplotlib is not installed (run `uv sync --extra plots`)")
         return 1
     rows = ledger.read(a.ledger) if a.ledger.exists() else []
-    for path in render_all(rows, a.out):
+    for path in render_all(rows, a.out, experiments.read(a.experiments)):
         print(path)
     return 0
