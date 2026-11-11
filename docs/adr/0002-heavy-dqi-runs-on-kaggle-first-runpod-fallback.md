@@ -37,3 +37,14 @@ copy-on-write). `kickmix.so` is compiled for Kaggle's image, and the real scorin
 DQI iteration goes through notebooks, so the harness needs a "run this remote" path (kaggle kernels
 push/pull). As circuits shrink the need for remote runs fades. The RAM number is a placeholder until
 V1 measures it.
+
+## Measured (QCC-6, 2026-11-11, Kaggle script kernel `notebooks/dqi_verify/`)
+
+| Circuit | Salts | Wall | Peak child RSS | Result |
+|---|---|---|---|---|
+| Baseline `dqi.kmb` (886 MB) | 2 | 472 s (about 4 min per salt) | 9.1 GB | PASS, cost 24,439,472,158,250 |
+| Public best e9f54be3 (529 MB) | 10 | 1,303 s (about 2.2 min per salt) | 4.7 GB | PASS 10/10, cost 374.69e9 to 377.87e9 across salts |
+
+Decision confirmed: Kaggle is the heavy executor (the baseline does not fit this 7 GB laptop; the
+public best would only just). RunPod is not needed at this size. Reruns: edit the salt count in
+`notebooks/dqi_verify/run.py` and `kaggle kernels push`.

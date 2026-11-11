@@ -13,3 +13,6 @@ credentials.json
 site/
 out/
 public/
+
+# Third-party circuits staged for submission (licences unresolved, see docs/PROVENANCE.md)
+best/
