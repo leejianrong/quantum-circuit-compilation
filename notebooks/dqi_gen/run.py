@@ -15,12 +15,12 @@ OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
     (
-        "verify-divstep-full",
+        "verify-lanczos-full",
         [
             "-m",
             "dqi_gen.instances",
             "--gen",
-            "divstep",
+            "lanczos",
             "--instance",
             "full",
             "--shots",

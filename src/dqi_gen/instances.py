@@ -48,6 +48,7 @@ INSTANCES = {
         Instance("small", 63, 10, 6),
         Instance("medium", 255, 20, 8),
         Instance("large", 1023, 40, 10),
+        Instance("mid12", 71, 20, 12),  # degree 12 with n = 20: few degenerate events, builds in seconds
         Instance("narrow", 71, 70, 12),  # full n and field, only 71 positions: about 7M ops, fits locally
         Instance("full", 4095, 70, 12),  # the benchmark; local machines should not build it
     )
@@ -69,6 +70,11 @@ def build(generator: str, inst: Instance) -> Any:
         return importlib.import_module("dqi_gen.decoder").build_circuit(m, n, b)
 
     builders["divstep"] = divstep
+
+    def lanczos(m: int, n: int, b: int) -> Any:
+        return importlib.import_module("dqi_gen.lanczos").build_circuit(m, n, b)
+
+    builders["lanczos"] = lanczos
     if generator not in builders:
         raise ValueError(f"unknown generator {generator!r}; choose from {sorted(builders)}")
     host.verifier()  # puts kickmix on the path
@@ -92,7 +98,7 @@ def verify(
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--gen", default="reference", choices=("reference", "divstep"))
+    p.add_argument("--gen", default="reference", choices=("reference", "divstep", "lanczos"))
     p.add_argument("--instance", default="small", choices=sorted(INSTANCES))
     p.add_argument("--shots", type=int, default=None)
     p.add_argument("--salts", type=int, default=1, help="verify under this many salts (build once)")
