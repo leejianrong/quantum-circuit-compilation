@@ -33,6 +33,7 @@ from typing import Any
 
 import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 
+from dqi_gen.gfmul import FastMul
 from dqi_gen.tower import Tower, apply_matrix_inplace, xor_linear
 
 OFFSET = 8  # delta is stored as delta + OFFSET (unsigned); delta > 0 <=> stored > OFFSET
@@ -240,7 +241,19 @@ class DivstepDecoder:
         builder.x(reg)
 
     @staticmethod
-    def _subfield_inverse(builder: Any, gf_h: Any) -> Any:
+    def _mul(builder: Any, a: Any, b: Any, gf: Any, target: Any = None, fast: bool = False) -> Any:
+        """`target ^= a * b` (allocating a zero target when None); `fast` uses the low-rank multiplier."""
+        if not fast:
+            if target is None:
+                return builder.init_gf2_mul(a, b, field=gf)
+            return builder.init_gf2_mul(a, b, target=target, field=gf)
+        if target is None:
+            target = builder.alloc_qubits(gf.degree)
+        FastMul(builder, gf).ixor_mul(a, b, target)
+        return target
+
+    @staticmethod
+    def _subfield_inverse(builder: Any, gf_h: Any, fast: bool = False) -> Any:
         """(compute, uncompute) of `ninv = x^-1` in GF(2^h). Even h goes through one more tower level."""
         h = gf_h.degree
         if h % 2 or h < 4:
@@ -264,7 +277,7 @@ class DivstepDecoder:
         def compute(x: Any) -> Any:
             apply_matrix_inplace(builder, list(x), tw.to_tower)
             a_, b_ = x[:q], x[q:]
-            norm = builder.init_gf2_mul(a_, b_, field=gf_q)
+            norm = DivstepDecoder._mul(builder, a_, b_, gf_q, fast=fast)
             xor_linear(builder, a_, norm, tw.square)
             xor_linear(builder, b_, norm, norm_b)
             ninv_q, chain = builder.init_gf2_inverse_with_scaffold(norm, field=gf_q)
@@ -272,8 +285,8 @@ class DivstepDecoder:
             builder.cx(a_, e_)
             builder.cx(b_, e_)
             ninv = builder.alloc_qubits(h)
-            builder.init_gf2_mul(e_, ninv_q, target=ninv[:q], field=gf_q)
-            builder.init_gf2_mul(b_, ninv_q, target=ninv[q:], field=gf_q)
+            DivstepDecoder._mul(builder, e_, ninv_q, gf_q, ninv[:q], fast)
+            DivstepDecoder._mul(builder, b_, ninv_q, gf_q, ninv[q:], fast)
             apply_matrix_inplace(builder, list(ninv), tw.from_tower)
             apply_matrix_inplace(builder, list(x), tw.from_tower)
             return ninv, (norm, ninv_q, chain, e_)
@@ -300,7 +313,7 @@ class DivstepDecoder:
 
         return compute, uncompute
 
-    def _tower_ops(self, builder: Any) -> Any:
+    def _tower_ops(self, builder: Any, fast: bool = False) -> Any:
         """Phase kickback of <M, om / od> gated by z through the GF(2^6) tower; None for odd degrees.
 
         With od = A + B y and om = C + D y: om / od = om conj(od) / N, N = A^2 + A B + b B^2 in the subfield.
@@ -315,12 +328,12 @@ class DivstepDecoder:
         gf_h = km.GF2Field(h)
         tw = Tower.build(self.gf, gf_h)
         norm_b = [gf_h.mul(tw.b, gf_h.square(1 << i)) for i in range(h)]
-        inv_compute, inv_uncompute = self._subfield_inverse(builder, gf_h)
+        inv_compute, inv_uncompute = self._subfield_inverse(builder, gf_h, fast)
 
         def run(od: Any, om: Any, z: Any, mask: Any) -> None:
             apply_matrix_inplace(builder, list(od), tw.to_tower)
             a_, b_ = od[:h], od[h:]
-            norm = builder.init_gf2_mul(a_, b_, field=gf_h)
+            norm = self._mul(builder, a_, b_, gf_h, fast=fast)
             xor_linear(builder, a_, norm, tw.square)
             xor_linear(builder, b_, norm, norm_b)
             ninv, inv_state = inv_compute(norm)
@@ -330,8 +343,8 @@ class DivstepDecoder:
             builder.cx(a_, e_)
             builder.cx(b_, e_)
             rhs = builder.alloc_qubits(deg)
-            builder.init_gf2_mul(e_, gated, target=rhs[:h], field=gf_h)
-            builder.init_gf2_mul(b_, gated, target=rhs[h:], field=gf_h)
+            self._mul(builder, e_, gated, gf_h, rhs[:h], fast)
+            self._mul(builder, b_, gated, gf_h, rhs[h:], fast)
             apply_matrix_inplace(builder, list(rhs), tw.from_tower)
             builder.gf2_phase_by_product(om, rhs, mask=mask, field=self.gf)
             apply_matrix_inplace(builder, list(rhs), tw.to_tower)

@@ -24,6 +24,7 @@ from typing import Any
 import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 
 from dqi_gen.decoder import DivstepDecoder
+from dqi_gen.gfmul import FastMul
 
 
 class Reg:
@@ -47,6 +48,7 @@ class Tape:
         self.ops: list[tuple[Any, ...]] = []
         self.pool: list[Reg] = []
         self.fresh: list[Reg] = []
+        self.fm = FastMul(builder, gf)
 
     # ---- execution of one primitive and its inverse --------------------------------------------
 
@@ -54,7 +56,7 @@ class Tape:
         b, gf = self.b, self.gf
         kind = op[0]
         if kind == "xmul":
-            b.ixor_gf2_mul(op[1].q, op[2].q, target=op[3].q, field=gf)
+            self.fm.ixor_mul(op[1].q, op[2].q, op[3].q)
         elif kind == "delmul":
             b.del_gf2_mul(op[1].q, op[2].q, target=op[3].q, field=gf)
         elif kind == "iadd":
@@ -85,7 +87,7 @@ class Tape:
             b.del_gf2_div(op[1].q, op[2].q, target=op[3].q, field=gf)
         elif kind == "dot":
             for lhs, rhs in op[2]:
-                b.ixor_gf2_mul(lhs.q, rhs.q, target=op[1].q, field=gf)
+                self.fm.ixor_mul(lhs.q, rhs.q, op[1].q)
         elif kind == "cleardot":
             mask = b.alloc_bits(self.deg)
             b.hmr(op[1].q, mask)
@@ -140,7 +142,7 @@ class Tape:
 
     def _do(self, op: tuple[Any, ...]) -> None:
         if op[0] == "initmul":  # init_gf2_mul resets the target first; the target is zero by construction
-            self.b.ixor_gf2_mul(op[1].q, op[2].q, target=op[3].q, field=self.gf)
+            self.fm.ixor_mul(op[1].q, op[2].q, op[3].q)
         else:
             self._exec(op)
 
@@ -357,7 +359,7 @@ class LanczosDecoder:
         steps += [(cur[1].q, alpha)]
         steps += [(prev[i].q, gf.pow(alpha, i % order)) for i in range(1, len(prev))]
         sg, od, am = (builder.alloc_qubits(deg) for _ in range(3))
-        tower = self.helper._tower_ops(builder)
+        tower = self.helper._tower_ops(builder, fast=True)
         if tower is None:
             raise ValueError("the Lanczos scan needs an even field degree")
         pairs_sg = [(r.q, sg) for r in cur]
@@ -366,12 +368,14 @@ class LanczosDecoder:
         src = km.array([q for p in pairs_sg + pairs_od + pairs_am for q in p[0]])
         dst = km.array([q for p in pairs_sg + pairs_od + pairs_am for q in p[1]])
         position = builder.mark("scan_position")
+        fm = FastMul(builder, gf)
         for j in range(m):
             with position:
                 builder.cx(src, dst)
                 ladder = self.helper._zero_test(builder, sg)
                 z = ladder[-1]
-                u = builder.init_gf2_mul(am, od, field=gf)
+                u = builder.alloc_qubits(deg)
+                fm.ixor_mul(am, od, u)
                 tower(u, h.q, z, error_mbuc[j])
                 builder.del_gf2_mul(am, od, target=u, field=gf)
                 builder.free(u)
