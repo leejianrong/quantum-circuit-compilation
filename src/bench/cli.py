@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import experiments, ledger, outside, pack, plots, stats
+from bench import experiments, ledger, outside, pack, plots, promote, stats
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -149,6 +149,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     v.add_argument("--experiments", type=pathlib.Path, default=experiments.DEFAULT_LOG)
     v.add_argument("--ledger", type=pathlib.Path, default=ledger.DEFAULT_LEDGER)
     pack.add_parser(sub)
+    promote.add_parser(sub)
     experiments.add_parser(sub)
     outside.add_parsers(sub)
     plots.add_parser(sub)
@@ -157,6 +158,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return plots.run(a)
     if a.cmd == "pack":
         return pack.run(a.best, a.out)
+    if a.cmd == "promote":
+        return promote.run(a.bench, a.candidate, a.ledger, a.best, a.min_salts, a.dry_run)
     if a.cmd in ("backfill", "lb"):
         return outside.run(a)
     if a.cmd == "exp":
