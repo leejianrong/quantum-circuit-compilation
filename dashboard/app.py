@@ -7,13 +7,14 @@ function returning a component, so adding a tab is one line in `TABS`.
 import pathlib
 import tempfile
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 import indah
 from starlette.applications import Starlette
 
 from bench import experiments, ledger, plots
-from dashboard import data
+from dashboard import data, lineage_view
 
 OURS = plots.COLORS["score"]
 PUBLIC = plots.COLORS["frontier"]
@@ -227,34 +228,92 @@ def experiments_tab(rows: list[ledger.Row], exps: dict[str, experiments.Experime
     )
 
 
+# ---- lineage ---------------------------------------------------------------------------------
+
+
+def lineage_tab(lin: dict[str, Any]) -> indah.Component:
+    nodes, edges = lineage_view.graph(lin)
+    chosen: indah.Signal[str | None] = indah.Signal(None)
+    mine = indah.Signal(False)
+    ours = lineage_view.ours_ids(lin)
+    # Graph.highlight dims everything else; when indah has node styles this can become a plain flag.
+    highlight = indah.computed(
+        lambda: (
+            {"nodes": ours + [e["source"] for e in lin["edges"] if e["target"] in ours]} if mine.value else {}
+        )
+    )
+    return indah.Column(
+        [
+            indah.Text(
+                "Where each circuit came from, read left to right: the host baseline, public circuits and "
+                "their ancestors, then the generators we wrote ourselves (green, large). Red nodes have a "
+                "no-licence ancestor and say NO LICENCE. Green edges are ideas we learned and rewrote, "
+                "not copied.",
+            ),
+            indah.Switch(mine, label="Highlight our generators and what we learned from"),
+            indah.Graph(
+                nodes,
+                edges,
+                layout="given",
+                height=640,
+                selected=chosen,
+                highlight=highlight,
+                legend=False,
+                label="Lineage",
+            ),
+            indah.Image(
+                lineage_view.legend_svg(), alt="Legend: baseline, public circuit, ancestor, ours, no licence"
+            ),
+            indah.Card(
+                [indah.Text(lambda: lineage_view.detail(lin, chosen.value), markdown=True)], title="Detail"
+            ),
+        ],
+        gap="1rem",
+    )
+
+
 # ---- app -------------------------------------------------------------------------------------
 
-Tab = Callable[[list[ledger.Row], dict[str, experiments.Experiment]], indah.Component]
+
+@dataclass
+class Inputs:
+    rows: list[ledger.Row]
+    exps: dict[str, experiments.Experiment]
+    lineage: dict[str, Any]
+
+
+Tab = Callable[[Inputs], indah.Component]
 TABS: list[tuple[str, Tab]] = [
-    ("Scoreboard", lambda rows, exps: scoreboard(rows)),
-    ("Experiments", experiments_tab),
+    ("Scoreboard", lambda i: scoreboard(i.rows)),
+    ("Experiments", lambda i: experiments_tab(i.rows, i.exps)),
+    ("Lineage", lambda i: lineage_tab(i.lineage)),
 ]
 
 
 def build_app(
-    ledger_path: pathlib.Path = ledger.DEFAULT_LEDGER, exp_path: pathlib.Path = experiments.DEFAULT_LOG
+    ledger_path: pathlib.Path = ledger.DEFAULT_LEDGER,
+    exp_path: pathlib.Path = experiments.DEFAULT_LOG,
+    lineage_path: pathlib.Path = lineage_view.LINEAGE,
 ) -> indah.Component:
     rows, exps = data.load(ledger_path, exp_path)
+    inputs = Inputs(rows, exps, lineage_view.load(lineage_path))
     return indah.Column(
         [
             indah.Text("Quantum circuit compilation", variant="title"),
-            indah.Tabs([build(rows, exps) for _, build in TABS], labels=[name for name, _ in TABS]),
+            indah.Tabs([build(inputs) for _, build in TABS], labels=[name for name, _ in TABS]),
         ],
         gap="1rem",
     )
 
 
 def create(
-    ledger_path: pathlib.Path = ledger.DEFAULT_LEDGER, exp_path: pathlib.Path = experiments.DEFAULT_LOG
+    ledger_path: pathlib.Path = ledger.DEFAULT_LEDGER,
+    exp_path: pathlib.Path = experiments.DEFAULT_LOG,
+    lineage_path: pathlib.Path = lineage_view.LINEAGE,
 ) -> Starlette:
     return indah.create_app(
         # a factory: each viewer gets their own tab state and the ledger is re-read on connect
-        session_factory=lambda: indah.Session(build_app(ledger_path, exp_path)),
+        session_factory=lambda: indah.Session(build_app(ledger_path, exp_path, lineage_path)),
         title="QCC dashboard",
         max_width="1200px",
     )
