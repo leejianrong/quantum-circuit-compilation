@@ -36,6 +36,7 @@ packages = ["src/bench", "src/dfthcsos_model"]
 [tool.ruff]
 line-length = 110
 src = ["src", "tests"]
+extend-exclude = [".claude"]  # agent worktrees live here and must not be linted from the main checkout
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
