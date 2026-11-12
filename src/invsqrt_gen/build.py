@@ -118,6 +118,14 @@ class Level:
     lo: km.array
     sign: km.q | None
     hi: km.array
+    ext: km.array | None = (
+        None  # centered generator: the qubits above `lo` in the add window (instead of `sign`)
+    )
+
+    @property
+    def tail(self) -> list[km.q]:
+        """Qubits above `lo` that take part in each add."""
+        return list(self.ext) if self.ext is not None else [self.sign]
 
     @property
     def value(self) -> km.array:
@@ -133,7 +141,14 @@ def alloc_level(b: km.CircuitBuilder, p: Params, j: int) -> Level:
 
 
 def _booth_digit(
-    b: km.CircuitBuilder, p: Params, x: km.array, src: km.array, tgt: Level, dg: Digit, inverse: bool
+    b: km.CircuitBuilder,
+    p: Params,
+    x: km.array,
+    src: km.array,
+    tgt: Level,
+    dg: Digit,
+    inverse: bool,
+    flip: bool = False,
 ) -> None:
     """`V_j -= d_n floor(V_{j+1} 2^e)` (or `+=`) for one radix-4 Booth digit of the remainder.
 
@@ -174,10 +189,10 @@ def _booth_digit(
                 b.ccx(s2, src[k2], op[pos - lo])
         elif k2 is not None:
             b.init_and(s2, src[k2], op[pos - lo])
-    window = km.array(list(tgt.lo[lo:]) + [tgt.sign])
+    window = km.array(list(tgt.lo[lo:]) + tgt.tail)
     if b1 is not None:
         b.cx(b1, window)
-    ripple_add(b, op, window, subtract=not inverse)
+    ripple_add(b, op, window, subtract=(not inverse) != flip)
     if b1 is not None:
         b.cx(b1, window)
     flags = b.alloc_bits(len(op))
@@ -213,6 +228,7 @@ def horner_step(
     x: km.array,
     levels: list[Level],
     inverse: bool,
+    flip: bool = False,
 ) -> None:
     """`V_j -= T(r V_{j+1})` (or `+=` when inverse) as one add per Booth digit of the remainder.
 
@@ -222,12 +238,12 @@ def horner_step(
     """
     src, tgt = levels[j + 1].value, levels[j]
     assert tgt.sign is not None
-    if inverse:
+    if inverse and len(tgt.hi):
         b.iadd(1, target=tgt.hi, control=tgt.sign)
     plan = digit_plan(p, j)
     for dg in reversed(plan) if inverse else plan:
-        _booth_digit(b, p, x, src, tgt, dg, inverse)
-    if not inverse:
+        _booth_digit(b, p, x, src, tgt, dg, inverse, flip)
+    if not inverse and len(tgt.hi):
         b.isub(1, target=tgt.hi, control=tgt.sign)
 
 

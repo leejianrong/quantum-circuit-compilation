@@ -34,7 +34,7 @@ class Digit:
 def digit_plan(p: Params, j: int) -> list[Digit]:
     """Booth digits of Horner step `j`; a digit whose slices are empty is dropped."""
     out = []
-    for n in range(p.rwidth // 2 + 1):
+    for n in range((p.rwidth + 1) // 2 if p.centered else p.rwidth // 2 + 1):
         e1 = p.frac[j] - p.frac[j + 1] + 2 * n - FRAC
         d = Digit(n, e1, max(0, -e1), max(0, -e1 - 1))
         if d.kmin1 < p.frac[j + 1]:
@@ -49,8 +49,12 @@ def _shift(v: Int, e: int) -> Int:
 def horner(p: Params, coef: list[Int], r: Int, check: bool = True) -> Int:
     """`V_0` for remainder `r` given per-element coefficient values `coef[j]` (shape of `r`)."""
 
+    rc = (
+        r - (1 << (p.rwidth - 1)) if p.centered else r
+    )  # two's complement bits of a negative rc: arithmetic shift
+
     def bit(i: int) -> Int:
-        return (r >> i) & 1 if 0 <= i < p.rwidth else np.zeros_like(r)
+        return (rc >> i) & 1 if 0 <= i < p.rwidth else np.zeros_like(r)
 
     v = coef[p.degree]
     for j in range(p.degree - 1, -1, -1):
@@ -59,7 +63,9 @@ def horner(p: Params, coef: list[Int], r: Int, check: bool = True) -> Int:
             d = -2 * bit(2 * dg.n + 1) + bit(2 * dg.n) + bit(2 * dg.n - 1)
             t1, t2 = _shift(v, dg.e1), _shift(v, dg.e1 + 1)
             acc += np.where(np.abs(d) == 1, np.sign(d) * t1, np.where(np.abs(d) == 2, np.sign(d) * t2, 0))
-        if check and ((acc < 0).any() or (acc >= (1 << (p.frac[j] - p.a))).any()):
+        lim = 1 << (p.frac[j] - p.a)
+        bad = (np.abs(acc) >= lim >> 2).any() if p.centered else ((acc < 0).any() or (acc >= lim).any())
+        if check and bad:
             raise OverflowError(f"product of step {j} leaves its low part 2^{p.frac[j] - p.a}")
         v = coef[j] - acc
         if check and ((v < 0).any() or (v >= (1 << p.frac[j])).any()):
@@ -96,7 +102,7 @@ def model_y(p: Params, t: Tables, xn: Int, par: Int) -> Int:
     a_idx = (par << p.a) | ((xn >> p.rwidth) & ((1 << p.a) - 1))
     r = xn & ((1 << p.rwidth) - 1)
     v0 = horner(p, [c[a_idx] for c in t.coef], r)
-    return v0 >> p.guard
+    return p.phased(v0)
 
 
 def rel_error(p: Params, t: Tables) -> tuple[float, NDArray[np.float64]]:
@@ -121,15 +127,22 @@ def fit_tables(p: Params, passes: int = 3, stride: int = 1, polish: bool = False
     coef = [np.zeros(n_seg, dtype=np.int64) for _ in range(d + 1)]
     h = 2.0 ** (-p.a)  # segment width in M
     nodes = 0.5 * h * (1 - np.cos(np.pi * (np.arange(2 * d + 3) + 0.5) / (2 * d + 3)))
+    if p.centered:
+        nodes = nodes - 0.5 * h
     for k in range(n_seg):
         c = 2.0 ** (1 - (k >> p.a))
         m0 = 1 + (k & ((1 << p.a) - 1)) * h
-        poly = np.polynomial.polynomial.polyfit(nodes, (c * (m0 + nodes)) ** -0.5, d)
+        mid = 0.5 * h if p.centered else 0.0
+        poly = np.polynomial.polynomial.polyfit(nodes, (c * (m0 + mid + nodes)) ** -0.5, d)
         # f(r) = c0 - r (c1' - r (c2 - ...)); polyfit gives f = sum q_j r^j, so c_j = |q_j| with
         # alternating signs. Fixed point: scale 2^f_j on the Horner value V_j = sum_{i>=j} ...
         # V_j = |q_j| + ... is the polynomial tail, so quantise q_j directly.
         for j in range(d + 1):
-            coef[j][k] = int(round(abs(poly[j]) * 2.0 ** p.frac[j]))
+            coef[j][k] = (
+                int(round((-1) ** j * poly[j] * 2.0 ** p.frac[j]))
+                if p.centered
+                else int(round(abs(poly[j]) * 2.0 ** p.frac[j]))
+            )
     seg = np.arange(n_seg)
     xr = ((1 << p.a) + (seg[:, None] & ((1 << p.a) - 1))) * (1 << p.rwidth) + r_all[None, :]
     scale = 2.0 ** (1 - (seg[:, None] >> p.a))
@@ -182,7 +195,7 @@ def _seg_err(p: Params, coef: list[Int], r: Int, exact: NDArray[np.float64]) -> 
     n_seg = len(coef[0])
     rr = np.broadcast_to(r[None, :], (n_seg, len(r)))
     v = horner(p, [np.broadcast_to(c[:, None], rr.shape) for c in coef], rr, check=False)
-    y = (v >> p.guard).astype(np.float64)
+    y = p.phased(v).astype(np.float64)
     return (np.abs(y - exact * 2.0**p.wy) / (exact * 2.0**p.wy)).max(axis=1)
 
 
@@ -191,7 +204,7 @@ def _recentre(p: Params, coef: list[Int], r: Int, exact: NDArray[np.float64], ro
     rr = np.broadcast_to(r[None, :], (n_seg, len(r)))
     for _ in range(rounds):
         v = horner(p, [np.broadcast_to(c[:, None], rr.shape) for c in coef], rr, check=False)
-        err = (v >> p.guard).astype(np.float64) - exact * 2.0**p.wy
+        err = p.phased(v).astype(np.float64) - exact * 2.0**p.wy
         mid = 0.5 * (err.max(axis=1) + err.min(axis=1))
         coef[0] = coef[0] - np.round(mid * 2.0**p.guard).astype(np.int64)
     v = horner(p, [np.broadcast_to(c[:, None], rr.shape) for c in coef], rr, check=False)
