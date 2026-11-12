@@ -2,6 +2,7 @@
 
 Cost is `R * Q^2 * T`, so a qubit saved is worth two Toffolis. Starting point
 (`docs/experiments/dqi-divstep-v0.md`): 4,013 qubits, 1.04M Toffolis, official 1.9973e13 (ratio 1.224, 5/5 salts).
+End point: 2,764 qubits, official 9.262e12, ratio 2.64 (5/5 salts), still 25x short of the public frontier (about 65).
 Every change below was checked with the official verifier on the small instances (seconds, same generator code)
 and on `narrow` (full `n` and field, 71 positions, 25,600 shots). Full-size numbers are the static count
 `narrow + 4,024 x 108` Toffolis (the Forney sweep is exactly 108 per position) and the same qubit count, then
@@ -15,6 +16,19 @@ confirmed on Kaggle.
 | 1. freeze the dead f row | 3,243 | about 1.10M | 1.16e13 | `fv` window stays at t + 1 registers |
 | 2. Omega in place in `S_0..S_{t-1}` | 2,835 | 1,141,782 | 9.18e12 | no Omega registers |
 | 3. row ranges by step, free early shift, no unused scratch | 2,776 | 1,017,112 | 7.84e12 | -35 qubits, -124k Toffolis |
+| 4. clear `mu` through the Forney sweep | 2,764 | 1,017,742 | 7.78e12 | -12 qubits, +630 Toffolis |
+
+## Full-size result (Kaggle, official verifier, 102,400 shots per salt)
+
+| version | qubits | Toffolis | official cost | ratio vs 2.4439e13 | salts |
+|---|---:|---:|---:|---:|---|
+| v0 (QCC-19 first merge) | 4,013 | 1,041,122 | 1.9973e13 | 1.224 | 5/5 PASS |
+| step 3 (PR 50), sha256 `4c3b4906...e4594f5a3` | 2,776 | 1,017,112 | 9.3372e12 | 2.617 | 5/5 PASS, 0 errors |
+| step 4 (PR 51), sha256 `9d91b487...a818db72` | 2,764 | 1,017,742 | 9.2623e12 | 2.638 | 5/5 PASS, 0 errors |
+
+The static prediction (`narrow + 4,024 x 108` Toffolis, same qubit count) matched the official run to the
+Toffoli. Cost is identical across salts (zero failures give `R = 1.19` and the Toffoli count is static in the
+verifier here). Kernel `notebooks/dqi_gen` (about 7 min per run once it starts; the queue is the slow part).
 
 **1. The f row is dead once it overflows.** `v_f` is relabelled up by `z` every step, and in v0 the coefficient
 pushed past index `t` was kept as garbage: 70 extra registers (840 qubits). Decodable syndromes have linear
@@ -39,7 +53,7 @@ update, the row swap and the f shift run on `min(t, k) + 1` registers; for `k < 
 zero, so the shift is a free relabelling and needs no `sh` bit. The Forney scratch `inv` and `located` were only
 used by the odd-degree fallback and are no longer allocated on the tower path.
 
-## Where the remaining qubits are (2,776)
+## Where the remaining qubits are (2,764)
 
 | piece | qubits |
 |---|---:|
@@ -47,9 +61,10 @@ used by the odd-degree fallback and are no longer allocated on the tower path.
 | `v_g` + `v_f` | 864 |
 | dialog: `c` 70 x 12, `sw` 70, `sh` 35 | 945 |
 | `b`, `delta` | 20 |
-| Forney scratch (3 evaluation registers, zero test, tower, `mu`) | about 107 |
+| Forney scratch (3 evaluation registers, zero test, tower) | about 95 |
 
-The peak is the Forney sweep. At the end of the forward pass the live set is 2,669.
+The peak is the Forney sweep, but only 23 above the forward-end and normalisation peak (2,741; the live set
+at the end of the forward pass is 2,669), so Forney scratch is not the lever any more.
 
 ## What did not work or is not worth it
 
@@ -81,4 +96,4 @@ the f row (864). The public frontier (about 892 qubits) must hold one: an in-pla
 `S <-> (sigma, Omega)` with no dialog, i.e. an in-place reversible Berlekamp-Massey. The obstruction is that
 the quotient `c` of a non-swap step is not a function of the after-state of the rows, so any such design needs
 a different state than `(S, v_g, v_f)`. The only parts of the 2,776 that this architecture can still shed are
-about 100 qubits of Forney scratch and `sw`/`sh` (105).
+`sw`/`sh` (105) and a few Forney registers.
