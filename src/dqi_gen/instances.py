@@ -1,0 +1,104 @@
+"""Small-field DQI instances that build and verify in seconds with the same generator code (QCC-18).
+
+The host verifier already takes any `(m, n, degree, r)` through `ProblemSpecDQI`, so a small instance is
+the official check on a smaller code, not a re-implementation. What changes: `r` defaults to the
+bent-function size for that degree, the weight distribution is recomputed, and the shot count must be
+large enough for `eps_plus < 1/16` (about 1,400 shots with zero failures; `min_shots` below).
+
+    QCC_DATA=data uv run python -m dqi_gen.instances --gen reference --instance tiny
+    QCC_DATA=data uv run python -m dqi_gen.instances --gen divstep --instance medium --shots 8192
+
+`Q2T = Q^2 * T` compares designs without the repetition factor `R`, which is large at low shot counts.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
+from dqi_gen import host
+
+BATCH = 256
+LOG2_DELTA = -128.0
+
+
+@dataclass(frozen=True)
+class Instance:
+    name: str
+    m: int  # codeword length, at most 2^degree - 1
+    n: int  # syndromes, even
+    degree: int  # field GF(2^degree)
+
+    @property
+    def t(self) -> int:
+        return self.n // 2
+
+
+INSTANCES = {
+    i.name: i
+    for i in (
+        Instance("tiny", 15, 4, 4),
+        Instance("small", 63, 10, 6),
+        Instance("medium", 255, 20, 8),
+        Instance("large", 1023, 40, 10),
+        Instance("full", 4095, 70, 12),  # the benchmark; local machines should not build it
+    )
+}
+
+
+def min_shots(log2_delta: float = LOG2_DELTA) -> int:
+    """Smallest multiple of the batch size whose zero-failure bound `eps_plus` is below 1/16."""
+    need = -log2_delta / -math.log2(1 - 1 / 16)
+    return math.ceil(need / BATCH) * BATCH
+
+
+def build(generator: str, inst: Instance) -> Any:
+    """The decoder circuit for `inst` from the named generator (`reference` or `divstep`)."""
+    builders: dict[str, Callable[[int, int, int], Any]] = {}
+    builders["reference"] = lambda m, n, b: host.reference().build_reference_circuit(m, n, b)
+
+    def divstep(m: int, n: int, b: int) -> Any:
+        from dqi_gen.decoder import build_circuit
+
+        return build_circuit(m, n, b)
+
+    builders["divstep"] = divstep
+    if generator not in builders:
+        raise ValueError(f"unknown generator {generator!r}; choose from {sorted(builders)}")
+    host.verifier()  # puts kickmix on the path
+    return builders[generator](inst.m, inst.n, inst.degree)
+
+
+def verify(
+    circuit: Any, inst: Instance, *, shots: int | None = None, salt: str = "dqi-gen-small"
+) -> dict[str, Any]:
+    """Official verifier on `inst`. Returns its summary plus `q2t`; raises on any failure."""
+    v = host.verifier()
+    shots = shots or max(2 * min_shots(), 4 * BATCH)
+    if shots < min_shots():
+        raise ValueError(f"{shots} shots cannot certify eps_plus < 1/16; need at least {min_shots()}")
+    spec = v.ProblemSpecDQI.benchmark_instance(m=inst.m, n=inst.n, degree=inst.degree, num_shots=shots)
+    out: dict[str, Any] = v.verify(circuit, spec, salt=salt.ljust(32, "x"))
+    out.pop("shot_operation_counts", None)
+    out["q2t"] = out["num_qubits"] ** 2 * out["toffoli_count"]
+    return out
+
+
+def main() -> None:
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--gen", default="reference", choices=("reference", "divstep"))
+    p.add_argument("--instance", default="small", choices=sorted(INSTANCES))
+    p.add_argument("--shots", type=int, default=None)
+    a = p.parse_args()
+    inst = INSTANCES[a.instance]
+    out = verify(build(a.gen, inst), inst, shots=a.shots)
+    keep = ("status", "num_qubits", "toffoli_count", "q2t", "value_errors", "phase_errors", "verified_shots")
+    print(json.dumps({"instance": inst.name, "generator": a.gen, **{k: out[k] for k in keep}}))
+
+
+if __name__ == "__main__":
+    main()
