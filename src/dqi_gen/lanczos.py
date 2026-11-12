@@ -73,6 +73,12 @@ class Tape:
             b.init_gf2_inverse(op[1].q, target=op[2].q, field=gf)
         elif kind == "delinv":
             b.del_gf2_inverse(op[1].q, target=op[2].q, field=gf)
+        elif kind == "initinvs":  # inverse that keeps its scaffold, so the uncompute is free
+            op[3][:] = [b.init_gf2_inverse_with_scaffold(op[1].q, target=op[2].q, field=gf)[1]]
+        elif kind == "delinvs":
+            b.del_gf2_inverse_with_scaffold(op[1].q, target=op[2].q, scaffold=op[3][0], field=gf)
+            b.free(op[3][0])
+            op[3].clear()
         elif kind == "initdiv":
             b.init_gf2_div(op[1].q, op[2].q, target=op[3].q, field=gf)
         elif kind == "deldiv":
@@ -118,6 +124,8 @@ class Tape:
         "initmul": "delmul",
         "initinv": "delinv",
         "delinv": "initinv",
+        "initinvs": "delinvs",
+        "delinvs": "initinvs",
         "initdiv": "deldiv",
         "deldiv": "initdiv",
         "and": "unand",
@@ -193,6 +201,16 @@ class Tape:
         self.emit("delinv", src, out)
         self.give(out)
 
+    def init_inv_scaffold(self, src: Reg) -> tuple[Reg, list[Any]]:
+        out = self.take()
+        holder: list[Any] = []
+        self.emit("initinvs", src, out, holder)
+        return out, holder
+
+    def del_inv_scaffold(self, src: Reg, out: Reg, holder: list[Any]) -> None:
+        self.emit("delinvs", src, out, holder)
+        self.give(out)
+
     def init_mul(self, lhs: Reg, rhs: Reg) -> Reg:
         out = self.take()
         self.xmul(lhs, rhs, out)
@@ -232,14 +250,14 @@ class LanczosDecoder:
             tp.emit("flipeq", cur[0], 0, z0)
             for i in range(k):
                 tp.cswap(z0, [cur[i]], [cur[i + 1]])
-            inv0 = tp.init_inv(cur[0])
+            inv0, scaffold = tp.init_inv_scaffold(cur[0])
             acc = tp.take()
             pairs = [(cur[i], s[k - 1 + i]) for i in range(1, k + 1)]
             tp.dot(acc, pairs)
             tp.xmul(acc, inv0, s[k - 1])
             tp.cleardot(acc, pairs)
             tp.give(acc)
-            tp.del_inv(cur[0], inv0)
+            tp.del_inv_scaffold(cur[0], inv0, scaffold)
             for i in reversed(range(k)):
                 tp.cswap(z0, [cur[i]], [cur[i + 1]])
             tp.emit("flipeq", cur[0], 0, z0)
@@ -401,7 +419,12 @@ class LanczosDecoder:
                 self._step(tp, k, s, st)
                 snaps.append((start, len(tp.ops), snap))
         with builder.mark("scan"):
+            spare = [r for r in tp.pool if r in tp.fresh]  # zero registers: lend their qubits to the scan
+            for reg in spare:
+                builder.free(reg.q)
             self._scan(builder, st, error_mbuc)
+            for reg in spare:
+                reg.q = builder.alloc_qubits(self.deg)
         with builder.mark("reverse_steps"):
             for start, end, snap in reversed(snaps):
                 tp.undo(start, end)
