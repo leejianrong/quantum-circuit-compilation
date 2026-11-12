@@ -67,3 +67,35 @@ reverse pass skips the heads (measurement clears). About 6,300 products over bot
   (1.2M Toffolis): no gain.
 * **Series reciprocal in place** (the Schur step `f -> (f - g)/(z (1 - g f))`): triangular, but each coefficient of `1/F`
   needs all lower coefficients of both `F` and `1/F`; no in-place form with `O(1)` scratch.
+
+## Result: `src/dqi_gen/lanczos.py` (Kaggle, official verifier, 102,400 shots, 5/5 salts PASS)
+
+Pair state `(p_k, p_{k-1})` plus carried `h`, raw syndromes erased in place (`S_{k-1}` from `p_k`, with a controlled shift
+when `p_k(0) = 0`), update gated by an alive bit so the arrays freeze at `(p_w, p_{w-1})`, Gauss-weight scan, reverse
+pass by replaying a tape of inverse operations. sha256 of the full circuit `caeb5e61...d79bc`.
+
+| version | qubits | Toffolis | official cost | ratio vs 2.4439e13 | failures per 102,400 |
+|---|---:|---:|---:|---:|---|
+| divstep (QCC-19, PR 51) | 2,764 | 1,017,742 | 9.262e12 | 2.64 | 0 |
+| Lanczos | 1,472 | 1,210,488 | 5.39e12 to 5.59e12 | 4.37 (worst salt) to 4.53 | 755 to 834 (value errors, 0.75 to 0.81%) |
+
+`R` is 2.0 to 2.1 because of the failures; with none the same circuit would cost about 2.6e12 (ratio 9.4). Static prediction
+before running was 5.5e12 (qubits 1,400 predicted, 1,472 built). Qubits fall 47% (S 840, 38 extra poly registers, scan scratch
+144, rest scalars), Toffolis rise 19% (scan 171 per position, about 0.70M; decoder both passes about 0.5M).
+
+## What did not work or was not built
+
+* **Exact look-ahead for `h_k = 0`** (0.75% of shots, the whole remaining penalty): the block step is
+  `p_{k+2} = (z^2 + c z + d) p_k + e p_{k-1}`, `e = s_k/h_{k-1}`, and the pair `(p_{k+2}, p_k)` still determines `(c, d, e, p_{k-1})`,
+  so it also needs no dialog. In a static circuit it needs three more heads per step, a three-product update, two more inversions
+  and a skip iteration so the degree stays aligned (about +80% decoder, +22% `T`) for `R` 2.0 to 1.25: net only about 20%. Not built.
+* **Retry with a shifted node set** for failing shots: needs a second pass, `Q` and `T` both up; worse.
+* **Floor of this family**: the pair is 69 slots but only `k` syndromes are erased at step `k`, so about 35 slots (420 qubits)
+  beyond the 840 remain; erasing the high raw moments needs the Jacobi-to-moments map (the reverse pass itself).
+* A faster GF(2^12) multiplier (public work reports rank 42, ours 63) or an amplitude polynomial (scan 11 Toffolis per point)
+  are the next Toffoli levers; the scan is 58% of `T`.
+
+## Next lever
+
+Qubits: 1,472 against 892. Toffolis: the scan (0.70M against the frontier's 0.535M in total). Failures: `h_k = 0`.
+Local check: `QCC_DATA=data uv run python -m dqi_gen.instances --gen lanczos --instance narrow --shots 8192` (seconds).
