@@ -46,7 +46,9 @@ def _dot(gf: Any, p: Sequence[int], s: Sequence[int], off: int) -> int:
 
 def solve(gf: Any, s: Sequence[int], t: int) -> Solution:
     """Runs the recurrence on `s` (length at least `2t`) for at most `t` steps."""
-    p, pp, hp = [1], [], 0
+    p: list[int] = [1]
+    pp: list[int] = []
+    hp = 0
     erase_ok = True
     for k in range(t):
         h = _dot(gf, p, s, k)
@@ -87,7 +89,7 @@ def erase_value(gf: Any, p: Sequence[int], s: Sequence[int], k: int) -> int:
     for i in range(1, len(p)):
         if p[i]:
             acc ^= gf.mul(p[i], s[k - 1 + i])
-    return gf.mul(acc, gf.invert(p[0]))
+    return int(gf.mul(acc, gf.invert(p[0])))
 
 
 def poly_eval(gf: Any, p: Sequence[int], x: int) -> int:
@@ -101,7 +103,7 @@ def gauss_weight(gf: Any, sol: Solution, x: int) -> int:
     """Weight `w_j` at a root `x` of `p_w`: `h_{w-1} / (p_{w-1}(x) p_w'(x))`."""
     dp = [c if i % 2 == 1 else 0 for i, c in enumerate(sol.p)][1:]
     den = gf.mul(poly_eval(gf, sol.p_prev, x), poly_eval(gf, dp, x))
-    return gf.mul(sol.h_prev, gf.invert(den))
+    return int(gf.mul(sol.h_prev, gf.invert(den)))
 
 
 def syndromes(gf: Any, values: dict[int, int], n: int) -> list[int]:
