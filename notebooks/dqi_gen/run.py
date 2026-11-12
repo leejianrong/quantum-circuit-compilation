@@ -10,7 +10,7 @@ import resource
 import subprocess
 import time
 
-BRANCH = "qcc-19-fast-multiplier"
+BRANCH = "main"
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [

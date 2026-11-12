@@ -25,6 +25,7 @@ import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 
 from dqi_gen.decoder import DivstepDecoder
 from dqi_gen.gfmul import FastMul
+from dqi_gen.tower import Tower, apply_matrix_inplace, xor_linear
 
 
 class Reg:
@@ -49,6 +50,7 @@ class Tape:
         self.pool: list[Reg] = []
         self.fresh: list[Reg] = []
         self.fm = FastMul(builder, gf)
+        self._tw: Any = None
 
     # ---- execution of one primitive and its inverse --------------------------------------------
 
@@ -72,19 +74,13 @@ class Tape:
             ctrl, a, c = op[1], op[2], op[3]
             b.cswap(ctrl.q[0], km.array([q for r in a for q in r.q]), km.array([q for r in c for q in r.q]))
         elif kind == "initinv":
-            b.init_gf2_inverse(op[1].q, target=op[2].q, field=gf)
+            self._tower_inverse(op[1].q, op[2].q, clear=False)
         elif kind == "delinv":
-            b.del_gf2_inverse(op[1].q, target=op[2].q, field=gf)
-        elif kind == "initinvs":  # inverse that keeps its scaffold, so the uncompute is free
-            op[3][:] = [b.init_gf2_inverse_with_scaffold(op[1].q, target=op[2].q, field=gf)[1]]
-        elif kind == "delinvs":
-            b.del_gf2_inverse_with_scaffold(op[1].q, target=op[2].q, scaffold=op[3][0], field=gf)
-            b.free(op[3][0])
-            op[3].clear()
-        elif kind == "initdiv":
-            b.init_gf2_div(op[1].q, op[2].q, target=op[3].q, field=gf)
+            self._tower_inverse(op[1].q, op[2].q, clear=True)
+        elif kind == "initdiv":  # target ^= a / b
+            self._tower_div(op[1].q, op[2].q, op[3].q, clear=False)
         elif kind == "deldiv":
-            b.del_gf2_div(op[1].q, op[2].q, target=op[3].q, field=gf)
+            self._tower_div(op[1].q, op[2].q, op[3].q, clear=True)
         elif kind == "dot":
             for lhs, rhs in op[2]:
                 self.fm.ixor_mul(lhs.q, rhs.q, op[1].q)
@@ -126,8 +122,6 @@ class Tape:
         "initmul": "delmul",
         "initinv": "delinv",
         "delinv": "initinv",
-        "initinvs": "delinvs",
-        "delinvs": "initinvs",
         "initdiv": "deldiv",
         "deldiv": "initdiv",
         "and": "unand",
@@ -139,6 +133,64 @@ class Tape:
         "take": "give",
         "give": "take",
     }
+
+    # ---- inversion through the GF(2^6) tower (about 82 Toffolis forward, 46 to clear) ---------------------------
+
+    def _tower_inverse(self, x: Any, out: Any, *, clear: bool) -> None:
+        """`out ^= 1 / x` (or clear `out`, known to hold `1 / x`, by measurement); `x` is unchanged.
+
+        x = A + B y, 1/x = (A + B + B y) / N with N = A^2 + A B + b B^2 in GF(2^6): one subfield product, one
+        subfield inversion with scaffold, two subfield products; the scaffold is undone for free.
+        """
+        b, h = self.b, self.deg // 2
+        if self._tw is None:
+            gf_h = km.GF2Field(h)
+            self._tw = (
+                gf_h,
+                Tower.build(self.gf, gf_h),
+                DivstepDecoder._subfield_inverse(b, gf_h, True),
+            )
+        gf_h, tw, (inv_compute, inv_uncompute) = self._tw
+        norm_b = [gf_h.mul(tw.b, gf_h.square(1 << i)) for i in range(h)]
+        mul = DivstepDecoder._mul
+        apply_matrix_inplace(b, list(x), tw.to_tower)
+        a_, b_ = x[:h], x[h:]
+        norm = mul(b, a_, b_, gf_h, fast=True)
+        xor_linear(b, a_, norm, tw.square)
+        xor_linear(b, b_, norm, norm_b)
+        ninv, state = inv_compute(norm)
+        e_ = b.alloc_qubits(h)
+        b.cx(a_, e_)
+        b.cx(b_, e_)
+        if clear:
+            apply_matrix_inplace(b, list(out), tw.to_tower)
+            b.del_gf2_mul(b_, ninv, target=out[h:], field=gf_h)
+            b.del_gf2_mul(e_, ninv, target=out[:h], field=gf_h)
+        else:
+            mul(b, e_, ninv, gf_h, out[:h], True)
+            mul(b, b_, ninv, gf_h, out[h:], True)
+            apply_matrix_inplace(b, list(out), tw.from_tower)
+        b.cx(b_, e_)
+        b.cx(a_, e_)
+        b.free(e_)
+        inv_uncompute(norm, ninv, state)
+        xor_linear(b, b_, norm, norm_b)
+        xor_linear(b, a_, norm, tw.square)
+        b.del_gf2_mul(a_, b_, target=norm, field=gf_h)
+        b.free(norm)
+        apply_matrix_inplace(b, list(x), tw.from_tower)
+
+    def _tower_div(self, a: Any, den: Any, target: Any, *, clear: bool) -> None:
+        """`target ^= a / den`, or clear `target` known to hold it."""
+        b = self.b
+        inv = b.alloc_qubits(self.deg)
+        self._tower_inverse(den, inv, clear=False)
+        if clear:
+            b.del_gf2_mul(a, inv, target=target, field=self.gf)
+        else:
+            self.fm.ixor_mul(a, inv, target)
+        self._tower_inverse(den, inv, clear=True)
+        b.free(inv)
 
     def _do(self, op: tuple[Any, ...]) -> None:
         if op[0] == "initmul":  # init_gf2_mul resets the target first; the target is zero by construction
@@ -204,14 +256,10 @@ class Tape:
         self.give(out)
 
     def init_inv_scaffold(self, src: Reg) -> tuple[Reg, list[Any]]:
-        out = self.take()
-        holder: list[Any] = []
-        self.emit("initinvs", src, out, holder)
-        return out, holder
+        return self.init_inv(src), []
 
     def del_inv_scaffold(self, src: Reg, out: Reg, holder: list[Any]) -> None:
-        self.emit("delinvs", src, out, holder)
-        self.give(out)
+        self.del_inv(src, out)
 
     def init_mul(self, lhs: Reg, rhs: Reg) -> Reg:
         out = self.take()
