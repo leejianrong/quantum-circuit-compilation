@@ -178,25 +178,26 @@ class DivstepDecoder:
             builder.free(mask)
             builder.free(d_reg)
 
-    def _normalise(self, builder: Any, gv: list[Any], *, inverse: bool = False) -> Any:
+    def _normalise(self, builder: Any, gv: list[Any]) -> None:
         """Scales sigma by 1 / sigma_0 in place, keeping sigma_0 in gv[0] (the implicit leading 1).
 
         Each register x becomes y = mu x through an out-of-place product, and x is then cleared by
-        measurement as lam * y (zero Toffolis); the register list is relabelled. Returns mu (12 qubits).
+        measurement as lam * y (zero Toffolis); the register list is relabelled. `mu` is cleared again
+        (recomputed by `_unnormalise`): 12 qubits fewer through the Forney peak for two small inversions.
         """
         gf, lam = self.gf, gv[0]
-        if not inverse:
-            mu = builder.init_gf2_inverse(lam, field=gf)
-            for k in range(1, self.t + 1):
-                y = builder.init_gf2_mul(gv[k], mu, field=gf)
-                builder.del_gf2_mul(lam, y, target=gv[k], field=gf)
-                builder.free(gv[k])
-                gv[k] = y
-            return mu
-        raise AssertionError("use _unnormalise")
+        mu = builder.init_gf2_inverse(lam, field=gf)
+        for k in range(1, self.t + 1):
+            y = builder.init_gf2_mul(gv[k], mu, field=gf)
+            builder.del_gf2_mul(lam, y, target=gv[k], field=gf)
+            builder.free(gv[k])
+            gv[k] = y
+        builder.del_gf2_inverse(lam, target=mu, field=gf)
+        builder.free(mu)
 
-    def _unnormalise(self, builder: Any, gv: list[Any], mu: Any) -> None:
+    def _unnormalise(self, builder: Any, gv: list[Any]) -> None:
         gf, lam = self.gf, gv[0]
+        mu = builder.init_gf2_inverse(lam, field=gf)
         for k in range(1, self.t + 1):
             x = builder.init_gf2_mul(gv[k], lam, field=gf)
             builder.del_gf2_mul(mu, x, target=gv[k], field=gf)
@@ -427,13 +428,13 @@ class DivstepDecoder:
             for k in range(n):
                 self._forward_step(builder, k, syndromes, st)
         with builder.mark("omega"):
-            mu = self._normalise(builder, st["gv"])
+            self._normalise(builder, st["gv"])
             self._omega(builder, st["gv"], syndromes)
         with builder.mark("chien_forney_mbuc"):
             self._chien_forney(builder, st["gv"], list(syndromes[:t]), error_mbuc)
         with builder.mark("omega_clear"):
             self._omega_undo(builder, st["gv"], syndromes)
-            self._unnormalise(builder, st["gv"], mu)
+            self._unnormalise(builder, st["gv"])
         with builder.mark("reverse_divsteps"):
             for k in range(n - 1, -1, -1):
                 self._backward_step(builder, k, syndromes, st)
