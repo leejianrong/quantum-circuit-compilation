@@ -106,22 +106,29 @@ def load(
 def ripple_add(
     b: km.CircuitBuilder, a: km.array, t: km.array, subtract: bool = False, cin: km.q | None = None
 ) -> None:
-    """`t += a + cin` (or `-=`) modulo 2^len(t), `a` unchanged and shorter than `t`; `len(t) - 1` Toffolis.
+    """`t += a + cin` (or `-=`) modulo 2^len(t) in `len(t) - 1` Toffolis; `a` is unchanged.
+
+    Bits of `a` above `t` are ignored.
 
     Gidney-style carry chain: carries are computed into fresh ancillas on the way up (one AND per
     bit, also through the bits of `t` above `a`, where the addend is zero) and cleared by measurement
     on the way down, where the sum bits are also written. The optional carry-in `cin` (a qubit that
     is not part of `a` or `t`) costs no Toffoli.
     """
-    w, m = len(a), len(t)
+    m = len(t)
+    if len(a) > m:  # addend bits above the target only change bits that do not exist
+        a = a[:m]
+    w = len(a)
     if subtract:
         b.x(t)
-    c = b.alloc_qubits(m - 1)
+    # carries c[0 .. m-3]; the carry out of bit m-2 only feeds the top sum bit, so it is XORed straight into
+    # that bit by one Toffoli instead of living in an ancilla (one qubit less at every add)
+    c = b.alloc_qubits(max(0, m - 2))
 
     def carry_in(i: int) -> km.q | None:
         return c[i - 1] if i else cin
 
-    for i in range(m - 1):
+    for i in range(m - 2):
         ci = carry_in(i)
         if i < w:
             if ci is not None:
@@ -133,13 +140,26 @@ def ripple_add(
         else:
             assert ci is not None
             b.init_and(ci, t[i], c[i])
-    top = m - 1
-    if top < w:  # not used by the callers (the addend is always shorter than the target)
-        raise ValueError("addend must be shorter than the target")
-    ci = carry_in(top)
+    j, top = m - 2, m - 1
+    ci = carry_in(j)
+    if top < w:
+        b.cx(a[top], t[top])
+    if j < w:
+        if ci is not None:
+            b.cx(ci, a[j])
+            b.cx(ci, t[j])
+        b.ccx(a[j], t[j], t[top])
+        if ci is not None:
+            b.cx(ci, t[top])
+            b.cx(ci, t[j])
+            b.cx(ci, a[j])
+        b.cx(a[j], t[j])
+    else:
+        assert ci is not None
+        b.ccx(ci, t[j], t[top])
     if ci is not None:
-        b.cx(ci, t[top])
-    for i in range(m - 2, -1, -1):
+        b.cx(ci, t[j])
+    for i in range(m - 3, -1, -1):
         ci = carry_in(i)
         if i < w:
             if ci is not None:
