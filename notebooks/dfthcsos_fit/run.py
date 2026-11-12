@@ -58,6 +58,8 @@ for prev in INPUT.glob("*/fit"):  # a previous kernel's output, attached as a ke
     shutil.copytree(prev, FIT, dirs_exist_ok=True)
 env = {**os.environ, "PYTHONPATH": str(REPO / "src"), "QCC_DATA": str(COMP)}
 if not (FIT / "tsym.npy").exists():
+    # the host verifier imports kickmix at module level (the pip wheel, as in uv sync)
+    subprocess.run(["pip", "install", "-q", "kickmix"], check=True)
     subprocess.run(["python", "scripts/dfthcsos_fit.py", str(FIT)], cwd=REPO, env=env, check=True)
 for name, argv, limit in JOBS:
     argv = [a.format(fit=FIT, repo=REPO, comp=COMP) for a in argv]
