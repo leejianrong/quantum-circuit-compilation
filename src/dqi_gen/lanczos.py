@@ -136,6 +136,17 @@ class Tape:
 
     # ---- inversion through the GF(2^6) tower (about 82 Toffolis forward, 46 to clear) ----
 
+    def _lend(self) -> list[Reg]:
+        """Frees the idle zero registers we allocated (not the host syndrome registers) as scratch room."""
+        spare = [r for r in self.pool if r in self.fresh]
+        for reg in spare:
+            self.b.free(reg.q)
+        return spare
+
+    def _unlend(self, spare: list[Reg]) -> None:
+        for reg in spare:
+            reg.q = self.b.alloc_qubits(self.deg)
+
     def _tower_inverse(self, x: Any, out: Any, *, clear: bool) -> None:
         """`out ^= 1 / x` (or clear `out`, known to hold `1 / x`, by measurement); `x` is unchanged.
 
@@ -159,9 +170,8 @@ class Tape:
         xor_linear(b, a_, norm, tw.square)
         xor_linear(b, b_, norm, norm_b)
         ninv, state = inv_compute(norm)
-        e_ = b.alloc_qubits(h)
-        b.cx(a_, e_)
-        b.cx(b_, e_)
+        b.cx(b_, a_)  # a_ holds A + B until the products are done
+        e_ = a_
         if clear:
             apply_matrix_inplace(b, list(out), tw.to_tower)
             b.del_gf2_mul(b_, ninv, target=out[h:], field=gf_h)
@@ -170,9 +180,7 @@ class Tape:
             mul(b, e_, ninv, gf_h, out[:h], True)
             mul(b, b_, ninv, gf_h, out[h:], True)
             apply_matrix_inplace(b, list(out), tw.from_tower)
-        b.cx(b_, e_)
-        b.cx(a_, e_)
-        b.free(e_)
+        b.cx(b_, a_)
         inv_uncompute(norm, ninv, state)
         xor_linear(b, b_, norm, norm_b)
         xor_linear(b, a_, norm, tw.square)
@@ -193,10 +201,15 @@ class Tape:
         b.free(inv)
 
     def _do(self, op: tuple[Any, ...]) -> None:
+        if op[0] in ("take", "give"):
+            self._exec(op)
+            return
+        spare = self._lend()  # idle zero registers of ours serve as scratch for this operation
         if op[0] == "initmul":  # init_gf2_mul resets the target first; the target is zero by construction
             self.fm.ixor_mul(op[1].q, op[2].q, op[3].q)
         else:
             self._exec(op)
+        self._unlend(spare)
 
     def emit(self, *op: Any) -> None:
         self.ops.append(op)
@@ -263,7 +276,7 @@ class Tape:
 
     def init_mul(self, lhs: Reg, rhs: Reg) -> Reg:
         out = self.take()
-        self.xmul(lhs, rhs, out)
+        self.emit("initmul", lhs, rhs, out)  # the reverse pass clears it by measurement
         return out
 
     def and_bits(self, ctrl: Reg, src: Reg) -> Reg:
@@ -304,7 +317,7 @@ class LanczosDecoder:
             acc = tp.take()
             pairs = [(cur[i], s[k - 1 + i]) for i in range(1, k + 1)]
             tp.dot(acc, pairs)
-            tp.xmul(acc, inv0, s[k - 1])
+            tp.delmul(acc, inv0, s[k - 1])
             tp.cleardot(acc, pairs)
             tp.give(acc)
             tp.del_inv_scaffold(cur[0], inv0, scaffold)
@@ -319,25 +332,19 @@ class LanczosDecoder:
         h = tp.take()
         hp = [(cur[i], s[k + i]) for i in range(k + 1)]
         tp.dot(h, hp)
-        sh = tp.take()
-        sp = [(cur[i], s[k + 1 + i]) for i in range(k + 1)]
-        tp.dot(sh, sp)
         # D. alive = (h != 0)
         tp.emit("flipeq", h, 0, al)
         tp.x(al)
-        # E. a0 = s / h, then clear s through s = a0 * h
+        # E. a0 = s / h, then clear s through s = a0 * h (s is taken after the inversion: lower peak)
         inv_h = tp.init_inv(h)
+        sh = tp.take()
+        sp = [(cur[i], s[k + 1 + i]) for i in range(k + 1)]
+        tp.dot(sh, sp)
         a0 = tp.init_mul(sh, inv_h)
         tp.delmul(a0, h, sh)
         tp.give(sh)
         # F. b = h / h_prev
         b = tp.init_mul(h, inv_prev)
-        # G. a = a0 + p_{k,k-1} gated by alive
-        if k >= 1:
-            tp.iadd(cur[k - 1], a0)
-        a_eff = tp.and_bits(al, a0)
-        if k >= 1:
-            tp.iadd(cur[k - 1], a0)
         # H. lam = 1 / b_eff
         lam = tp.init_mul(h_prev, inv_h)
         tp.x(al)
@@ -351,7 +358,7 @@ class LanczosDecoder:
         # J. prev <- b_eff * prev in place
         for i in range(k):
             y = tp.take()
-            tp.xmul(b, prev[i], y)
+            tp.emit("initmul", b, prev[i], y)
             tp.delmul(lam, y, prev[i])
             old, prev[i] = prev[i], y
             tp.give(old)
@@ -359,8 +366,12 @@ class LanczosDecoder:
         tp.cx(al, 0, b, 0)
         tp.cx(al, 0, lam, 0)
         tp.x(al)
-        tp.delmul(h_prev, inv_h, lam)
-        tp.give(lam)
+        # G (after J, lower peak). a = a0 + p_{k,k-1} gated by alive
+        if k >= 1:
+            tp.iadd(cur[k - 1], a0)
+        a_eff = tp.and_bits(al, a0)
+        if k >= 1:
+            tp.iadd(cur[k - 1], a0)
         # K. prev += (alive * z + a_eff) * cur
         for i in range(k + 1):
             tp.xmul(a_eff, cur[i], prev[i])
@@ -371,8 +382,10 @@ class LanczosDecoder:
         tp.x(al)
         tp.cswap(al, [h, inv_h], [h_prev, inv_prev])
         tp.x(al)
-        tp.emit("deldiv", h, b, h_prev)
+        tp.delmul(lam, h, h_prev)  # lam = h_{k-1} / h_k = 1 / b
         tp.give(h_prev)
+        tp.emit("delinv", b, lam)
+        tp.give(lam)
         tp.delmul(b, inv_h, inv_prev)
         tp.give(inv_prev)
         st["h"], st["inv"] = h, inv_h
@@ -406,37 +419,52 @@ class LanczosDecoder:
         steps = [(cur[i].q, gf.pow(alpha, i % order)) for i in range(2, len(cur))]
         steps += [(cur[1].q, alpha)]
         steps += [(prev[i].q, gf.pow(alpha, i % order)) for i in range(1, len(prev))]
-        sg, od, am = (builder.alloc_qubits(deg) for _ in range(3))
         tower = self.helper._tower_ops(builder, fast=True)
         if tower is None:
             raise ValueError("the Lanczos scan needs an even field degree")
-        pairs_sg = [(r.q, sg) for r in cur]
-        pairs_od = [(cur[i].q, od) for i in range(1, len(cur), 2)]
-        pairs_am = [(r.q, am) for r in prev]
-        src = km.array([q for p in pairs_sg + pairs_od + pairs_am for q in p[0]])
-        dst = km.array([q for p in pairs_sg + pairs_od + pairs_am for q in p[1]])
         position = builder.mark("scan_position")
         fm = FastMul(builder, gf)
+
+        def copies() -> tuple[Any, Any, Any, Any, Any]:
+            """Zero accumulators `sg` (p_N), `od` (odd part), `am` (p_{N-1}) and their CNOT networks."""
+            sg, od, am = (builder.alloc_qubits(deg) for _ in range(3))
+            pairs = [(r.q, sg) for r in cur]
+            pairs += [(cur[i].q, od) for i in range(1, len(cur), 2)]
+            pairs += [(r.q, am) for r in prev]
+            src = km.array([q for p in pairs for q in p[0]])
+            dst = km.array([q for p in pairs for q in p[1]])
+            return sg, od, am, src, dst
+
+        # The accumulators are CNOT copies of the step registers, so they are released while the tower
+        # computation runs and rebuilt, at no Toffoli cost, to clear the product and the zero test.
         for j in range(m):
             with position:
+                sg, od, am, src, dst = copies()
                 builder.cx(src, dst)
                 ladder = self.helper._zero_test(builder, sg)
                 z = ladder[-1]
                 u = builder.alloc_qubits(deg)
                 fm.ixor_mul(am, od, u)
+                builder.x(sg)
+                builder.cx(src, dst)
+                for reg in (sg, od, am):
+                    builder.free(reg)
                 tower(u, h.q, z, error_mbuc[j])
+                sg, od, am, src, dst = copies()
+                builder.cx(src, dst)
+                builder.x(sg)
                 builder.del_gf2_mul(am, od, target=u, field=gf)
                 builder.free(u)
                 self.helper._zero_untest(builder, sg, ladder)
                 builder.cx(src, dst)
+                for reg in (sg, od, am):
+                    builder.free(reg)
                 if j + 1 < m:
                     for reg, c in steps:
                         builder.gf2_imul(c, target=reg, field=gf)
         if m > 1:
             for reg, c in steps:
                 builder.gf2_idiv(gf.pow(c, m - 1), target=reg, field=gf)
-        for reg in (sg, od, am):
-            builder.free(reg)
 
     # ---- whole decoder ---------------------------------------------------------------------------
 

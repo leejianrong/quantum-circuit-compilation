@@ -281,26 +281,25 @@ class DivstepDecoder:
             xor_linear(builder, a_, norm, tw.square)
             xor_linear(builder, b_, norm, norm_b)
             ninv_q, chain = builder.init_gf2_inverse_with_scaffold(norm, field=gf_q)
-            e_ = builder.alloc_qubits(q)
-            builder.cx(a_, e_)
-            builder.cx(b_, e_)
+            builder.cx(b_, a_)  # a_ holds A + B until the products are done
+            e_ = a_
             ninv = builder.alloc_qubits(h)
             DivstepDecoder._mul(builder, e_, ninv_q, gf_q, ninv[:q], fast)
             DivstepDecoder._mul(builder, b_, ninv_q, gf_q, ninv[q:], fast)
+            builder.cx(b_, a_)
             apply_matrix_inplace(builder, list(ninv), tw.from_tower)
             apply_matrix_inplace(builder, list(x), tw.from_tower)
-            return ninv, (norm, ninv_q, chain, e_)
+            return ninv, (norm, ninv_q, chain, None)
 
         def uncompute(x: Any, ninv: Any, state: Any) -> None:
             norm, ninv_q, chain, e_ = state
             apply_matrix_inplace(builder, list(x), tw.to_tower)
             a_, b_ = x[:q], x[q:]
             apply_matrix_inplace(builder, list(ninv), tw.to_tower)
+            builder.cx(b_, a_)
             builder.del_gf2_mul(b_, ninv_q, target=ninv[q:], field=gf_q)
-            builder.del_gf2_mul(e_, ninv_q, target=ninv[:q], field=gf_q)
-            builder.cx(b_, e_)
-            builder.cx(a_, e_)
-            builder.free(e_)
+            builder.del_gf2_mul(a_, ninv_q, target=ninv[:q], field=gf_q)
+            builder.cx(b_, a_)
             builder.del_gf2_inverse_with_scaffold(norm, target=ninv_q, scaffold=chain, field=gf_q)
             builder.free(chain)
             builder.free(ninv_q)
@@ -339,9 +338,8 @@ class DivstepDecoder:
             ninv, inv_state = inv_compute(norm)
             gated = builder.alloc_qubits(h)
             builder.init_and(z, ninv, gated)
-            e_ = builder.alloc_qubits(h)
-            builder.cx(a_, e_)
-            builder.cx(b_, e_)
+            builder.cx(b_, a_)  # a_ holds A + B until the products are done
+            e_ = a_
             rhs = builder.alloc_qubits(deg)
             self._mul(builder, e_, gated, gf_h, rhs[:h], fast)
             self._mul(builder, b_, gated, gf_h, rhs[h:], fast)
@@ -351,9 +349,7 @@ class DivstepDecoder:
             builder.del_gf2_mul(b_, gated, target=rhs[h:], field=gf_h)
             builder.del_gf2_mul(e_, gated, target=rhs[:h], field=gf_h)
             builder.free(rhs)
-            builder.cx(b_, e_)
-            builder.cx(a_, e_)
-            builder.free(e_)
+            builder.cx(b_, a_)
             builder.del_and(z, ninv, gated)
             builder.free(gated)
             inv_uncompute(norm, ninv, inv_state)
