@@ -28,4 +28,6 @@ Board: Pandan `QCC`, id 46 (use the `pandan` skill; `pandan board use 46`). Trus
   Never reformat or edit fetched files; they stay byte-identical.
 - Resources (7 GB RAM, 16 cores): `bench verify invsqrt` takes about 5 min per salt on all cores, so run one heavy
   verify at a time. DQI needs 5-9 GB: run it on Kaggle (`notebooks/dqi_verify/`), never here (ADR-0002).
+- kickmix: use the pip wheel from `uv sync`. The competition's `data/kickmix/kickmix.so` needs a newer libstdc++ than this
+  WSL has, so never put `data/kickmix` on `PYTHONPATH` or `sys.path` before it (it works only on Kaggle).
 - A bug becomes a test first; tests are deterministic. Tests marked `integration` need kickmix and `data/`.
