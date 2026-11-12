@@ -14,9 +14,11 @@ large enough for `eps_plus < 1/16` (about 1,400 shots with zero failures; `min_s
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib
 import json
 import math
+import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -95,16 +97,25 @@ def main() -> None:
     p.add_argument("--shots", type=int, default=None)
     p.add_argument("--salts", type=int, default=1, help="verify under this many salts (build once)")
     p.add_argument("--save", help="also write the circuit here as .kmb (binary)")
+    p.add_argument("--sha", action="store_true", help="print the sha256 of the .kmb file")
     a = p.parse_args()
     inst = INSTANCES[a.instance]
     circuit = build(a.gen, inst)
-    if a.save:
-        circuit.to_file(a.save, format="kmb")
+    digest = None
+    if a.sha or a.save:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = a.save or f"{tmp}/circuit.kmb"
+            circuit.to_file(path, format="kmb")
+            h = hashlib.sha256()
+            with open(path, "rb") as fh:
+                while chunk := fh.read(1 << 24):
+                    h.update(chunk)
+            digest = h.hexdigest()
     keep = ("status", "num_qubits", "toffoli_count", "q2t", "score", "value_errors", "phase_errors")
     for i in range(a.salts):
         out = verify(circuit, inst, shots=a.shots, salt=f"dqi-gen-salt-{i}")
         row = {"instance": inst.name, "generator": a.gen, "salt": i, **{k: out[k] for k in keep}}
-        print(json.dumps({**row, "verified_shots": out["verified_shots"]}), flush=True)
+        print(json.dumps({**row, "verified_shots": out["verified_shots"], "sha256": digest}), flush=True)
 
 
 if __name__ == "__main__":
