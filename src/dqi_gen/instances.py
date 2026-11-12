@@ -14,6 +14,7 @@ large enough for `eps_plus < 1/16` (about 1,400 shots with zero failures; `min_s
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import math
 from collections.abc import Callable
@@ -62,9 +63,7 @@ def build(generator: str, inst: Instance) -> Any:
     builders["reference"] = lambda m, n, b: host.reference().build_reference_circuit(m, n, b)
 
     def divstep(m: int, n: int, b: int) -> Any:
-        from dqi_gen.decoder import build_circuit
-
-        return build_circuit(m, n, b)
+        return importlib.import_module("dqi_gen.decoder").build_circuit(m, n, b)
 
     builders["divstep"] = divstep
     if generator not in builders:
