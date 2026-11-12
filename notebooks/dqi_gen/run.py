@@ -10,12 +10,12 @@ import resource
 import subprocess
 import time
 
-BRANCH = "main"
+BRANCH = "qcc-19-fast-multiplier"
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
     (
-        "verify-lanczos-full",
+        "build-lanczos-full",
         [
             "-m",
             "dqi_gen.instances",
@@ -23,11 +23,27 @@ JOBS = [
             "lanczos",
             "--instance",
             "full",
-            "--shots",
-            "102400",
+            "--salts",
+            "0",
+            "--sha",
+            "--save",
+            "{out}/lanczos.kmb",
+        ],
+    ),
+    (
+        "verify-lanczos-full",
+        [
+            "-c",
+            "import sys; from bench.cli import main; sys.exit(main(sys.argv[1:]))",
+            "verify",
+            "dqi",
+            "{out}/lanczos.kmb",
             "--salts",
             "5",
-            "--sha",
+            "--data",
+            "{comp}",
+            "--ledger",
+            "{out}/ledger/results.jsonl",
         ],
     ),
 ]
@@ -49,7 +65,7 @@ subprocess.run(
 )
 env = {"PYTHONPATH": str(REPO / "src"), "QCC_DATA": str(COMP), "PATH": "/usr/bin:/bin:/usr/local/bin"}
 for name, argv in JOBS:
-    argv = [a.format(out=OUT, repo=REPO) for a in argv]
+    argv = [a.format(out=OUT, repo=REPO, comp=COMP) for a in argv]
     print(f"== {name}: python {' '.join(argv)}", flush=True)
     start = time.monotonic()
     proc = subprocess.run(["python", *argv], cwd=REPO, env=env, capture_output=True, text=True)
