@@ -12,7 +12,7 @@ import math
 import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 import numpy as np
 
-from invsqrt_gen.model import Tables, normalised_inputs, rel_error
+from invsqrt_gen.model import MAX_X, Tables, normalised_inputs, reachable_mask, rel_error
 from invsqrt_gen.params import FRAC, Params
 
 
@@ -21,9 +21,14 @@ def predict(p: Params, t: Tables, circuit: km.Circuit) -> dict[str, float]:
     err, per = rel_error(p, t)
     xn, par = normalised_inputs()
     y = 1.0 / np.sqrt(xn / 2.0**FRAC * 2.0 ** (1 - par))
+    reach = reachable_mask()
     margin = math.inf
     for s in range(11):  # x = xn >> (par + 2 s) when that is exact: phase 2^(s-10) Y, tolerance 2^-24 of it
-        valid = (xn & (np.left_shift(1, par + 2 * s) - 1)) == 0
+        z = par + 2 * s
+        x = xn >> z
+        valid = (
+            ((xn & (np.left_shift(1, z) - 1)) == 0) & (x >= 1) & (x <= MAX_X)
+        )  # the verifier runs x <= MAX_X
         if valid.any():
             margin = min(margin, float((2.0 ** (s - 10) * y[valid] * (2.0**-24 - per[valid])).min()))
     stats = circuit.operation_statistics()
@@ -38,5 +43,6 @@ def predict(p: Params, t: Tables, circuit: km.Circuit) -> dict[str, float]:
         "toffolis": int(stats.num_toffoli_like),
         "rotations": n_rot,
         "model_error_log2": math.log2(err),
+        "reachable_error_log2": math.log2(float(per[reach].max())),
         "margin_log2": math.log2(margin) if margin > 0 else -math.inf,
     }
