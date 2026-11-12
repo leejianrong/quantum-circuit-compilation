@@ -7,13 +7,14 @@ the problem and the host's reference builder (ADR-0009 stage 1). The only look a
 (operation counts, CSWAP control multiplicities, the nesting depth of its condition blocks), logged in `docs/PROVENANCE.md`;
 no change below derives from it.
 
-**Result: ratio 12 is reached (E023): 94 qubits, 1,489 executed Toffolis, 45 rotations, predicted cost 170,102.6 (ratio
-12.21)**, 5 of 5 salts pass with 0 failures at 170,102.54 to 170,102.58 (the cost moves in the sixth digit with the
-salt because the 11 conditional flag-clear Toffolis run on about half of the shots; circuit sha256 `25c0b722164e`). Ratio 15 and the frontier are not reached (E024, E025): the doubled
-un-computation cannot be removed inside this architecture, and the qubit floor of the Horner family is close to 90 (analysis
-below). Nothing here touches `best/`.
+**Result: ratio 12 is reached (E023): 93 qubits, 1,487 executed Toffolis, 45 rotations, cost 168,237.5 (ratio 12.34), 5 of 5
+salts pass with 0 failures (168,237.44 to 168,237.59: the sixth digit moves with the salt because the 11 conditional flag-clear
+Toffolis run on about half of the shots; circuit sha256 `cc5472d2de4a`, byte-identical from the CLI and from the pickled
+tables).** The previous step of the same work, 28,19,10 (94 qubits, 170,102.5, ratio 12.21), also passes 5 of 5. Ratio 15 and
+the frontier are not reached (E024, E025): the doubled un-computation cannot be removed inside this architecture, and the qubit
+floor of the Horner family is close to 90 (analysis below). Nothing here touches `best/`.
 
-Reproduce: `uv run python -m invsqrt_gen.cli --a 7 --frac 28,19,10 --guard 2 --pm1 --rnd --polish --reachable --radius 2 out/e023`.
+Reproduce: `uv run python -m invsqrt_gen.cli --a 7 --frac 28,19,9 --guard 2 --pm1 --rnd --polish --reachable --radius 2 out/e023`.
 
 | Build (all predicted with `predict.py`, exact on every earlier verifier run) | Qubits | Toffolis | Cost | Ratio |
 |---|---:|---:|---:|---:|
@@ -27,6 +28,7 @@ Reproduce: `uv run python -m invsqrt_gen.cli --a 7 --frac 28,19,10 --guard 2 --p
 | + one table-loaded extension qubit instead of two | 94 | 1,493 | 173,096 | 12.00 |
 | + constant-one coarse bit moved with CNOTs | 94 | 1,491 | 172,908 | 12.01 |
 | + polish radius 2 (2^-24.18, rotation margin 2^-37.5 instead of 2^-42) | 94 | 1,489 | 170,103 | 12.21 |
+| + `V_2` at 9 fractional bits (28,19,9 fitted on the reachable inputs: 2^-24.16, margin 2^-37.8) | 93 | 1,487 | 168,237.5 | 12.34 |
 
 ## What paid
 
@@ -55,7 +57,22 @@ inputs on the full-size circuit: 0 phase mismatches, `x` restored, scratch clean
    the slot above it when its flag is set (the slot is empty exactly then): two CNOTs per direction instead of a Toffoli.
 7. **Tuning at the boundary.** With one qubit and a row less per window, the 28,19,10 guard 2 table (judged infeasible before:
    2^-24.01, margin 2^-42 turns) becomes the best configuration; a polish search of radius 2 instead of 1 on `c_1, c_2` improves
-   it to 2^-24.18 (more margin, so cheaper rotations: 31.6 to 28.6 T each, about -37 Toffoli-equivalents).
+   it to 2^-24.18 (more margin, so cheaper rotations: 31.6 to 28.6 T each, about -37 Toffoli-equivalents), and fitting on the
+   reachable inputs makes `V_2` at 9 bits pass as well (the earlier 28,19,9 fit had not used `--reachable`). Radius 3 and 4
+   change nothing (the per-segment search has converged). Reachable-fitted, radius 2, round rows, guard 2 unless stated:
+
+   | f0,f1,f2 | reachable error | verdict |
+   |---|---:|---|
+   | 28,19,10 | 2^-24.18 | passes, 94 qubits, 170,103 |
+   | **28,19,9** | **2^-24.16** | **passes, 93 qubits, 168,237.5** |
+   | 28,19,8 | 2^-23.96 | 0.04 bit short (92 qubits would be about 166.5k) |
+   | 28,18,10 (radius 4 too) | 2^-23.77 | fails |
+   | 28,18,9 | 2^-23.68 | fails |
+   | 27,19,10 guard 1 (radius 4 too) | 2^-23.83 | fails |
+   | 27,19,9 guard 1 | 2^-23.74 | fails |
+   | 27,18,9 guard 1 | 2^-23.45 | fails |
+   | 28,19,9 guard 3 (25 phased bits) | 2^-23.81 | fails |
+   | 27,19,9 guard 2 (25 phased bits) | 2^-23.56 | fails |
 
 ## Lever (a): measurement-based uncomputation
 
@@ -131,7 +148,7 @@ bits, window 21 and 13; point 4 recovered 33 of them). Ways to remove the rest, 
 
 ## Lever (d): qubit reuse
 
-Peak at 94: `x` 22 (one lent), flags 5, `V_0` window 21, `V_1` 12 + 6 (+ the lent extension), `V_2` 9, 19 carries of the widest
+Peak at 93: `x` 22 (one lent), flags 5, `V_0` window 21, `V_1` 12 + 6 (+ the lent extension), `V_2` 8, 19 carries of the widest
 add. The coarse stage (cw 9 + 10 head) and the lookup stage (92) are within two of it, so a further qubit needs all three to move.
 Each qubit is worth about 19 Toffoli-equivalents. What was tried: dirty carries in the idle `V_2` (4 Toffolis per borrowed
 bit), splitting the carry chain (+1 Toffoli per bit per add), reloading `V_2` (254 Toffolis), a shifted copy of the fine word with
@@ -149,7 +166,7 @@ coarse word. None breaks even.
 
 ## Where the rest is
 
-Executed Toffolis by stage (1,489): lookup 254, normalise 105, un-normalise 101 (11 conditional), coarse 107, fine 164,
+Executed Toffolis by stage (1,489 in the 28,19,10 build, 1,487 in the final one): lookup 254, normalise 105, un-normalise 101 (11 conditional), coarse 107, fine 164,
 Horner 258 + 114 forward and again in the mirror. The public frontier executes about 1,238 with 62 qubits: its CSWAP count (205)
 is about what our two normalisations cost alone, so it spends about half of our 248 on the `2^s` shifts, and a polynomial stage that
 fits in 35 qubits above `x` and the flags. Neither follows from anything above; ratio 15 needs both.
@@ -157,6 +174,6 @@ fits in 35 qubits above `x` and the flags. Neither follows from anything above; 
 ## Reproduce
 
 ```bash
-uv run python -m invsqrt_gen.cli --a 7 --frac 28,19,10 --guard 2 --pm1 --rnd --polish --reachable --radius 2 out/e023
-flock /tmp/qcc-heavy.lock env QCC_DATA=$PWD/data uv run bench verify invsqrt out/e023.kmb --salts 10
+uv run python -m invsqrt_gen.cli --a 7 --frac 28,19,9 --guard 2 --pm1 --rnd --polish --reachable --radius 2 out/e023
+flock /tmp/qcc-heavy.lock env QCC_DATA=$PWD/data uv run bench verify invsqrt out/e023.kmb --salts 5
 ```
