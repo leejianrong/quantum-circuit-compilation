@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -29,3 +29,6 @@ docs-serve: ## Serve the learning site locally with live reload
 
 fetch-data: ## Download competition data into data/ (needs the Kaggle CLI)
 	bash scripts/fetch_data.sh
+
+dashboard: ## Run the local dashboard (needs `uv sync --extra dashboard`); prints a URL on the first free port
+	uv run python -m dashboard
