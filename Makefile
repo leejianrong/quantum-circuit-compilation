@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -32,3 +32,6 @@ fetch-data: ## Download competition data into data/ (needs the Kaggle CLI)
 
 dashboard: ## Run the local dashboard (needs `uv sync --extra dashboard`); prints a URL on the first free port
 	uv run python -m dashboard
+
+plots-readme: ## Redraw docs/img/*.png (plots and dashboard screenshots) from the live ledger; light, verifies nothing
+	uv run --extra plots --extra dashboard --extra shots python scripts/plots_readme.py

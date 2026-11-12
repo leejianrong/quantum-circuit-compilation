@@ -5,7 +5,6 @@ function returning a component, so adding a tab is one line in `TABS`.
 """
 
 import pathlib
-import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -104,40 +103,48 @@ def scoreboard(rows: list[ledger.Row]) -> indah.Component:
             cards,
             score_chart(rows, s),
             ratio_chart(rows, s),
-            log_view(rows),
+            log_view(rows, s),
         ],
         gap="1.25rem",
     )
 
 
-def score_chart(rows: list[ledger.Row], s: data.Summary) -> indah.Component:
-    rules = (
-        [
+def failure_rules(rows: list[ledger.Row]) -> list[dict[str, Any]]:
+    """A vertical rule per verifier failure (the latest 12), where the run happened."""
+    return [
+        {"x": h, "label": "failed run", "color": plots.COLORS["fail"]} for h in data.failure_hours(rows)[-12:]
+    ]
+
+
+def score_chart(rows: list[ledger.Row], s: data.Summary, *, log: bool = False) -> indah.Component:
+    series = data.score_series(rows)
+    rules = failure_rules(rows)
+    if s.public_score:
+        rules.insert(
+            0,
             {
                 "y": s.public_score,
                 "label": f"public reference (unverified) {s.public_score:.1f}x",
                 "color": PUBLIC,
-            }
-        ]
-        if s.public_score
-        else []
-    )
+            },
+        )
     return indah.Chart(
-        data.score_rows(rows),
+        indah.chart_rows(series),
         series=[
-            {"label": "ours (verified)", "stroke": OURS, "width": 3},
+            {"label": "ours (verified)", "stroke": OURS, "kind": "step", "width": 3},
             {"label": "leaderboard", "stroke": LEADERBOARD, "kind": "scatter", "size": 10},
         ],
-        title="Score over time (higher is better)",
+        title="Score over time (higher is better)" + (", log scale" if log else ""),
         x_label=x_label(rows),
         y_label="score (geo. mean of ratios)",
+        y_scale="log" if log else "linear",
         rules=rules,
         points=True,
         height=280,
     )
 
 
-def ratio_chart(rows: list[ledger.Row], s: data.Summary) -> indah.Component:
+def ratio_chart(rows: list[ledger.Row], s: data.Summary, *, log: bool = False) -> indah.Component:
     top = max([v for v in s.public.values() if v] + [1.0])
     rules = [
         {"y": v, "label": f"{b} public reference {v:.1f}x", "color": plots.COLORS[b]}
@@ -145,13 +152,18 @@ def ratio_chart(rows: list[ledger.Row], s: data.Summary) -> indah.Component:
         if (v := s.public[b])
     ]
     return indah.Chart(
-        data.progress_rows(rows),
-        series=[{"label": f"{b} (ours)", "stroke": plots.COLORS[b], "width": 3} for b in data.BENCHES],
-        title="Ratio per benchmark, ours (solid) against the public reference (dashed)",
+        indah.chart_rows(data.progress_series(rows)),
+        series=[
+            {"label": f"{b} (ours)", "stroke": plots.COLORS[b], "kind": "step", "width": 3}
+            for b in data.BENCHES
+        ],
+        title="Ratio per benchmark, ours (solid) against the public reference (dashed)"
+        + (", log scale" if log else ""),
         x_label=x_label(rows),
         y_label="baseline cost / cost",
-        rules=rules,
-        y_range=(0, 1.1 * top),  # rules do not stretch the axis
+        y_scale="log" if log else "linear",
+        rules=rules + failure_rules(rows),
+        y_range=(0.5, 1.5 * top) if log else (0, 1.1 * top),  # rules do not stretch the axis
         points=True,
         height=320,
     )
@@ -161,20 +173,11 @@ def x_label(rows: list[ledger.Row]) -> str:
     return f"hours since {plots.timeline_origin(rows):%Y-%m-%d %H:%M} UTC (undated runs sit at 0)"
 
 
-def log_view(rows: list[ledger.Row]) -> indah.Component:
-    """The same story on log axes, drawn on the server: Chart has no log scale yet (indah#328)."""
-    try:
-        png = _progress_png(rows)
-    except ImportError:
-        return indah.Text("Install the plots extra for the log-scale view.", variant="caption")
+def log_view(rows: list[ledger.Row], s: data.Summary) -> indah.Component:
+    """The same story on log axes: ratios span a factor of 60 between benchmarks."""
     return indah.Expander(
-        [indah.Image(png, alt="Score and ratio over time on log axes")], label="Log-scale view", open=False
+        [score_chart(rows, s, log=True), ratio_chart(rows, s, log=True)], label="Log-scale view", open=False
     )
-
-
-def _progress_png(rows: list[ledger.Row]) -> bytes:
-    with tempfile.TemporaryDirectory() as d:
-        return plots.render_progress(rows, pathlib.Path(d)).read_bytes()
 
 
 # ---- experiments -----------------------------------------------------------------------------
