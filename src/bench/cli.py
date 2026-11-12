@@ -47,8 +47,10 @@ def make_runner(bench: str, circuit: pathlib.Path, data: pathlib.Path, divisor: 
 
     if bench == "invsqrt":
         mod = importlib.import_module("invsqrt.verify_submission_invsqrt")
-        c, spec = load(circuit), mod.ProblemSpecInvSqrt.for_n_p(10)
-        return lambda salt: float(mod.verify(c, spec, salt=salt)["score"])
+        shots = max(1, mod.DEFAULT_SHOTS_PER_X // divisor)  # reduced runs take fewer shots per x
+        c, spec = load(circuit), mod.ProblemSpecInvSqrt.for_n_p(10, shots_per_x=shots)
+        batch = next(n for n in (mod.DEFAULT_BATCH_SIZE, 64, 16, 4, 1) if spec.num_shots % n == 0)
+        return lambda salt: float(mod.verify(c, spec, salt=salt, batch_size=batch)["score"])
     if bench == "dqi":
         mod = importlib.import_module("dqi.verify_submission_dqi")
         batches = max(1, mod.DEFAULT_NUM_SHOTS // mod.DEFAULT_BATCH_SIZE // divisor)
@@ -78,6 +80,7 @@ def run(
     experiment: str | None = None,
     parent_sha: str | None = None,
     kind: str | None = None,
+    salt_start: int = 0,
 ) -> ledger.Row:
     """Verify under `salts` salts. Any exception (e.g. a corrupted circuit) is a FAIL row."""
     start = time.monotonic()
@@ -89,7 +92,7 @@ def run(
         verify, failures, error = None, salts, f"load: {type(err).__name__}: {err}"
     for i in range(salts if verify else 0):
         try:
-            costs.append(verify(salt_for(i)))  # type: ignore[misc]
+            costs.append(verify(salt_for(salt_start + i)))  # type: ignore[misc]
         except FAILURES as err:
             failures, error = failures + 1, error or f"salt {i}: {type(err).__name__}: {err}"
     structure: dict[str, Any] = {}
@@ -128,6 +131,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     v.add_argument("bench", choices=BENCHES)
     v.add_argument("circuit", type=pathlib.Path, help="circuit file (dfthcsos: the submission directory)")
     v.add_argument("--salts", type=int, default=1)
+    v.add_argument(
+        "--salt-start", type=int, default=0, help="index of the first salt (run salts one at a time)"
+    )
     v.add_argument(
         "--shots-divisor", type=int, default=1, help="reduced-shot run (flagged); inner loops only"
     )
@@ -168,6 +174,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         experiment=a.experiment,
         parent_sha=a.parent,
         kind=a.kind,
+        salt_start=a.salt_start,
     )
     ledger.append(row, a.ledger)
     print(
