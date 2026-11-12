@@ -1,0 +1,42 @@
+"""Predict the verifier's cost of a generated circuit before running it.
+
+Cost is `Q * C` with `C = Toffolis + T / 4` (see docs/experiments/invsqrt-cost-drivers.md). No generated
+circuit puts a Toffoli under a measurement condition, so the static count is the executed count. The rotation
+cost depends on the margin the arithmetic error leaves: `eps = pi * margin / n_rot` and each rotation costs
+`0.56 log2(1/eps) + 5.3` T, where `margin` is the smallest `tol(x) - |error(x)|` in turns, here
+`min f(x) (2^-24 - rel(x))` over every `x` with `f = 2^(s-10) Y`.
+"""
+
+import math
+
+import kickmix as km  # type: ignore[import-not-found,unused-ignore]
+import numpy as np
+
+from invsqrt_gen.model import Tables, normalised_inputs, rel_error
+from invsqrt_gen.params import FRAC, Params
+
+
+def predict(p: Params, t: Tables, circuit: km.Circuit) -> dict[str, float]:
+    """Predicted `cost`, `qubits`, `toffolis`, rotations and model error for the circuit of `(p, t)`."""
+    err, per = rel_error(p, t)
+    xn, par = normalised_inputs()
+    y = 1.0 / np.sqrt(xn / 2.0**FRAC * 2.0 ** (1 - par))
+    margin = math.inf
+    for s in range(11):  # x = xn >> (par + 2 s) when that is exact: phase 2^(s-10) Y, tolerance 2^-24 of it
+        valid = (xn & (np.left_shift(1, par + 2 * s) - 1)) == 0
+        if valid.any():
+            margin = min(margin, float((2.0 ** (s - 10) * y[valid] * (2.0**-24 - per[valid])).min()))
+    stats = circuit.operation_statistics()
+    n_rot = int(stats.num_z_pow(min_clifford_hierarchy_level=4))
+    t_base = int(stats.num_t_like)
+    eps = math.pi * margin / n_rot
+    t_count = t_base + n_rot * (0.56 * math.log2(1 / eps) + 5.3) if margin > 0 else math.inf
+    toff = int(stats.num_toffoli_like) + t_count / 4
+    return {
+        "cost": circuit.num_qubits * toff,
+        "qubits": circuit.num_qubits,
+        "toffolis": int(stats.num_toffoli_like),
+        "rotations": n_rot,
+        "model_error_log2": math.log2(err),
+        "margin_log2": math.log2(margin) if margin > 0 else -math.inf,
+    }

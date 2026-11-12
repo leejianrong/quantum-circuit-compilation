@@ -74,7 +74,8 @@ normalise 105 + 105, lookup 254 + 25, Horner step 1 191 + 191, Horner step 0 429
 ## Study of the public frontier (ADR-0009 stage 2, aggregate only)
 
 We did not read the 62-qubit circuit gate by gate. From `operation_statistics`, per-window instruction
-histograms and the `Z_POW` listing we learned two structural facts, neither implemented yet:
+histograms and the `Z_POW` listing we learned two structural facts, both implemented in QCC-13
+(`docs/experiments/invsqrt-bitserial.md`: neither pays alone, a centered remainder does):
 
 * Every non-Clifford rotation (43 of them) acts on one qubit, with a `HMR` after each: the phase is
   applied bit by bit through a single working qubit instead of a phased register of `wy + 10` qubits.

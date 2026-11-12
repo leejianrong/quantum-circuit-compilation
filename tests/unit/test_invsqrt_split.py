@@ -1,0 +1,63 @@
+"""The split-phase invsqrt generators (QCC-13): each circuit must equal its bit-exact model."""
+
+from fractions import Fraction
+
+import kickmix as km
+import numpy as np
+import pytest
+
+from invsqrt_gen.model import Tables, fit_tables, model_y, rel_error
+from invsqrt_gen.params import Params
+from invsqrt_gen.predict import predict
+from invsqrt_gen.split import build_centered, build_split, fit_split
+
+COMPLEMENT = Params(a=3, frac=(22, 15, 9), guard=2, ceil=True)
+CENTERED = Params(a=3, frac=(22, 15, 9), guard=2, centered=True)
+
+
+def _check(p: Params, t: Tables, c: km.Circuit) -> None:
+    rng = np.random.default_rng(0)
+    xs = np.concatenate([rng.integers(1, 3_133_453, 80), [1, 2, 3, 4, 5, 16, 1 << 20, 3_133_452]]).astype(
+        np.int64
+    )
+    sim = km.Simulator(batch_size=len(xs), seed=3)
+    reg = c.register_data["x"]
+    bits = ((xs[None, :] >> np.arange(22, dtype=np.int64)[:, None]) & 1) == 1
+    sim.clear_for_shot()
+    sim.write_across_shots(reg, bits)
+    sim.do(c)
+    back = sim.read_across_shots(reg).astype(np.int64)
+    assert (back * (1 << np.arange(22))[:, None]).sum(axis=0).tolist() == xs.tolist()
+    scratch = km.array([km.q(i) for i in range(c.num_qubits) if km.q(i) not in set(reg)])
+    assert not sim.read_across_shots(scratch).any()
+    f = p.wy + 10
+    for i, x in enumerate(xs.tolist()):
+        z = 22 - x.bit_length()
+        y = int(model_y(p, t, np.array([x << z], dtype=np.int64), np.array([z & 1], dtype=np.int64))[0])
+        assert Fraction(sim.read_shot_phase(i)) / 2 % 1 == Fraction(y << (z // 2), 1 << f) % 1
+
+
+@pytest.mark.parametrize("coarse", ["barrel", "serial"])
+def test_complement_split_equals_model(coarse: str) -> None:
+    t = fit_split(COMPLEMENT, passes=1, stride=211)
+    _check(COMPLEMENT, t, build_split(COMPLEMENT, t, coarse))
+
+
+@pytest.mark.parametrize("coarse", ["barrel", "serial"])
+def test_centered_split_equals_model(coarse: str) -> None:
+    t = fit_tables(CENTERED, passes=1, stride=211)
+    _check(CENTERED, t, build_centered(CENTERED, t, coarse))
+
+
+def test_centered_remainder_saves_a_row() -> None:
+    plain = Params(a=3, frac=(22, 15, 9), guard=2)
+    from invsqrt_gen.model import digit_plan
+
+    assert len(digit_plan(CENTERED, 0)) == len(digit_plan(plain, 0)) - 1
+
+
+def test_predict_reports_cost() -> None:
+    t = fit_tables(CENTERED, passes=1, stride=211)
+    r = predict(CENTERED, t, build_centered(CENTERED, t))
+    assert r["cost"] > r["qubits"] * r["toffolis"]  # the rotations add T cost on top of the Toffolis
+    assert rel_error(CENTERED, t)[0] == pytest.approx(2.0 ** r["model_error_log2"])

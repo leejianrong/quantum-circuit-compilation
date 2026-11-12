@@ -2,6 +2,9 @@
 
 from dataclasses import dataclass
 
+import numpy as np
+from numpy.typing import NDArray
+
 WIDTH = 22  # x register: 2 n_p + 2 with n_p = 10
 FRAC = WIDTH - 1  # fractional bits of the normalised mantissa M = x_norm / 2^FRAC, M in [1, 2)
 MAX_PAIRS = 10  # x >= 1 has at most 21 leading zeros, so s = z // 2 <= 10
@@ -21,6 +24,8 @@ class Params:
     a: int = 7
     frac: tuple[int, ...] = (30, 21, 14)
     guard: int = 4
+    ceil: bool = False
+    centered: bool = False
 
     @property
     def degree(self) -> int:
@@ -39,3 +44,7 @@ class Params:
     @property
     def entries(self) -> range:
         return range(2 << self.a)
+
+    def phased(self, v: NDArray[np.int64]) -> NDArray[np.int64]:
+        """`V_0` reduced to the phased word: `V_0 >> guard` (or its ceiling when `ceil`)."""
+        return (v + ((1 << self.guard) - 1) >> self.guard) if self.ceil else (v >> self.guard)
