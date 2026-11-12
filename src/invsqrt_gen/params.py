@@ -26,6 +26,10 @@ class Params:
     guard: int = 4
     ceil: bool = False
     centered: bool = False
+    pm1: bool = False  # remainder as signed digits +-1 (centered generator): every row is one plain add
+    rnd: bool = (
+        False  # pm1 rows round their slice (the bit below it is the adder's carry-in) instead of flooring
+    )
 
     @property
     def degree(self) -> int:

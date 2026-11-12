@@ -13,6 +13,8 @@ from invsqrt_gen.split import build_centered, build_split, fit_split
 
 COMPLEMENT = Params(a=3, frac=(22, 15, 9), guard=2, ceil=True)
 CENTERED = Params(a=3, frac=(22, 15, 9), guard=2, centered=True)
+PM1 = Params(a=3, frac=(22, 15, 9), guard=2, centered=True, pm1=True)
+PM1R = Params(a=3, frac=(22, 15, 9), guard=2, centered=True, pm1=True, rnd=True)
 
 
 def _check(p: Params, t: Tables, c: km.Circuit) -> None:
@@ -47,6 +49,15 @@ def test_complement_split_equals_model(coarse: str) -> None:
 def test_centered_split_equals_model(coarse: str) -> None:
     t = fit_tables(CENTERED, passes=1, stride=211)
     _check(CENTERED, t, build_centered(CENTERED, t, coarse))
+
+
+@pytest.mark.parametrize("p", [PM1, PM1R], ids=["floor", "round"])
+def test_pm1_rows_equal_model(p: Params) -> None:
+    t = fit_tables(p, passes=1, stride=211)
+    c = build_centered(p, t, "barrel")
+    _check(p, t, c)
+    # no operand register: the only ancillas are the carries of the widest add
+    assert c.num_qubits < build_centered(CENTERED, fit_tables(CENTERED, passes=1, stride=211)).num_qubits
 
 
 def test_centered_remainder_saves_a_row() -> None:
