@@ -63,11 +63,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--passes", type=int, default=3, help="coefficient refinement passes")
     ap.add_argument("--stride", type=int, default=13, help="remainder sampling stride while fitting")
     ap.add_argument("--polish", action="store_true", help="exhaustive joint refinement of the coefficients")
+    ap.add_argument(
+        "--radius", type=int, default=1, help="polish search radius (+-r on every coefficient but c_0)"
+    )
     ap.add_argument("prefix", type=pathlib.Path, help="output path without extension")
     ns = ap.parse_args(argv)
     p = parse_params(ns)
     if p.centered:
-        t = fit_tables(p, passes=ns.passes, stride=ns.stride, polish=ns.polish, reachable=ns.reachable)
+        t = fit_tables(
+            p,
+            passes=ns.passes,
+            stride=ns.stride,
+            polish=ns.polish,
+            reachable=ns.reachable,
+            radius=ns.radius,
+        )
         c = build_centered(p, t, ns.split or "barrel")
     elif ns.split:
         t = fit_split(p, passes=ns.passes, stride=ns.stride, polish=ns.polish)
