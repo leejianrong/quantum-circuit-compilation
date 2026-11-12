@@ -30,6 +30,10 @@ def parse(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--checkpoint-every", type=int, default=100)
     ap.add_argument("--maxcor", type=int, default=20)
+    ap.add_argument(
+        "--init-from", type=Path, help="start from another run's v.npy, w.npy; padded up to --shape"
+    )
+    ap.add_argument("--max-secs", type=float, default=0.0, help="stop (and save) after this wall time")
     return ap.parse_args(argv)
 
 
@@ -54,6 +58,25 @@ def init_point(obj: Any, seed: int) -> tuple[Any, Any]:
     return v, w * np.sqrt(max(a / b, 1e-12))
 
 
+def grow(v0: Any, w0: Any, shape: tuple[int, int, int], seed: int) -> tuple[Any, Any]:
+    """Pad a fit to a larger shape: new ``c`` columns and new ``b`` rows start small but nonzero."""
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    r, b, c = shape
+    r0, b0, c0 = w0.shape
+    assert r == r0 and b >= b0 and c >= c0
+    amp = 0.05 * float(np.abs(w0).mean())
+    w = rng.normal(size=(r, b, c)) * amp
+    w[:, :b0, :c0] = w0
+    v = rng.normal(size=(r * b, v0.shape[1])) * float(
+        np.linalg.norm(v0, axis=1).mean() / np.sqrt(v0.shape[1])
+    )
+    v3 = v.reshape(r, b, -1)
+    v3[:, :b0] = v0.reshape(r0, b0, -1)
+    return v3.reshape(r * b, -1), w
+
+
 def run(args: argparse.Namespace) -> float:
     import numpy as np
     from scipy.optimize import minimize
@@ -72,6 +95,10 @@ def run(args: argparse.Namespace) -> float:
         lines = (out / "log.jsonl").read_text().splitlines() if (out / "log.jsonl").exists() else []
         done = json.loads(lines[-1])["it"] if lines else 0
         print(f"resuming at iteration {done}", flush=True)
+    elif args.init_from is not None:
+        v, w = grow(
+            np.load(args.init_from / "v.npy"), np.load(args.init_from / "w.npy"), (r, b, c), args.seed
+        )
     else:
         v, w = init_point(obj, args.seed)
     wsc = float(np.abs(w).mean())
@@ -103,6 +130,8 @@ def run(args: argparse.Namespace) -> float:
         state["n"] += 1
         if state["n"] % args.checkpoint_every == 0:
             save(x)
+        if args.max_secs and time.time() - t0 > args.max_secs:
+            raise StopIteration
 
     x0 = np.concatenate([v.ravel(), w.ravel() / wsc])
     res = minimize(
