@@ -46,6 +46,7 @@ INSTANCES = {
         Instance("small", 63, 10, 6),
         Instance("medium", 255, 20, 8),
         Instance("large", 1023, 40, 10),
+        Instance("narrow", 71, 70, 12),  # full n and field, only 71 positions: about 7M ops, fits locally
         Instance("full", 4095, 70, 12),  # the benchmark; local machines should not build it
     )
 }
@@ -92,11 +93,18 @@ def main() -> None:
     p.add_argument("--gen", default="reference", choices=("reference", "divstep"))
     p.add_argument("--instance", default="small", choices=sorted(INSTANCES))
     p.add_argument("--shots", type=int, default=None)
+    p.add_argument("--salts", type=int, default=1, help="verify under this many salts (build once)")
+    p.add_argument("--save", help="also write the circuit here as .kmb (binary)")
     a = p.parse_args()
     inst = INSTANCES[a.instance]
-    out = verify(build(a.gen, inst), inst, shots=a.shots)
-    keep = ("status", "num_qubits", "toffoli_count", "q2t", "value_errors", "phase_errors", "verified_shots")
-    print(json.dumps({"instance": inst.name, "generator": a.gen, **{k: out[k] for k in keep}}))
+    circuit = build(a.gen, inst)
+    if a.save:
+        circuit.to_file(a.save, format="kmb")
+    keep = ("status", "num_qubits", "toffoli_count", "q2t", "score", "value_errors", "phase_errors")
+    for i in range(a.salts):
+        out = verify(circuit, inst, shots=a.shots, salt=f"dqi-gen-salt-{i}")
+        row = {"instance": inst.name, "generator": a.gen, "salt": i, **{k: out[k] for k in keep}}
+        print(json.dumps({**row, "verified_shots": out["verified_shots"]}), flush=True)
 
 
 if __name__ == "__main__":

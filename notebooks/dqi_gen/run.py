@@ -14,7 +14,21 @@ BRANCH = "main"
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
-    ("audit-reference-full", ["-m", "dqi_gen.audit", "--json", "{out}/audit_reference_full.json"]),
+    (
+        "verify-divstep-full",
+        [
+            "-m",
+            "dqi_gen.instances",
+            "--gen",
+            "divstep",
+            "--instance",
+            "full",
+            "--shots",
+            "102400",
+            "--salts",
+            "5",
+        ],
+    ),
 ]
 
 INPUT = pathlib.Path("/kaggle/input")
@@ -37,7 +51,9 @@ for name, argv in JOBS:
     argv = [a.format(out=OUT, repo=REPO) for a in argv]
     print(f"== {name}: python {' '.join(argv)}", flush=True)
     start = time.monotonic()
-    proc = subprocess.run(["python", *argv], cwd=REPO, env=env)
+    proc = subprocess.run(["python", *argv], cwd=REPO, env=env, capture_output=True, text=True)
+    print(proc.stdout, proc.stderr[-2000:], flush=True)
+    (OUT / f"{name}.out").write_text(proc.stdout)
     peak_gb = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024 / 1024
     wall = time.monotonic() - start
     line = f"{name}\texit={proc.returncode}\twall_s={wall:.0f}\tpeak_child_rss_gb={peak_gb:.1f}\n"
