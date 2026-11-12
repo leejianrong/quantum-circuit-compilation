@@ -1,4 +1,4 @@
-"""Lattice refinement of rounded words (QCC-16, E021): +-1 word moves where the quadratic model gains.
+"""Lattice refinement of rounded words (QCC-16, E022): +-1 word moves where the quadratic model gains.
 
 Negative result, kept for the record: see docs/experiments/dfthcsos-eight-bit.md.
 
