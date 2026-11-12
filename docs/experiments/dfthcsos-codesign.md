@@ -47,3 +47,32 @@ matrices) has to fit inside the remaining 0.02 gate.
 | tail error | 0.374 | 0.077 | 0.0167 | 0.0074 | 0.0013 | 0.0003 |
 
 (Results of the fit follow below as they come in.)
+
+## Results so far (E003, E004)
+
+**E003, own continuous fit from scratch** (`scripts/dfthcsos_fit.py`, shape (8, 143, 44), random unit vectors,
+L-BFGS on `error_2^2`, 6 threads on a machine at load 40-80): `error_2` 0.446 (100 iterations), 0.219 (200),
+0.153 (300), 0.122 (400), 0.091 (600), 0.083 (700), about 3 to 6 s per iteration. It is still descending, but
+slowly; the gate is 0.02 and the public shape's reported floor is 0.0192, so a from-scratch fit needs many
+thousand more iterations or a better initialisation (the DF eigenvectors are dense, so the fixed-target
+decomposition per group is not a good start). No own table passes the gates yet, so no verifier run is
+justified and the ledger is unchanged: best verified remains 489,890,973 (ratio 6.85) with the public words.
+
+**E004, rank-budget rounding on a stand-in table** (`src/dfthcsos_gen/rankfit.py`). To develop the rounding code
+before our own table exists, the host's 12-bit baseline angles (Apache-2.0 sample submission, development only,
+never an output) are read as continuous 8-bit angles. Findings:
+
+- Nearest-rounded bit planes of 3,976 rows have centered GF(2) rank 61 to 62 for bits 0 to 5 and 36 to 37 for
+  bits 6 and 7: no plane is low rank by accident, and the sign-like top planes are not either.
+- Forcing every plane to rank 8 after the fact (soft-decision alternating decoding, flip cost = increase of
+  squared angle error) multiplies the angle mean-square error by about 14,000, almost all of it from the top
+  planes where a flip costs up to 128^2. A rank budget cannot be imposed on rounded words.
+
+Consequence for the design: the structure has to live in the factorization (parametrise the planes as
+`F + G + rank-r` and optimise those discrete parameters, or choose the Givens tree and the address order so
+that the high planes are smooth), which is the work the public authors must have done during training. That is
+the next lever; the loader (E002) and the objective are ready for it.
+
+Cost model, for reference: with the 2-D loader at `J = 5` the angle cost per pass is `15 * 70 + 600 s`, so
+`s = 5.2` reproduces the public 8,302 (ratio 11.2) and every unit of `s` below that is worth 8% of the score;
+a plain unary loader at `J = 13` is 6.85.
