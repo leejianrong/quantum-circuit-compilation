@@ -33,10 +33,38 @@ def _swaps(
         b.cswap(ctl, reg[i], reg[i + m])
 
 
+def _phase_if_all_one(b: km.CircuitBuilder, qs: km.array) -> None:
+    """Flip the phase when every qubit of `qs` is 1 (an AND chain, cleared by measurement)."""
+    n = len(qs)
+    if n == 1:
+        b.z(qs[0])
+    elif n == 2:
+        b.cz(qs[0], qs[1])
+    elif n == 3:
+        b.ccz(qs[0], qs[1], qs[2])
+    else:
+        acc = b.alloc_qubits(n - 3)
+        b.init_and(qs[0], qs[1], acc[0])
+        for i in range(1, n - 3):
+            b.init_and(acc[i - 1], qs[i + 1], acc[i])
+        b.ccz(acc[n - 4], qs[n - 2], qs[n - 1])
+        for i in range(n - 4, 0, -1):
+            b.del_and(acc[i - 1], qs[i + 1], acc[i])
+        b.del_and(qs[0], qs[1], acc[0])
+        b.free(acc)
+
+
+def conditional_toffolis() -> int:
+    """Toffoli-like gates of the un-normalisation that sit under a measurement condition."""
+    return sum(max(0, m - 2) for m in (1 << j for j in range(Z_LEVELS)) if m >= 4)
+
+
 def normalise(b: km.CircuitBuilder, x: km.array, flags: km.array, inverse: bool = False) -> None:
     """`x := x 2^z` with `flags` the binary leading zero count `z` (5 levels, largest first).
 
-    `flags[0]` is the parity of `z`; `flags[1:]` are the digits of `s = z // 2`.
+    `flags[0]` is the parity of `z`; `flags[1:]` are the digits of `s = z // 2`. Going back, each flag is
+    cleared by measurement: the phase `(-1)^[top bits are zero]` is fixed only on the shots whose outcome
+    is 1, so the AND chain over the top bits runs on half of them.
     """
     order = range(Z_LEVELS) if inverse else range(Z_LEVELS - 1, -1, -1)
     for j in order:
@@ -49,9 +77,14 @@ def normalise(b: km.CircuitBuilder, x: km.array, flags: km.array, inverse: bool 
         # the top m bits are zero whenever the flag is set, so the shift never wraps
         _swaps(b, flags[j], x, m, WIDTH - m, inverse, descending=True)
         if inverse:
+            bit = b.alloc_bits(1)
+            b.hmr(km.array([flags[j]]), bit)
+            b.push_condition(bit[0])
             b.x(top)
-            b.multi_controlled_x(top, flags[j])
+            _phase_if_all_one(b, top)
             b.x(top)
+            b.pop_condition()
+            b.free(bit)
 
 
 def load(
@@ -70,42 +103,55 @@ def load(
                 b.cx(match, km.array(bits))
 
 
-def ripple_add(b: km.CircuitBuilder, a: km.array, t: km.array, subtract: bool = False) -> None:
-    """`t += a` (or `-=`) modulo 2^len(t), `a` unchanged and shorter than `t`; `len(t) - 1` Toffolis.
+def ripple_add(
+    b: km.CircuitBuilder, a: km.array, t: km.array, subtract: bool = False, cin: km.q | None = None
+) -> None:
+    """`t += a + cin` (or `-=`) modulo 2^len(t), `a` unchanged and shorter than `t`; `len(t) - 1` Toffolis.
 
     Gidney-style carry chain: carries are computed into fresh ancillas on the way up (one AND per
     bit, also through the bits of `t` above `a`, where the addend is zero) and cleared by measurement
-    on the way down, where the sum bits are also written.
+    on the way down, where the sum bits are also written. The optional carry-in `cin` (a qubit that
+    is not part of `a` or `t`) costs no Toffoli.
     """
     w, m = len(a), len(t)
     if subtract:
         b.x(t)
     c = b.alloc_qubits(m - 1)
+
+    def carry_in(i: int) -> km.q | None:
+        return c[i - 1] if i else cin
+
     for i in range(m - 1):
+        ci = carry_in(i)
         if i < w:
-            if i:
-                b.cx(c[i - 1], a[i])
-                b.cx(c[i - 1], t[i])
+            if ci is not None:
+                b.cx(ci, a[i])
+                b.cx(ci, t[i])
             b.init_and(a[i], t[i], c[i])
-            if i:
-                b.cx(c[i - 1], c[i])
+            if ci is not None:
+                b.cx(ci, c[i])
         else:
-            b.init_and(c[i - 1], t[i], c[i])
+            assert ci is not None
+            b.init_and(ci, t[i], c[i])
     top = m - 1
     if top < w:  # not used by the callers (the addend is always shorter than the target)
         raise ValueError("addend must be shorter than the target")
-    b.cx(c[top - 1], t[top])
+    ci = carry_in(top)
+    if ci is not None:
+        b.cx(ci, t[top])
     for i in range(m - 2, -1, -1):
+        ci = carry_in(i)
         if i < w:
-            if i:
-                b.cx(c[i - 1], c[i])
+            if ci is not None:
+                b.cx(ci, c[i])
             b.del_and(a[i], t[i], c[i])
-            if i:
-                b.cx(c[i - 1], a[i])
+            if ci is not None:
+                b.cx(ci, a[i])
             b.cx(a[i], t[i])
         else:
-            b.del_and(c[i - 1], t[i], c[i])
-            b.cx(c[i - 1], t[i])
+            assert ci is not None
+            b.del_and(ci, t[i], c[i])
+            b.cx(ci, t[i])
     b.free(c)
     if subtract:
         b.x(t)

@@ -34,8 +34,9 @@ from invsqrt_gen.build import (
     alloc_level,
     horner_step,
     normalise,
+    ripple_add,
 )
-from invsqrt_gen.model import Tables, digit_plan, fit_tables
+from invsqrt_gen.model import Tables, digit_plan, fit_tables, pm1_rows
 from invsqrt_gen.params import MAX_PAIRS, WIDTH, Params
 
 
@@ -245,16 +246,30 @@ def centered_step(
     src, tgt = levels[j + 1].value, levels[j]
     if inverse and len(tgt.hi):
         b.isub(tgt.ext, target=tgt.hi)
-    plan = digit_plan(p, j)
-    for dg in reversed(plan) if inverse else plan:
-        _booth_digit(b, p, x, src, tgt, dg, inverse)
+    if p.pm1:
+        window = km.array(list(tgt.lo) + list(tgt.ext if tgt.ext is not None else []))
+        rows = pm1_rows(p, j)
+        for i, sh in reversed(rows) if inverse else rows:
+            # t -= e_i a with e_i = 2 r_i - 1: complement the window around one add when r_i = 0
+            b.x(x[i])
+            b.cx(x[i], window[max(0, sh) :])
+            cin = src[-sh - 1] if p.rnd and sh < 0 else None
+            ripple_add(b, src[max(0, -sh) :], window[max(0, sh) :], subtract=not inverse, cin=cin)
+            b.cx(x[i], window[max(0, sh) :])
+            b.x(x[i])
+    else:
+        plan = digit_plan(p, j)
+        for dg in reversed(plan) if inverse else plan:
+            _booth_digit(b, p, x, src, tgt, dg, inverse)
     if not inverse and len(tgt.hi):
         b.iadd(tgt.ext, target=tgt.hi)
 
 
-def build_centered(p: Params, t: Tables, coarse: str = "barrel", max_qubits: int | None = None) -> km.Circuit:
+def build_centered(
+    p: Params, t: Tables, coarse: str = "barrel", max_qubits: int | None = None, fine: str = "barrel"
+) -> km.Circuit:
     """Split-phase generator with the remainder centered on its segment (`Params(centered=True)`)."""
-    assert p.centered and not p.ceil and coarse in ("barrel", "serial")
+    assert p.centered and not p.ceil and coarse in ("barrel", "serial") and fine in ("barrel", "serial")
     b = km.CircuitBuilder()
     if max_qubits is not None:
         b.set_max_qubits(max_qubits)
@@ -264,6 +279,13 @@ def build_centered(p: Params, t: Tables, coarse: str = "barrel", max_qubits: int
     d, a = p.degree, p.a
     k0 = p.frac[0] - a
     empty = km.array([])
+    addr = km.array(list(x[p.rwidth : WIDTH - 1]) + [flags[0]])
+    cwords, mwords = centered_words(p, t)
+    f_bits = p.wy + MAX_PAIRS
+    top = x[p.rwidth - 1]  # holds the sign of the centered remainder: inverted while the Horner stage runs
+
+    with b.mark("normalise"):  # before the table registers exist: the zero tests need their own ancillas
+        normalise(b, x, flags)
     levels = [Level(b.alloc_qubits(k0), None, empty, empty)]
     for j in range(1, d):
         kj = p.frac[j] - a
@@ -271,15 +293,8 @@ def build_centered(p: Params, t: Tables, coarse: str = "barrel", max_qubits: int
         levels.append(Level(b.alloc_qubits(kj), None, b.alloc_qubits(a), ext))
         b.x(ext[0])  # the window starts at lo + 2^K
     levels.append(Level(b.alloc_qubits(p.frac[d]), None, empty, empty))
-    addr = km.array(list(x[p.rwidth : WIDTH - 1]) + [flags[0]])
-    cwords, mwords = centered_words(p, t)
     cw = b.alloc_qubits(a + 2)
     main = km.array([q for lv in levels for q in lv.value])
-    f_bits = p.wy + MAX_PAIRS
-    top = x[p.rwidth - 1]  # holds the sign of the centered remainder: inverted while the Horner stage runs
-
-    with b.mark("normalise"):
-        normalise(b, x, flags)
     with b.mark("lookup"):
         with b.unary_iteration(addr, p.entries) as it:
             for v, match in it:
@@ -297,27 +312,32 @@ def build_centered(p: Params, t: Tables, coarse: str = "barrel", max_qubits: int
             serial_phase(b, cw, shift_flags, base, f_bits, 1)
         b.del_lookup(table=cwords, address=addr, target=cw)
     b.free(cw)
-    b.x(top)
+    if not p.pm1:
+        b.x(top)
     for j in range(d - 1, -1, -1):
         with b.mark(f"horner{j}"):
             centered_step(b, p, j, x, levels, inverse=False)
     with b.mark("fine"):
-        head = b.alloc_qubits(MAX_PAIRS)
-        word = km.array(list(levels[0].lo[p.guard :]) + list(head))
-        barrel_phase(b, word, shift_flags, k0 - p.guard, 0, f_bits, 1)
-        b.free(head)
+        if fine == "serial":
+            serial_phase(b, levels[0].lo[p.guard :], shift_flags, 0, f_bits, 1)
+        else:
+            head = b.alloc_qubits(MAX_PAIRS)
+            word = km.array(list(levels[0].lo[p.guard :]) + list(head))
+            barrel_phase(b, word, shift_flags, k0 - p.guard, 0, f_bits, 1)
+            b.free(head)
     for j in range(d):
         with b.mark(f"unhorner{j}"):
             centered_step(b, p, j, x, levels, inverse=True)
-    b.x(top)
+    if not p.pm1:
+        b.x(top)
     with b.mark("unlookup"):
         b.del_lookup(table=mwords, address=addr, target=main)
-    with b.mark("unnormalise"):
-        normalise(b, x, flags, inverse=True)
     for lv in levels:
         if lv.ext is not None and len(lv.ext):
             b.x(lv.ext[0])
         for q in (lv.lo, lv.hi, lv.ext if lv.ext is not None else empty):
             b.free(q)
+    with b.mark("unnormalise"):
+        normalise(b, x, flags, inverse=True)
     b.free(flags)
     return b.finish_circuit()

@@ -18,13 +18,17 @@ from invsqrt_gen.split import build_centered, build_split, fit_split
 
 def parse_params(ns: argparse.Namespace) -> Params:
     frac = tuple(int(v) for v in ns.frac.split(","))
-    centered = bool(getattr(ns, "centered", False))
+    pm1 = bool(getattr(ns, "pm1", False))
+    rnd = bool(getattr(ns, "rnd", False))
+    centered = bool(getattr(ns, "centered", False)) or pm1
     return Params(
         a=ns.a,
         frac=frac,
         guard=ns.guard,
         ceil=bool(getattr(ns, "split", None)) and not centered,
         centered=centered,
+        pm1=pm1,
+        rnd=rnd,
     )
 
 
@@ -48,6 +52,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="expand about the segment middle (signed remainder); implies a split",
     )
     ap.add_argument(
+        "--pm1",
+        action="store_true",
+        help="signed-digit remainder (+-1 per bit, one plain add per row); implies centered",
+    )
+    ap.add_argument("--rnd", action="store_true", help="pm1 rows round their slice (free carry-in)")
+    ap.add_argument(
         "--reachable", action="store_true", help="fit only the inputs some x <= 3,133,452 produces"
     )
     ap.add_argument("--passes", type=int, default=3, help="coefficient refinement passes")
@@ -56,7 +66,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("prefix", type=pathlib.Path, help="output path without extension")
     ns = ap.parse_args(argv)
     p = parse_params(ns)
-    if ns.centered:
+    if p.centered:
         t = fit_tables(p, passes=ns.passes, stride=ns.stride, polish=ns.polish, reachable=ns.reachable)
         c = build_centered(p, t, ns.split or "barrel")
     elif ns.split:

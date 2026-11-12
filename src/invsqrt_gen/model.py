@@ -42,6 +42,22 @@ def digit_plan(p: Params, j: int) -> list[Digit]:
     return out
 
 
+def pm1_rows(p: Params, j: int) -> list[tuple[int, int]]:
+    """Rows `(i, sh)` of Horner step `j` with signed digits `e_i = 2 r_i - 1` of the remainder.
+
+    With `E = sum e_i 2^i` the Horner variable is `rho' = E / 2` (odd `E`, so it is centred exactly on its
+    segment). Row `i` subtracts `e_i floor(V_{j+1} 2^sh)` (rounded when `Params.rnd`) from `V_j`, where
+    `sh = i + f_j - f_{j+1} - FRAC - 1`; a row whose slice is empty is dropped. There is no zero digit, so
+    no row needs an operand register.
+    """
+    out = []
+    for i in range(p.rwidth):
+        sh = i + p.frac[j] - p.frac[j + 1] - FRAC - 1
+        if max(0, -sh) < p.frac[j + 1]:
+            out.append((i, sh))
+    return out
+
+
 def _shift(v: Int, e: int) -> Int:
     return (v >> -e) if e < 0 else (v << e)
 
@@ -49,6 +65,8 @@ def _shift(v: Int, e: int) -> Int:
 def horner(p: Params, coef: list[Int], r: Int, check: bool = True) -> Int:
     """`V_0` for remainder `r` given per-element coefficient values `coef[j]` (shape of `r`)."""
 
+    if p.pm1:
+        return _horner_pm1(p, coef, r, check)
     rc = (
         r - (1 << (p.rwidth - 1)) if p.centered else r
     )  # two's complement bits of a negative rc: arithmetic shift
@@ -67,6 +85,23 @@ def horner(p: Params, coef: list[Int], r: Int, check: bool = True) -> Int:
         bad = (np.abs(acc) >= lim >> 2).any() if p.centered else ((acc < 0).any() or (acc >= lim).any())
         if check and bad:
             raise OverflowError(f"product of step {j} leaves its low part 2^{p.frac[j] - p.a}")
+        v = coef[j] - acc
+        if check and ((v < 0).any() or (v >= (1 << p.frac[j])).any()):
+            raise OverflowError(f"V_{j} leaves [0, 2^{p.frac[j]})")
+    return v
+
+
+def _horner_pm1(p: Params, coef: list[Int], r: Int, check: bool) -> Int:
+    v = coef[p.degree]
+    for j in range(p.degree - 1, -1, -1):
+        acc = np.zeros_like(r)
+        for i, sh in pm1_rows(p, j):
+            sl = _shift(v, sh)
+            if p.rnd and sh < 0:
+                sl = sl + ((v >> (-sh - 1)) & 1)  # round half up: the bit below the slice
+            acc += (2 * ((r >> i) & 1) - 1) * sl
+        if check and (np.abs(acc) >= (1 << (p.frac[j] - p.a - 2))).any():
+            raise OverflowError(f"product of step {j} leaves its low part 2^{p.frac[j] - p.a - 2}")
         v = coef[j] - acc
         if check and ((v < 0).any() or (v >= (1 << p.frac[j])).any()):
             raise OverflowError(f"V_{j} leaves [0, 2^{p.frac[j]})")
