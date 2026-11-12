@@ -134,7 +134,7 @@ class Tape:
         "give": "take",
     }
 
-    # ---- inversion through the GF(2^6) tower (about 82 Toffolis forward, 46 to clear) ---------------------------
+    # ---- inversion through the GF(2^6) tower (about 82 Toffolis forward, 46 to clear) ----
 
     def _tower_inverse(self, x: Any, out: Any, *, clear: bool) -> None:
         """`out ^= 1 / x` (or clear `out`, known to hold `1 / x`, by measurement); `x` is unchanged.
