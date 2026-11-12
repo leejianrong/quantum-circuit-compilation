@@ -1,4 +1,4 @@
-"""Sensitivity-ordered quantization-aware fit (QCC-16, E021): a gentler end for the rounding schedule.
+"""Sensitivity-ordered quantization-aware fit (QCC-16, E022): a gentler end for the rounding schedule.
 
     uv run python scripts/dfthcsos_qat2.py <fit dir> <out dir> --tsym out/fit/tsym.npy --brot 8 \
         --stages 24 --shrink 0.78 --iters 60

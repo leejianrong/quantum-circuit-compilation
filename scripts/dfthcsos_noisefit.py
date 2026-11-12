@@ -1,4 +1,4 @@
-"""Noise-robust fit in angle space (QCC-16, E021): find tables whose error survives rounding to ``brot`` bits.
+"""Noise-robust fit in angle space (QCC-16, E022): find tables whose error survives rounding to ``brot`` bits.
 
     uv run python scripts/dfthcsos_noisefit.py <fit dir> <out dir> --tsym out/fit/tsym.npy --brot 8 \
         --rounds 40 --iters 50 --draws 2

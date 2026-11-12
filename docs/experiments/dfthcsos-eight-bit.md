@@ -1,4 +1,4 @@
-# dfthcsos: can our own table reach 8 bits? (QCC-16, QCC-15, E021)
+# dfthcsos: can our own table reach 8 bits? (QCC-16, QCC-15, E022)
 
 Question from [dfthcsos-structured.md](dfthcsos-structured.md): the cost model says the fully-own ratio 1.98 (11 bits)
 jumps to about 4 at 8 bits (Q_total 790 to 494), so is there a gentler end to the quantisation schedule, or a fit,
