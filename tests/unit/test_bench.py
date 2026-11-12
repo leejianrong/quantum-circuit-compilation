@@ -57,3 +57,11 @@ def test_one_failing_salt_fails_the_row(tmp_path: pathlib.Path) -> None:
 
     row = cli.run("invsqrt", c, 3, 1, lambda: verify)
     assert (row.status, row.failures, row.costs, row.cost) == ("FAIL", 1, [5.0, 5.0], 5.0)
+
+
+def test_kickmix_import_hint_explains_libstdcxx_mismatch() -> None:
+    from bench.cli import kickmix_import_hint
+
+    msg = kickmix_import_hint(ImportError("libstdc++.so.6: version `GLIBCXX_3.4.32' not found"))
+    assert "uv sync" in msg and "PYTHONPATH" in msg
+    assert kickmix_import_hint(ImportError("no module named kickmix")) == "no module named kickmix"

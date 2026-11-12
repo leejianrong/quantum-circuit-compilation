@@ -24,10 +24,23 @@ def salt_for(i: int) -> str:
     return hashlib.sha256(f"qcc-bench-salt-{i}".encode()).hexdigest()
 
 
+def kickmix_import_hint(err: ImportError) -> str:
+    """Explain the usual local failure: the competition's kickmix.so needs a newer libstdc++ than WSL has."""
+    if "GLIBCXX" in str(err):
+        return (
+            f"{err}\nThe competition's data/kickmix/kickmix.so was built for Kaggle's newer libstdc++. "
+            "Use the pip kickmix that `uv sync` installs, and keep data/kickmix off PYTHONPATH and sys.path."
+        )
+    return str(err)
+
+
 def make_runner(bench: str, circuit: pathlib.Path, data: pathlib.Path, divisor: int) -> Runner:
     """Mirror the metric notebook (metric/google-quantum-ai-metric): appended sys.path, same calls."""
     sys.path += [str(data / "kickmix"), str(data / "verifiers")]
-    import kickmix  # type: ignore[import-not-found,unused-ignore]
+    try:
+        import kickmix  # type: ignore[import-not-found,unused-ignore]
+    except ImportError as err:
+        raise RuntimeError(kickmix_import_hint(err)) from err
 
     def load(p: pathlib.Path) -> Any:
         return kickmix.Circuit.from_file(p, format=p.suffix.removeprefix("."))
