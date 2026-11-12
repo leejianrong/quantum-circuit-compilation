@@ -47,6 +47,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="expand about the segment middle (signed remainder); implies a split",
     )
+    ap.add_argument(
+        "--reachable", action="store_true", help="fit only the inputs some x <= 3,133,452 produces"
+    )
     ap.add_argument("--passes", type=int, default=3, help="coefficient refinement passes")
     ap.add_argument("--stride", type=int, default=13, help="remainder sampling stride while fitting")
     ap.add_argument("--polish", action="store_true", help="exhaustive joint refinement of the coefficients")
@@ -54,7 +57,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     ns = ap.parse_args(argv)
     p = parse_params(ns)
     if ns.centered:
-        t = fit_tables(p, passes=ns.passes, stride=ns.stride, polish=ns.polish)
+        t = fit_tables(p, passes=ns.passes, stride=ns.stride, polish=ns.polish, reachable=ns.reachable)
         c = build_centered(p, t, ns.split or "barrel")
     elif ns.split:
         t = fit_split(p, passes=ns.passes, stride=ns.stride, polish=ns.polish)

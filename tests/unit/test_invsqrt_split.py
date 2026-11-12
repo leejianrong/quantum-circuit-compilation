@@ -61,3 +61,21 @@ def test_predict_reports_cost() -> None:
     r = predict(CENTERED, t, build_centered(CENTERED, t))
     assert r["cost"] > r["qubits"] * r["toffolis"]  # the rotations add T cost on top of the Toffolis
     assert rel_error(CENTERED, t)[0] == pytest.approx(2.0 ** r["model_error_log2"])
+
+
+def test_reachable_inputs_are_the_benchmark_range() -> None:
+    from invsqrt_gen.model import MAX_X, normalised_inputs, reachable_mask
+
+    xn, par = normalised_inputs()
+    reach = reachable_mask()
+    assert MAX_X == 3_133_452 and reach.sum() == 2_350_089
+    assert reach[(par == 1) & (xn % 2 == 0)].all()  # x = xn / 2 < 2^21 always runs
+    assert not reach[(par == 0) & (xn > MAX_X) & (xn % 4 != 0)].any()  # z >= 2 needs two zero low bits
+
+
+def test_reachable_fit_only_scores_reachable_inputs() -> None:
+    from invsqrt_gen.model import reachable_mask
+
+    t = fit_tables(CENTERED, passes=1, stride=211, reachable=True)
+    _, per = rel_error(CENTERED, t)
+    assert per[reachable_mask()].max() < 0.01
