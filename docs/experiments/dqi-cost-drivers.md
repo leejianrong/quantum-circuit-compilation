@@ -3,8 +3,8 @@
 Audit of `data/verifiers/dqi/dqi_reference_circuit.py` and `verify_submission_dqi.py` (both Apache-2.0,
 read only). Tool: `src/dqi_gen/audit.py` (per-`mark` Toffoli tally, checked against kickmix's own
 `operation_statistics()` total). Full-size numbers are extrapolated from measured instances because the
-full circuit does not fit this 7 GB laptop (ADR-0002); a Kaggle job for the exact tally is queued in
-`notebooks/dqi_gen/run.py` (the Kaggle CLI lost its login while this was written, so it has not run yet).
+full circuit does not fit this 7 GB laptop (ADR-0002). The exact full-size tally was then run on Kaggle
+(`notebooks/dqi_gen`, 71 s, 8.9 GB peak) and matches the extrapolation: see the exact table below.
 
 ## The cost formula, as the verifier computes it
 
@@ -44,15 +44,16 @@ Measured per-stage Toffolis (static), reference builder, GF(2^12) unless noted:
 
 For fixed degree 12 the EEA pass fits `337.7 n^2 + 6,234 n + 4,892` (checked to 1% on the four points), so
 at `n = 70`: about 2.10M per pass. Chien+Forney is exactly 351 per position (the paper's Itoh-Tsujii
-figure), `4095 x 351 = 1,437,345`. Full-size estimate:
+figure), `4095 x 351 = 1,437,345`. Exact full-size tally (Kaggle, 5,725,461 Toffolis, 1,893 qubits, equal to the paper's figures); our
+extrapolation above gave 2.10M per EEA pass and 1.437M for Chien+Forney:
 
 | stage | Toffolis | share |
 |---|---:|---:|
-| forward EEA | 2.10M | 36.6% |
-| reverse EEA | 2.10M | 36.6% |
-| Chien search + Forney + MBUC phase | 1.437M | 25.1% |
-| initial shift and its inverse | about 0.06M | about 1% |
-| total | 5.73M | (paper: 5,725,461) |
+| forward EEA | 2,109,450 | 36.8% |
+| reverse EEA | 2,109,450 | 36.8% |
+| Chien search + Forney + MBUC phase | 1,444,737 | 25.2% |
+| initial shift and its inverse | 30,912 + 30,912 | 1.1% |
+| total | 5,725,461 | |
 
 Qubits at full size: 1,893 = 840 syndromes + 1,053 workspace (2 arrays of `n + 3 = 73` registers of 12
 qubits minus the 3 reused syndrome registers, five pointers, the 48-qubit inversion scaffold, flags).

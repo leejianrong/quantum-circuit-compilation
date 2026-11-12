@@ -55,15 +55,31 @@ Full-size static costs (the verifier averages executed gates, equal within 0.1% 
 |---|---:|
 | forward divsteps | 339,150 |
 | Omega | 39,690 |
-| Chien + Forney (4095 x 143) | 585,585 |
+| Chien + Forney (4095 x 143, before the second tower level) | 585,585 |
 | reverse divsteps | 220,010 |
 | total | about 1.18M (reference 5.73M) |
 
 Qubits 4,013 (reference 1,893): syndromes 840, `v_g` 432, `v_f` 1,272, dialog 910, Omega 420 (only during
 Forney), the rest `b`, `delta`, Forney scratch. Static `Q^2 T` is about 1.9e13 against the reference's
 2.05e13, so this first version is only about 8% better than the baseline by itself: Toffolis are 4.8x
-fewer, but qubits are 2.1x more and they are squared. FULL-SIZE VERIFIER RESULT: see the section below
-(Kaggle).
+fewer, but qubits are 2.1x more and they are squared.
+
+A second tower level for the norm inversion (GF(2^3) over GF(2^6); 28 Toffolis instead of 63) was added
+afterwards: 108 per position, so the Chien + Forney stage is 442k and the total about 1.04M Toffolis;
+static `Q^2 T` about 1.68e13, 18% below the reference's 2.05e13 (the `narrow` row above is this version:
+606,530 Toffolis, 4,013 qubits).
+
+## Full-size verification (Kaggle, official verifier, RS(4095, 4025) over GF(2^12))
+
+Kernel `notebooks/dqi_gen/run.py` builds the circuit and runs `verify` at 102,400 shots per salt. The version
+before the second tower level (static 1,184,435 Toffolis, 4,013 qubits, 44M operations) **passed under three
+salts with zero failures** (script exit 0 means every `verify` returned PASS; the verifier raises on any
+`eps_plus >= 1/16`), 417 s wall for build plus three salts, 4.5 GB peak child RSS, so a four-worker Kaggle
+verify of our circuit needs about half the memory of the baseline. That run did not record the per-salt cost
+lines (stdout was not captured); the runner now keeps them. A rerun on the final version with five salts was
+queued on Kaggle and had not started when this was written, so the final-version full-size cost is not yet in
+the ledger. Expected from the static count with `R = 1.19`: about `1.19 x 4013^2 x 1.04M = 2.0e13`, i.e. a
+ratio near 1.2 against the baseline's 2.44e13 (not an official number).
 
 ## What did not work or was not tried
 
