@@ -1,19 +1,19 @@
-"""Classical reference of the dialog-free Jacobi (Lanczos) key-equation solver (QCC-19, docs/experiments/dqi-inplace.md).
+"""Classical reference of the dialog-free Jacobi (Lanczos) key-equation solver (QCC-19).
 
-The syndromes are moments `S_i = L(z^i) = sum_j w_j x_j^i` with nodes `x_j = alpha^j` and weights `w_j = e_j x_j`
-(the benchmark's `S_i = sum_j e_j alpha^((i+1) j)`). The monic polynomials orthogonal for `L` obey, in characteristic 2,
+Design and numbers: docs/experiments/dqi-inplace.md. The syndromes are moments
+`S_i = L(z^i) = sum_j w_j x_j^i` with nodes `x_j = alpha^j` and weights `w_j = e_j x_j` (the benchmark's `S_i = sum_j e_j alpha^((i+1) j)`).
+The monic polynomials orthogonal for `L` obey, in characteristic 2,
 
     p_{k+1} = (z + a_k) p_k + b_k p_{k-1},   h_k = L(p_k z^k) = sum_i p_{k,i} S_{k+i},
     a_k = s_k / h_k + p_{k,k-1},   s_k = sum_i p_{k,i} S_{k+1+i},   b_k = h_k / h_{k-1}.
 
 For weight `w` the recurrence stops at `k = w` (`h_w = 0`) and `p_w` is the locator, with roots at the nodes.
-The error values follow from Gauss quadrature, `w_j = h_{w-1} / (p_{w-1}(x_j) p_w'(x_j))`, so no Omega is needed.
-Three facts the circuit relies on, checked by the tests:
+The error values follow from Gauss quadrature, `w_j = h_{w-1} / (p_{w-1}(x_j) p_w'(x_j))`: no Omega.
+Facts the circuit relies on, checked by the tests:
 
-* `(a_k, b_k)` are recoverable from the pair `(p_{k+1}, p_k)` (they sit in two coefficients), so the pair is the
-  whole state: there is no dialog.
-* After `p_k` is known, `S_{k-1}` equals `sum_{i>=1} p_{k,i} S_{k-1+i} / p_{k,0}`, so it can be erased in place
-  and its qubits reused; heads at step `k' >= k` only read `S_{k'..2k'+1}`.
+* `(a_k, b_k)` are recoverable from the pair `(p_{k+1}, p_k)` (they sit in two coefficients): no dialog.
+* After `p_k` is known, `S_{k-1} = sum_{i>=1} p_{k,i} S_{k-1+i} / p_{k,0}`: erase it in place, reuse its
+  qubits; heads at step `k' >= k` only read `S_{k'..2k'+1}`.
 * The failures of the scheme are premature `h_k = 0` and `p_k(0) = 0`, each about `2^-12` per step.
 """
 

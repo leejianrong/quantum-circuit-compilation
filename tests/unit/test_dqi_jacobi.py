@@ -1,4 +1,4 @@
-"""The dialog-free Jacobi solver: Gauss weights recover the errors, the pair carries (a, b), S_{k-1} erases."""
+"""Jacobi solver: Gauss weights recover the errors, the pair carries (a, b), S_{k-1} erases."""
 
 import random
 
