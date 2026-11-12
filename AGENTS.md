@@ -15,7 +15,7 @@ Board: Pandan `QCC`, id 46 (use the `pandan` skill; `pandan board use 46`). Trus
 - `make docs` builds the site; every ```python block in `docs/learn/` is executed by tests (` ```python no-run ` skips)
 - `make fetch-data` -> `data/` (about 1 GB, gitignored); `bash scripts/fetch_public.sh` -> `public/` (gitignored)
 - `QCC_DATA=$PWD/data uv run bench verify <bench> <circuit-or-dfthcsos-dir> --salts N` appends a row to
-  `ledger/results.jsonl`. Also `bench pack`, `bench promote` (the only way into `best/`; `--dry-run` first), `bench exp`, `bench lb`, and `bench plots` (PNGs in `out/plots/`; needs `uv sync --extra plots`).
+  `ledger/results.jsonl`. Also `bench pack`, `bench kaggle run|fetch` (push a kernel, wait, download, merge its ledger rows), `bench promote` (the only way into `best/`; `--dry-run` first), `bench exp`, `bench lb`, and `bench plots` (PNGs in `out/plots/`; needs `uv sync --extra plots`).
 - Branch per story off fresh `main`, named `qcc-<n>-<slug>`; PR-only; merge when CI is green (owner's standing
   instruction). Never stack branches. No attribution lines in commits or PRs.
 
