@@ -27,6 +27,18 @@ flowchart LR
   S --> L
 ```
 
+## Progress
+
+Our verified circuits against the public frontier, drawn from `ledger/` by `bench plots`
+([more plots](docs/MEASUREMENT.md)). The local dashboard (`make dashboard`) shows the same story, the
+experiment log and where each circuit came from.
+
+![Score and ratio over time](docs/img/progress.png)
+
+![Dashboard: scoreboard](docs/img/dashboard-scoreboard.png)
+
+![Dashboard: lineage of public circuits and our generators](docs/img/dashboard-lineage.png)
+
 ## Quick start
 
 You need [uv](https://docs.astral.sh/uv/) and, for competition data, a Kaggle account with the CLI set up.
