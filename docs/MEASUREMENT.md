@@ -97,7 +97,17 @@ else. Tabs:
 
 ![Dashboard scoreboard](img/dashboard-scoreboard.png)
 
+![Dashboard cost explorer](img/dashboard-cost.png)
+
+![Dashboard anatomy](img/dashboard-anatomy.png)
+
+![Dashboard verifier theatre](img/dashboard-theatre.png)
+
 ![Dashboard lineage](img/dashboard-lineage.png)
+
+`make plots-readme` redraws these and the six plots above into `docs/img/` from the live ledger
+(`scripts/plots_readme.py`). The Scoreboard counts only fully own circuits: a run listed in
+`plots.NOT_FULLY_OWN` (our loader on the public words, E001) is shown in the ledger but not as ours.
 
 It is not hosted publicly until we have our own results, because the lineage tab shows third-party
 circuits.

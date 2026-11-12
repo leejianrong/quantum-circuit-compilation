@@ -33,19 +33,31 @@ def test_summary_keeps_ours_public_and_leaderboard_apart(rows: list[ledger.Row])
 def test_summary_of_an_empty_ledger_is_all_none() -> None:
     s = data.summarize([])
     assert s.ours_score is None and s.public_score is None and s.gap is None
-    assert data.score_rows([]) and data.progress_rows([])
+    assert data.score_series([])["ours"] == [] and data.progress_series([])
 
 
-def test_step_rows_carry_values_forward_with_a_vertical_edge() -> None:
-    rows = data.step_rows([[(0.0, 1.0), (10.0, 3.0)]], [[(5.0, 9.0)]], end=20.0)
-    assert [r[0] for r in rows] == [0.0, 5.0, 10.0 - data.EPS, 10.0, 20.0]
-    assert [r[1] for r in rows] == [1.0, 1.0, 1.0, 3.0, 3.0]
-    assert [r[2] for r in rows] == [None, 9.0, None, None, None]
+def test_series_hold_the_last_value_to_the_end_of_the_timeline(rows: list[ledger.Row]) -> None:
+    series = data.progress_series(rows)
+    assert set(series) == set(data.BENCHES)
+    for pts in series.values():
+        assert pts and pts[-1][1] == max(v for _, v in pts)  # a staircase only improves
+        assert [x for x, _ in pts] == sorted(x for x, _ in pts)
 
 
-def test_score_rows_start_only_when_all_three_benchmarks_exist(rows: list[ledger.Row]) -> None:
-    ys = [r[1] for r in data.score_rows(rows) if r[1] is not None]
-    assert ys[0] == pytest.approx(1.0, rel=0.01) and ys[-1] > 20
+def test_score_series_start_only_when_all_three_benchmarks_exist(rows: list[ledger.Row]) -> None:
+    ours = data.score_series(rows)["ours"]
+    assert ours[0][1] == pytest.approx(1.0, rel=0.01) and ours[-1][1] > 20
+    assert data.score_series(rows)["leaderboard"][0][1] == 25.2
+
+
+def test_failure_hours_are_the_failed_runs(rows: list[ledger.Row]) -> None:
+    assert len(data.failure_hours(rows)) == 1
+
+
+def test_the_loader_on_public_words_is_not_fully_own() -> None:
+    mk = lambda sha: ledger.Row("dfthcsos", "/tmp/x", sha, "PASS", 1.0, [1.0], 1, False, 1, 0, None, 0.0, "g")  # noqa: E731
+    assert plots.is_own(mk("abc"))
+    assert not plots.is_own(mk(next(iter(plots.NOT_FULLY_OWN))))
 
 
 def test_experiment_table_joins_runs(rows: list[ledger.Row]) -> None:

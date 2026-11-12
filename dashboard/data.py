@@ -15,7 +15,6 @@ from datetime import datetime
 from bench import experiments, ledger, plots
 
 BENCHES = plots.BENCHES
-Rows = list[list[float | None]]
 Points = list[tuple[float, float]]
 
 
@@ -67,36 +66,13 @@ def summarize(rows: list[ledger.Row]) -> Summary:
 
 
 # ---- ratio over time -------------------------------------------------------------------------
-
-EPS = 0.01  # hours between the two points of one step edge
+#
+# The app aligns these with `indah.chart_rows` and draws them as `kind="step"` series (indah#328);
+# nothing here knows about indah.
 
 
 def hours(t: datetime, origin: datetime) -> float:
     return round((t - origin).total_seconds() / 3600, 3)
-
-
-def step_rows(series: list[Points], scatter: list[Points] | None = None, end: float | None = None) -> Rows:
-    """Chart rows `[x, y_series..., y_scatter...]` drawing each series as a staircase.
-
-    indah's Chart only joins points with straight segments, so a step is two points (just before the
-    change at the old value, then at the new one) and the value is carried forward between events.
-    When indah has `kind="step"` (leejianrong/indah#328) delete this and pass the raw points.
-    """
-    scatter = scatter or []
-    xs = {x for s in series for x, _ in s} | {x for s in scatter for x, _ in s}
-    if end is not None:
-        xs.add(end)
-    xs |= {x - EPS for s in series for x, _ in s[1:]}
-    scat = [dict(s) for s in scatter]
-    rows: Rows = []
-    for x in sorted(xs):
-        row: list[float | None] = [x]
-        for s in series:
-            seen = [y for sx, y in s if sx <= x]
-            row.append(seen[-1] if seen else None)
-        row.extend(d.get(x) for d in scat)
-        rows.append(row)
-    return rows
 
 
 def _end(rows: list[ledger.Row], origin: datetime) -> float:
@@ -104,19 +80,33 @@ def _end(rows: list[ledger.Row], origin: datetime) -> float:
     return hours(max(stamps), origin)
 
 
-def progress_rows(rows: list[ledger.Row]) -> Rows:
-    """Rows for the per-benchmark chart: our best-so-far ratio per benchmark, one column each."""
+def _held(points: Points, end: float) -> Points:
+    """A step series holds each value until the next point; give the last value a point at `end`."""
+    return points + [(max(end, points[-1][0]), points[-1][1])] if points else []
+
+
+def progress_series(rows: list[ledger.Row]) -> dict[str, Points]:
+    """Our best-so-far ratio per benchmark, as points of a staircase (hours since the origin)."""
     origin = plots.timeline_origin(rows)
-    series = [[(hours(t, origin), v) for t, v in plots.staircase(plots.run_points(rows, b))] for b in BENCHES]
-    return step_rows(series, end=_end(rows, origin))
+    end = _end(rows, origin)
+    return {
+        b: _held([(hours(t, origin), v) for t, v in plots.staircase(plots.run_points(rows, b))], end)
+        for b in BENCHES
+    }
 
 
-def score_rows(rows: list[ledger.Row]) -> Rows:
-    """Rows for the score chart: our staircase, then the leaderboard scores as dots."""
+def score_series(rows: list[ledger.Row]) -> dict[str, Points]:
+    """Our score staircase and the leaderboard scores (dots)."""
     origin = plots.timeline_origin(rows)
     ours = [(hours(t, origin), v) for t, v in plots.score_staircase(rows)]
     lb = [(hours(t, origin), v) for t, v in plots.leaderboard_points(rows)]
-    return step_rows([ours], [lb], end=_end(rows, origin))
+    return {"ours": _held(ours, _end(rows, origin)), "leaderboard": lb}
+
+
+def failure_hours(rows: list[ledger.Row]) -> list[float]:
+    """When verifier failures happened, for vertical rules (at most the latest 12 are drawn)."""
+    origin = plots.timeline_origin(rows)
+    return sorted({hours(plots.when(r, origin), origin) for r in plots.failures(rows)})
 
 
 # ---- experiments ----------------------------------------------------------------------------
