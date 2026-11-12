@@ -33,6 +33,9 @@ def parse(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument(
         "--init-from", type=Path, help="start from another run's v.npy, w.npy; padded up to --shape"
     )
+    ap.add_argument(
+        "--l1", type=float, default=0.0, help="weight of 1/4 sum_(rho,c) |w_c|_1^2 (Lambda proxy)"
+    )
     ap.add_argument("--max-secs", type=float, default=0.0, help="stop (and save) after this wall time")
     return ap.parse_args(argv)
 
@@ -112,6 +115,11 @@ def run(args: argparse.Namespace) -> float:
     def fg(x: Any) -> tuple[float, Any]:
         vv, ww = unpack(x)
         f, gv, gw = obj.value_grad(vv, ww)
+        if args.l1:
+            phi = np.sqrt(ww * ww + 1e-8 * wsc * wsc)
+            a1 = phi.sum(axis=1, keepdims=True)  # (R, 1, C): |w_c|_1 per (rho, c)
+            f = f + args.l1 * 0.25 * float(np.sum(a1 * a1))
+            gw = gw + args.l1 * 0.5 * a1 * ww / phi
         return f * 1e3, np.concatenate([gv.ravel(), gw.ravel() * wsc]) * 1e3
 
     def save(x: Any) -> float:
