@@ -78,7 +78,7 @@ else. Tabs:
 | Cost explorer | sliders for the dfthcsos cost model (factorization shape, `brot`); redraws `lambda_eff x T_total x Q_total` and the gates | cost is a product, and one knob makes a cliff |
 | Anatomy | kickmix flame chart and stage shares for any ledger entry | what a circuit is made of |
 | Verifier theatre | per-salt pass/fail ticks and cost spread | why one failure matters |
-| Lineage | graph from baseline through public circuits to ours; no-licence ancestors dashed | provenance and what is ours |
+| Lineage | graph from baseline through public circuits to ours, from `ledger/lineage.json` (derived from PROVENANCE.md by `uv run python -m bench.lineage`); no-licence ancestors in red and labelled, since Graph has no dashed style yet | provenance and what is ours |
 | Experiments | table of attempts and outcomes | the story, failures included |
 
 It is not hosted publicly until we have our own results, because the lineage tab shows third-party

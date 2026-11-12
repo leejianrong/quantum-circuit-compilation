@@ -1,0 +1,619 @@
+{
+ "edges": [
+  {
+   "kind": "derived",
+   "label": "community rewrites",
+   "source": "baseline:invsqrt",
+   "target": "anc:13b5bf7a"
+  },
+  {
+   "kind": "derived",
+   "label": "maoxin123",
+   "source": "anc:13b5bf7a",
+   "target": "034c7c2a"
+  },
+  {
+   "kind": "derived",
+   "label": "CSWAP-reduced",
+   "source": "034c7c2a",
+   "target": "c6519219"
+  },
+  {
+   "kind": "derived",
+   "label": "yoyobar",
+   "source": "anc:13b5bf7a",
+   "target": "46743f7f"
+  },
+  {
+   "kind": "derived",
+   "label": "Hosen42 rewrite",
+   "source": "anc:13b5bf7a",
+   "target": "95621d7e"
+  },
+  {
+   "kind": "derived",
+   "label": "Hosen42 q25 merge",
+   "source": "anc:13b5bf7a",
+   "target": "1c5b1ee2"
+  },
+  {
+   "kind": "derived",
+   "label": "alexchilton",
+   "source": "anc:13b5bf7a",
+   "target": "3132ecab"
+  },
+  {
+   "kind": "derived",
+   "label": "decoder design",
+   "source": "baseline:dqi",
+   "target": "anc:jday96314"
+  },
+  {
+   "kind": "derived",
+   "label": "readout rewrite",
+   "source": "anc:jday96314",
+   "target": "anc:ozertuu-v70"
+  },
+  {
+   "kind": "derived",
+   "label": "phase folds (Aldemir)",
+   "source": "anc:ozertuu-v70",
+   "target": "e9f54be3"
+  },
+  {
+   "kind": "derived",
+   "label": "Tymchishin and others",
+   "source": "anc:jday96314",
+   "target": "4432ec5f"
+  },
+  {
+   "kind": "derived",
+   "label": "Isabe11aM00re",
+   "source": "anc:jday96314",
+   "target": "b71b21ca"
+  },
+  {
+   "kind": "derived",
+   "label": "loaders",
+   "source": "baseline:dfthcsos",
+   "target": "anc:syed3000-loaders"
+  },
+  {
+   "kind": "derived",
+   "label": "maoxin123 weight refit",
+   "source": "anc:syed3000-loaders",
+   "target": "91d0ad25"
+  },
+  {
+   "kind": "derived",
+   "label": "heliosli refit",
+   "source": "anc:syed3000-loaders",
+   "target": "ad1a4d28"
+  },
+  {
+   "kind": "derived",
+   "label": "Aldemir",
+   "source": "anc:syed3000-loaders",
+   "target": "8faa7e0b"
+  },
+  {
+   "kind": "derived",
+   "label": "yoyobar polish",
+   "source": "anc:syed3000-loaders",
+   "target": "3f72cbe5"
+  },
+  {
+   "kind": "derived",
+   "label": "Isabe11aM00re",
+   "source": "anc:syed3000-loaders",
+   "target": "5bd35757"
+  },
+  {
+   "kind": "derived",
+   "label": "Isabe11aM00re",
+   "source": "anc:syed3000-loaders",
+   "target": "9cd87121"
+  },
+  {
+   "kind": "idea",
+   "label": "reported qubit total only",
+   "source": "e9f54be3",
+   "target": "dqi_gen"
+  },
+  {
+   "kind": "idea",
+   "label": "Khattar et al. 2025 (paper)",
+   "source": "baseline:dqi",
+   "target": "dqi_gen"
+  },
+  {
+   "kind": "derived",
+   "label": "starts from the reference",
+   "source": "baseline:invsqrt",
+   "target": "invsqrt_gen"
+  },
+  {
+   "kind": "derived",
+   "label": "starts from the reference",
+   "source": "baseline:dfthcsos",
+   "target": "dfthcsos_gen"
+  }
+ ],
+ "generated_from": "docs/PROVENANCE.md",
+ "nodes": [
+  {
+   "authors": "host (Google Quantum AI)",
+   "bench": "invsqrt",
+   "id": "baseline:invsqrt",
+   "kind": "baseline",
+   "label": "invsqrt baseline",
+   "licence": "apache-2.0 (host data)",
+   "no_licence": false,
+   "note": "Newton-Raphson reference circuit",
+   "sources": []
+  },
+  {
+   "authors": "host (Google Quantum AI)",
+   "bench": "dqi",
+   "id": "baseline:dqi",
+   "kind": "baseline",
+   "label": "dqi baseline",
+   "licence": "apache-2.0 (host data)",
+   "no_licence": false,
+   "note": "reference Reed-Solomon syndrome decoder",
+   "sources": []
+  },
+  {
+   "authors": "host (Google Quantum AI)",
+   "bench": "dfthcsos",
+   "id": "baseline:dfthcsos",
+   "kind": "baseline",
+   "label": "dfthcsos baseline",
+   "licence": "apache-2.0 (host data)",
+   "no_licence": false,
+   "note": "reference QROM angle loaders and example submission",
+   "sources": []
+  },
+  {
+   "authors": "jday96314",
+   "bench": "dqi",
+   "id": "anc:jday96314",
+   "kind": "ancestor",
+   "label": "jday96314 repo",
+   "licence": "none",
+   "no_licence": true,
+   "note": "Root of every public DQI circuit. It states no licence: only the compiled circuit, as published in public Kaggle notebook outputs, is included by the later authors.",
+   "sources": []
+  },
+  {
+   "authors": "ozertuu",
+   "bench": "dqi",
+   "id": "anc:ozertuu-v70",
+   "kind": "ancestor",
+   "label": "ozertuu V70 rewrite",
+   "licence": "unstated",
+   "no_licence": true,
+   "note": "The decoder line that Atakan Aldemir's phase folds were applied to.",
+   "sources": []
+  },
+  {
+   "authors": "ozertuu, kirilltym, Atakan Aldemir, Hosen42, syed3000, mrmeows, busyaprime, yoyobar",
+   "bench": "invsqrt",
+   "id": "anc:13b5bf7a",
+   "kind": "ancestor",
+   "label": "13b5bf7a line",
+   "licence": "unstated",
+   "no_licence": false,
+   "note": "The community invsqrt circuit that all public variants descend from; credit chain in each source's CREDITS.md.",
+   "sources": []
+  },
+  {
+   "authors": "syed3000",
+   "bench": "dfthcsos",
+   "id": "anc:syed3000-loaders",
+   "kind": "ancestor",
+   "label": "syed3000 angle loaders",
+   "licence": "unstated",
+   "no_licence": false,
+   "note": "The angle-loader circuits that every public dfthcsos refit reuses.",
+   "sources": []
+  },
+  {
+   "authors": "maoxin123 CSWAP-reduced variant of the 13b5bf7a line (ozertuu, kirilltym, Atakan Aldemir, Hosen42, syed3000, mrmeows, busyaprime, yoyobar)",
+   "bench": "invsqrt",
+   "cost": 94599.61,
+   "id": "c6519219",
+   "kind": "public",
+   "label": "invsqrt c6519219",
+   "licence": "apache-2.0 (dataset metadata); unstated",
+   "no_licence": false,
+   "note": "94,599.61, Q62 (S6 log; ratio about 21.95)",
+   "sha256": "c6519219f598c1b621c00e51d5c5d8b74e450a68586f56c58e569f1ca4f84536",
+   "sources": [
+    "S5",
+    "S6"
+   ]
+  },
+  {
+   "authors": "maoxin123 (earlier version)",
+   "bench": "invsqrt",
+   "cost": 95345.54,
+   "id": "034c7c2a",
+   "kind": "public",
+   "label": "invsqrt 034c7c2a",
+   "licence": "apache-2.0 (dataset metadata); unstated",
+   "no_licence": false,
+   "note": "95,345.54, Q62; PASS at 200,540,928 shots in S7's log",
+   "sha256": "034c7c2a54d51e13aff6e62ec4c14997d3968b6c11122146c57290b1a1b8c7e2",
+   "sources": [
+    "S1",
+    "S7",
+    "S8",
+    "S9"
+   ]
+  },
+  {
+   "authors": "yoyobar",
+   "bench": "invsqrt",
+   "cost": 95345.55,
+   "id": "46743f7f",
+   "kind": "public",
+   "label": "invsqrt 46743f7f",
+   "licence": "other (see its LICENSE); unstated",
+   "no_licence": false,
+   "note": "about 95,345.55 (yoyobar local estimate, no board score)",
+   "sha256": "46743f7f8f9b85c76124fcd4062a6250706442971f56587e62cd797de000bfdd",
+   "sources": [
+    "S4",
+    "S10"
+   ]
+  },
+  {
+   "authors": "Hosen42 rewrite of syed3000 v11",
+   "bench": "invsqrt",
+   "cost": null,
+   "id": "95621d7e",
+   "kind": "public",
+   "label": "invsqrt 95621d7e",
+   "licence": "apache-2.0 (dataset metadata)",
+   "no_licence": false,
+   "note": "not recorded (62 qubits per its CREDITS.md)",
+   "sha256": "95621d7ee3e13d91d27b2ee8627cd96d861a2ce696a0fa3afee2e1e01465316d",
+   "sources": [
+    "S2"
+   ]
+  },
+  {
+   "authors": "Hosen42 q25 merge on 13b5bf7a",
+   "bench": "invsqrt",
+   "cost": null,
+   "id": "1c5b1ee2",
+   "kind": "public",
+   "label": "invsqrt 1c5b1ee2",
+   "licence": "apache-2.0 (dataset metadata)",
+   "no_licence": false,
+   "note": "not recorded",
+   "sha256": "1c5b1ee282904faf4c1a09d2a440577de1866c47462ff7df9714768f9ed2a56a",
+   "sources": [
+    "S3"
+   ]
+  },
+  {
+   "authors": "alexchilton earlier build",
+   "bench": "invsqrt",
+   "cost": null,
+   "id": "3132ecab",
+   "kind": "public",
+   "label": "invsqrt 3132ecab",
+   "licence": "unstated",
+   "no_licence": false,
+   "note": "not recorded",
+   "sha256": "3132ecabb304c0582f8ffe5b8d087b4dcc22aa9b724b1ad0ca17f079dd7f4669",
+   "sources": [
+    "S9"
+   ]
+  },
+  {
+   "authors": "Atakan Aldemir phase folds on ozertuu V70 readout rewrite, shipped by heliosli; root: jday96314 (no licence)",
+   "bench": "dqi",
+   "cost": 374686873087.0,
+   "id": "e9f54be3",
+   "kind": "public",
+   "label": "dqi e9f54be3",
+   "licence": "apache-2.0 (dataset metadata); unstated",
+   "no_licence": true,
+   "note": "374,686,873,087 at the default salt, 0 value and 0 phase errors (S7 log; ratio about 65.23). **S8's own run records 1 phase error and cost 376,407,597,314 (`verification_summary.json`), so hidden-seed risk is real**",
+   "sha256": "e9f54be304cbdcda7306729c335b1a2314a45d0ca818e05cf60e45ddee969bc4",
+   "sources": [
+    "S1",
+    "S5",
+    "S6",
+    "S7",
+    "S8",
+    "S9"
+   ]
+  },
+  {
+   "authors": "Kirill Tymchishin and others",
+   "bench": "dqi",
+   "cost": 374735446629.0,
+   "id": "4432ec5f",
+   "kind": "public",
+   "label": "dqi 4432ec5f",
+   "licence": "apache-2.0 (dataset metadata); other (see its LICENSE); unstated",
+   "no_licence": true,
+   "note": "about 374,735,446,629 (yoyobar estimate; board score unknown)",
+   "sha256": "4432ec5fd63d7d70aab92d32f719d47539d0ff66ae0cb0b964c914e01fece431",
+   "sources": [
+    "S2",
+    "S4",
+    "S10"
+   ]
+  },
+  {
+   "authors": "Isabe11aM00re",
+   "bench": "dqi",
+   "cost": null,
+   "id": "b71b21ca",
+   "kind": "public",
+   "label": "dqi b71b21ca",
+   "licence": "apache-2.0 (dataset metadata)",
+   "no_licence": true,
+   "note": "dearer than e9f54be3 per S9 text; no number",
+   "sha256": "b71b21ca52e99cb214d98af017a2f47fddf1d210cceef8eac9d08d3d0e476fbb",
+   "sources": [
+    "S3"
+   ]
+  },
+  {
+   "authors": "maoxin123 weight refit on syed3000 loaders",
+   "bench": "dfthcsos",
+   "cost": 299614422.44,
+   "id": "91d0ad25",
+   "kind": "public",
+   "label": "dfthcsos 91d0ad25",
+   "licence": "apache-2.0 (dataset metadata); unstated",
+   "no_licence": false,
+   "note": "299,614,422.44 (S6 log; ratio about 11.20); (R,B,C) = (8,143,44) refit",
+   "sha256": "91d0ad2554e0c039ad8268b810812dab03110ca671bbdb65976dc6f82abd909b",
+   "sources": [
+    "S5",
+    "S6"
+   ]
+  },
+  {
+   "authors": "heliosli refit",
+   "bench": "dfthcsos",
+   "cost": 299654754.95,
+   "id": "ad1a4d28",
+   "kind": "public",
+   "label": "dfthcsos ad1a4d28",
+   "licence": "apache-2.0 (dataset metadata); unstated",
+   "no_licence": false,
+   "note": "299,654,754.95 (S9 log)",
+   "sha256": "ad1a4d28e66585e4b94a3b3111c4f64aff81f25f52611fce5c690bbce0e5e6ec",
+   "sources": [
+    "S1",
+    "S9"
+   ]
+  },
+  {
+   "authors": "Atakan Aldemir",
+   "bench": "dfthcsos",
+   "cost": 299654755.24,
+   "id": "8faa7e0b",
+   "kind": "public",
+   "label": "dfthcsos 8faa7e0b",
+   "licence": "unstated",
+   "no_licence": false,
+   "note": "299,654,755.24 (S7 log, S8 summary)",
+   "sha256": "8faa7e0bc40ea80793162639af856b0272bc8680eb2e36cca65a69bb3531fe9f",
+   "sources": [
+    "S7",
+    "S8"
+   ]
+  },
+  {
+   "authors": "yoyobar column-scale polish",
+   "bench": "dfthcsos",
+   "cost": 299654755.41,
+   "id": "3f72cbe5",
+   "kind": "public",
+   "label": "dfthcsos 3f72cbe5",
+   "licence": "other (see its LICENSE); unstated",
+   "no_licence": false,
+   "note": "about 299,654,755.41 (yoyobar estimate)",
+   "sha256": "3f72cbe5054043741683a3c487f9cdffb7cb62770b0399a2f96184d2449a0595",
+   "sources": [
+    "S4",
+    "S10"
+   ]
+  },
+  {
+   "authors": "Isabe11aM00re",
+   "bench": "dfthcsos",
+   "cost": null,
+   "id": "5bd35757",
+   "kind": "public",
+   "label": "dfthcsos 5bd35757",
+   "licence": "apache-2.0 (dataset metadata)",
+   "no_licence": false,
+   "note": "not recorded",
+   "sha256": "5bd3575736fdf340231b18dcbbe35f1ff9e0e8606f6081258aa54f4d0f9e59eb",
+   "sources": [
+    "S2"
+   ]
+  },
+  {
+   "authors": "Isabe11aM00re",
+   "bench": "dfthcsos",
+   "cost": null,
+   "id": "9cd87121",
+   "kind": "public",
+   "label": "dfthcsos 9cd87121",
+   "licence": "apache-2.0 (dataset metadata)",
+   "no_licence": false,
+   "note": "not recorded",
+   "sha256": "9cd871218e49f8470360d6eb8af586bdfb48d4a7a04d50ef787fdda0bf11ec94",
+   "sources": [
+    "S3"
+   ]
+  },
+  {
+   "authors": "us",
+   "bench": "dfthcsos",
+   "id": "dfthcsos_gen",
+   "ideas": [
+    {
+     "date": "2026-11-12",
+     "from": "syed3000 loaders inside dfthcsos 91d0ad25 (see the dfthcsos table above); studied 2026-11-12 by the QCC-49 agent after our paper-first loader stalled at the unary-iteration cost",
+     "generator": "Not yet implemented. `src/dfthcsos_gen` has only the unary-iteration loader (Babbush et al. 2018). What we learned and will rewrite fresh: about 75 temporary ANDs (all products of the high address bits) feed about 200 CCX whose controls are address bits XORed in place with those products (by CX) and whose targets are word bits, so each output bit is a short sum of products of two linear forms; the table has to be fitted to that family.",
+     "technique": "Angle loader as a rank-1 quadratic form per output bit: structure of the public dfthcsos `angle_k` circuits seen as an aggregate (gate-type counts, which register each CCX controls and targets), not copied"
+    }
+   ],
+   "kind": "ours",
+   "label": "our dfthcsos generator",
+   "licence": "ours (Apache-2.0)",
+   "no_licence": false,
+   "note": "1 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "sources": []
+  },
+  {
+   "authors": "us",
+   "bench": "dqi",
+   "id": "dqi_gen",
+   "ideas": [
+    {
+     "date": "2026-11-12",
+     "from": "Khattar et al. 2025 (paper); public notebook text for the qubit total",
+     "generator": "`src/dqi_gen/decoder.py`, `src/dqi_gen/tower.py` (our own rows-only formulation and tower division)",
+     "technique": "DQI: nothing learned from any public circuit file (ADR-0009 rule 3). Our generator uses the paper's divstep idea (Khattar et al., arXiv:2510.10967 section II B 3, Bernstein-Yang divsteps) and our own tower-field derivation; the only public-derived fact is the reported 892-qubit total (notebook text), which tells us the frontier keeps its state in or beside the 840 syndrome qubits."
+    }
+   ],
+   "kind": "ours",
+   "label": "our dqi generator",
+   "licence": "ours (Apache-2.0)",
+   "no_licence": false,
+   "note": "1 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "sources": []
+  },
+  {
+   "authors": "us",
+   "bench": "invsqrt",
+   "id": "invsqrt_gen",
+   "ideas": [
+    {
+     "date": "2026-11-12",
+     "from": "Aggregate view of the 62-qubit invsqrt `c6519219` (maoxin123 line, S6; same bytes in S5): operation counts, the `Z_POW` target list and about 25 instructions around two rotations. No gate list or constant was copied",
+     "generator": "`src/invsqrt_gen/split.py` `serial_phase` (our own one-hot multiplexer from the shift flags into one working qubit, written fresh; QCC-13, docs/experiments/invsqrt-bitserial.md)",
+     "technique": "Phase one bit at a time through a single working qubit, measured after each rotation (implemented)"
+    },
+    {
+     "date": "2026-11-12",
+     "from": "Same aggregate view: two rotation blocks about 7,800 instructions apart with overlapping angle ranges",
+     "generator": "`src/invsqrt_gen/split.py` `build_split` and `build_centered` (our own table decomposition `V_0 = coarse + fine`, derived in the module docstring; QCC-13)",
+     "technique": "Split the phase into a coarse word and a fine word, phased and cleared separately (implemented)"
+    }
+   ],
+   "kind": "ours",
+   "label": "our invsqrt generator",
+   "licence": "ours (Apache-2.0)",
+   "no_licence": false,
+   "note": "2 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "sources": []
+  }
+ ],
+ "sources": [
+  {
+   "author": "heliosli",
+   "id": "S1",
+   "licence": "apache-2.0 (dataset metadata)",
+   "text": "metadata apache-2.0; LICENSE.md: own work Apache-2.0, other components keep upstream terms, DQI decoder design from a no-licence repo",
+   "url": "kaggle.com/datasets/heliosli/qcc-circuits-live"
+  },
+  {
+   "author": "isabe11am00re",
+   "id": "S2",
+   "licence": "apache-2.0 (dataset metadata)",
+   "text": "metadata apache-2.0; LICENSE.md as S1",
+   "url": "kaggle.com/datasets/isabe11am00re/qcc-v84337cb049akt21-circuits"
+  },
+  {
+   "author": "isabe11am00re",
+   "id": "S3",
+   "licence": "apache-2.0 (dataset metadata)",
+   "text": "metadata apache-2.0",
+   "url": "kaggle.com/datasets/isabe11am00re/qcc-v96mxfu6mxf-circuits"
+  },
+  {
+   "author": "yoyobar",
+   "id": "S4",
+   "licence": "other (see its LICENSE)",
+   "text": "metadata \"other\"; LICENSE_SCOPE.md: yoyobar's code and prose Apache-2.0, third-party circuits retain their own terms, \"public availability does not itself supply a license for unlicensed source-code ancestors\"",
+   "url": "kaggle.com/datasets/yoyobar/qcc-local-sota-20261031"
+  },
+  {
+   "author": "pramitdas",
+   "id": "S5",
+   "licence": "apache-2.0 (dataset metadata)",
+   "text": "metadata apache-2.0; README: \"portfolio of public Apache-2.0 circuits plus small public improvements\" (no per-circuit terms)",
+   "url": "kaggle.com/datasets/pramitdas/qcc-public-frontier-submission"
+  },
+  {
+   "author": "maoxin123",
+   "id": "S6",
+   "licence": "unstated",
+   "text": "unstated in metadata; text: \"their code Apache-2.0, each circuit keeps its authors' terms\"",
+   "url": "kaggle.com/code/maoxin123/lb-25-218-combined-invsqrt-refit-chem"
+  },
+  {
+   "author": "atakanaldemir",
+   "id": "S7",
+   "licence": "unstated",
+   "text": "unstated in metadata",
+   "url": "kaggle.com/code/atakanaldemir/qcc-terminal-readout-and-phase-folds"
+  },
+  {
+   "author": "kirilltym",
+   "id": "S8",
+   "licence": "unstated",
+   "text": "unstated in metadata; text: own code Apache-2.0, inherited circuits keep their original licence scopes; many CREDITS/LICENSE files shipped",
+   "url": "kaggle.com/code/kirilltym/quantum-circuits-conditional-uncompute-audit"
+  },
+  {
+   "author": "alexchilton",
+   "id": "S9",
+   "licence": "unstated",
+   "text": "unstated in metadata; text: \"None of the circuits is ours\"",
+   "url": "kaggle.com/code/alexchilton/24-94-lb-verified-three-task-portfolio"
+  },
+  {
+   "author": "yoyobar",
+   "id": "S10",
+   "licence": "unstated",
+   "text": "unstated in metadata",
+   "url": "kaggle.com/code/yoyobar/lb-22-99-invsqrt-101-62-qubits"
+  },
+  {
+   "author": "daifanhao",
+   "id": "S11",
+   "licence": "other (see its LICENSE)",
+   "text": "metadata \"other\"; LICENSE.md: orchestration code Apache-2.0, imported circuits keep upstream terms",
+   "url": "kaggle.com/datasets/daifanhao/qcc-2494096-c44-dqi-reproduction"
+  },
+  {
+   "author": "dmitriigluzdov",
+   "id": "S12",
+   "licence": "apache-2.0 (dataset metadata)",
+   "text": "metadata apache-2.0",
+   "url": "kaggle.com/datasets/dmitriigluzdov/vqcc-femoco-public-factorization"
+  },
+  {
+   "author": "ozertuu",
+   "id": "S13",
+   "licence": "unstated",
+   "text": "unstated in metadata",
+   "url": "kaggle.com/code/ozertuu/25-218-starter-notebook"
+  }
+ ]
+}
