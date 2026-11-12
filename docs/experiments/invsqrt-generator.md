@@ -55,6 +55,7 @@ Cost is the official verifier's `Q * C`; baseline 2,076,774, public best 94,599.
 | + borrow-window trick, own ripple adder | 146 | 2,400 | 383,157 | 5.42 |
 | + lazy scratch, bit normalisation, tuned widths | 133 | 2,271 | not run (superseded) | |
 | + radix-4 Booth digits (`--a 7 --frac 30,20,11 --guard 4`) | 136 | 1,949 | 296,738.6 | 7.00 |
+| + centered remainder, split phase words, widths at the accuracy boundary (`--a 7 --frac 28,19,9 --guard 2 --centered --polish`, QCC-13) | 121 | 1,710 | 247,262.5 | 8.40 |
 
 The Booth build passed all 5 salts with 0 failures (cost identical to the last digit: no Toffoli is
 conditional, and the rotation margin comes from the arithmetic error, not from the measurement seeds),
