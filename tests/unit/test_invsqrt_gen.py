@@ -81,27 +81,34 @@ def test_booth_digits_rebuild_the_remainder() -> None:
 
 
 @pytest.mark.parametrize("subtract", [False, True])
-def test_ripple_add_matches_integers(subtract: bool) -> None:
-    w, m = 5, 9
+@pytest.mark.parametrize("use_cin", [False, True])
+@pytest.mark.parametrize("w,m", [(5, 9), (8, 9), (1, 2), (1, 3), (2, 3), (4, 12), (4, 4), (6, 4), (2, 2)])
+def test_ripple_add_matches_integers(subtract: bool, use_cin: bool, w: int, m: int) -> None:
     b = km.CircuitBuilder()
     a = b.create_quantum_register(w, name="a")
     t = b.create_quantum_register(m, name="t")
-    ripple_add(b, a, t, subtract=subtract)
+    cin = b.create_quantum_register(1, name="c")[0] if use_cin else None
+    ripple_add(b, a, t, subtract=subtract, cin=cin)
     c = b.finish_circuit()
     rng = np.random.default_rng(1)
-    av = rng.integers(0, 1 << w, 256)
-    tv = rng.integers(0, 1 << m, 256)
-    sim = km.Simulator(batch_size=256, seed=0)
+    n = 512
+    av = rng.integers(0, 1 << w, n)
+    tv = rng.integers(0, 1 << m, n)
+    cv = rng.integers(0, 2, n) if use_cin else np.zeros(n, dtype=np.int64)
+    sim = km.Simulator(batch_size=n, seed=0)
     sim.use_same_registers_as(c)
-    for i in range(256):
+    for i in range(n):
         sim.write_within_shot("a", i, int(av[i]))
         sim.write_within_shot("t", i, int(tv[i]))
+        if use_cin:
+            sim.write_within_shot("c", i, int(cv[i]))
     sim.do(c)
-    want = (tv - av if subtract else tv + av) % (1 << m)
-    got = [sim.read_within_shot("t", i, out=int) for i in range(256)]
+    want = (tv - av - cv if subtract else tv + av + cv) % (1 << m)
+    got = [sim.read_within_shot("t", i, out=int) for i in range(n)]
     assert got == want.tolist()
-    assert [sim.read_within_shot("a", i, out=int) for i in range(256)] == av.tolist()
+    assert [sim.read_within_shot("a", i, out=int) for i in range(n)] == av.tolist()
     assert not sim.read_phase_flipped_across_shots().any()
+    assert c.operation_statistics().num_toffoli_like == m - 1
 
 
 def test_kmx_and_kmb_are_the_same_circuit(small: tuple[Params, km.Circuit], tmp_path: pathlib.Path) -> None:
