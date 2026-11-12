@@ -15,19 +15,12 @@ from datetime import datetime
 from bench import experiments, ledger, plots
 
 BENCHES = plots.BENCHES
-THIRD_PARTY = ("public/", "public:", "data/", "/kaggle/input/")
-
 Rows = list[list[float | None]]
 Points = list[tuple[float, float]]
 
 
-def is_own(r: ledger.Row) -> bool:
-    """A run of a circuit we generated (not a public circuit or the host's baseline)."""
-    return not r.circuit.startswith(THIRD_PARTY) and "/public/" not in r.circuit
-
-
 def own_runs(rows: list[ledger.Row]) -> list[ledger.Row]:
-    return [r for r in plots.verified(rows) if is_own(r) and r.bench in BENCHES]
+    return [r for r in plots.own_runs(rows) if r.bench in BENCHES]
 
 
 def best_ours(rows: list[ledger.Row], bench: str) -> ledger.Row | None:
@@ -82,31 +75,6 @@ def hours(t: datetime, origin: datetime) -> float:
     return round((t - origin).total_seconds() / 3600, 3)
 
 
-def own_points(rows: list[ledger.Row], bench: str) -> list[tuple[datetime, float]]:
-    origin = plots.timeline_origin(rows)
-    runs = [r for r in own_runs(rows) if r.bench == bench and r.cost]
-    return sorted((plots.when(r, origin), plots.ratio(bench, r.cost or 0.0)) for r in runs)
-
-
-def own_score_steps(rows: list[ledger.Row]) -> list[tuple[datetime, float]]:
-    """Score of our best verified ratios, once all three benchmarks have one (staircase)."""
-    origin = plots.timeline_origin(rows)
-    events = sorted(
-        (plots.when(r, origin), r.bench, plots.ratio(r.bench, r.cost or 0.0))
-        for r in own_runs(rows)
-        if r.cost
-    )
-    best: dict[str, float] = {}
-    out: list[tuple[datetime, float]] = []
-    for t, b, v in events:
-        best[b] = max(best.get(b, 0.0), v)
-        if len(best) == len(BENCHES):
-            s = plots.geomean(list(best.values()))
-            if not out or s > out[-1][1]:
-                out.append((t, s))
-    return out
-
-
 def step_rows(series: list[Points], scatter: list[Points] | None = None, end: float | None = None) -> Rows:
     """Chart rows `[x, y_series..., y_scatter...]` drawing each series as a staircase.
 
@@ -139,14 +107,14 @@ def _end(rows: list[ledger.Row], origin: datetime) -> float:
 def progress_rows(rows: list[ledger.Row]) -> Rows:
     """Rows for the per-benchmark chart: our best-so-far ratio per benchmark, one column each."""
     origin = plots.timeline_origin(rows)
-    series = [[(hours(t, origin), v) for t, v in plots.staircase(own_points(rows, b))] for b in BENCHES]
+    series = [[(hours(t, origin), v) for t, v in plots.staircase(plots.run_points(rows, b))] for b in BENCHES]
     return step_rows(series, end=_end(rows, origin))
 
 
 def score_rows(rows: list[ledger.Row]) -> Rows:
     """Rows for the score chart: our staircase, then the leaderboard scores as dots."""
     origin = plots.timeline_origin(rows)
-    ours = [(hours(t, origin), v) for t, v in own_score_steps(rows)]
+    ours = [(hours(t, origin), v) for t, v in plots.score_staircase(rows)]
     lb = [(hours(t, origin), v) for t, v in plots.leaderboard_points(rows)]
     return step_rows([ours], [lb], end=_end(rows, origin))
 

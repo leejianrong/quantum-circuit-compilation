@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from bench import experiments, ledger
+from bench import experiments, ledger, plots
 from dashboard import data
 
 FIX = pathlib.Path(__file__).resolve().parents[1] / "fixtures"
@@ -15,10 +15,10 @@ def rows() -> list[ledger.Row]:
 
 def test_third_party_circuits_are_not_ours(rows: list[ledger.Row]) -> None:
     mk = lambda c: ledger.Row("invsqrt", c, "x", "PASS", 1.0, [1.0], 1, False, 1, 0, None, 0.0, "g")  # noqa: E731
-    assert data.is_own(mk("out/g6.kmb"))
-    assert data.is_own(mk("own:dqi_gen/divstep"))
+    assert plots.is_own(mk("out/g6.kmb"))
+    assert plots.is_own(mk("own:dqi_gen/divstep"))
     for c in ("public/a/b.kmb", "data/sample_submission/invsqrt.kmb", "/kaggle/input/x/dqi.kmb"):
-        assert not data.is_own(mk(c))
+        assert not plots.is_own(mk(c))
 
 
 def test_summary_keeps_ours_public_and_leaderboard_apart(rows: list[ledger.Row]) -> None:

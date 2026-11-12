@@ -61,6 +61,19 @@ def verified(rows: list[ledger.Row]) -> list[ledger.Row]:
     ]
 
 
+THIRD_PARTY = ("public/", "public:", "data/", "/kaggle/input/")
+
+
+def is_own(r: ledger.Row) -> bool:
+    """A run of a circuit we generated, not a public circuit or the host's baseline."""
+    return not r.circuit.startswith(THIRD_PARTY) and "/public/" not in r.circuit
+
+
+def own_runs(rows: list[ledger.Row]) -> list[ledger.Row]:
+    """Verified runs of our own circuits: what "ours" means in the score and ratio plots."""
+    return [r for r in verified(rows) if is_own(r)]
+
+
 def failures(rows: list[ledger.Row]) -> list[ledger.Row]:
     return [r for r in rows if r.status == "FAIL" and r.kind in (None, "full", "screen", "leaderboard")]
 
@@ -89,7 +102,7 @@ def ratio(bench: str, cost: float) -> float:
 def run_points(rows: list[ledger.Row], bench: str) -> list[tuple[datetime, float]]:
     """(time, ratio) per verified run of one benchmark, oldest first."""
     origin = timeline_origin(rows)
-    pts = [(when(r, origin), ratio(bench, r.cost)) for r in verified(rows) if r.bench == bench and r.cost]
+    pts = [(when(r, origin), ratio(bench, r.cost)) for r in own_runs(rows) if r.bench == bench and r.cost]
     return sorted(pts)
 
 
@@ -118,7 +131,7 @@ def score_staircase(rows: list[ledger.Row]) -> list[tuple[datetime, float]]:
     origin = timeline_origin(rows)
     events = sorted(
         (when(r, origin), r.bench, ratio(r.bench, r.cost))
-        for r in verified(rows)
+        for r in own_runs(rows)
         if r.bench in BASELINES and r.cost
     )
     best: dict[str, float] = {}

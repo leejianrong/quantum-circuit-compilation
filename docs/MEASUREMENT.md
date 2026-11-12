@@ -64,8 +64,22 @@ Append-only JSONL. Old rows stay valid. Fields added to schema 1:
 5. Experiment funnel: screened, full verified, promoted, submitted.
 6. Verify wall time per benchmark and host.
 
-Plots are drawn from the ledger only, with fixture-ledger tests. The committed PNGs go in the README
-and the docs site.
+Plots are drawn from the ledger only, with fixture-ledger tests. The committed PNGs live in `docs/img/`
+(refresh them with `uv run bench plots --out docs/img`) and appear here and in the README. "Ours" in the
+score and ratio plots means verified runs of circuits we generated; verified runs of public circuits are
+not counted.
+
+![Score and ratio over time](img/progress.png)
+
+![Cost by stage](img/stages.png)
+
+![Salt spread](img/salt_spread.png)
+
+![Toffolis against qubits](img/pareto.png)
+
+![Experiment funnel](img/funnel.png)
+
+![Verify wall time](img/wall_time.png)
 
 ## Dashboard (indah, `dashboard/`, local first)
 
@@ -80,6 +94,10 @@ else. Tabs:
 | Verifier theatre | per-salt pass/fail ticks and cost spread | why one failure matters |
 | Lineage | graph from baseline through public circuits to ours, from `ledger/lineage.json` (derived from PROVENANCE.md by `uv run python -m bench.lineage`); no-licence ancestors in red and labelled, since Graph has no dashed style yet | provenance and what is ours |
 | Experiments | table of attempts and outcomes | the story, failures included |
+
+![Dashboard scoreboard](img/dashboard-scoreboard.png)
+
+![Dashboard lineage](img/dashboard-lineage.png)
 
 It is not hosted publicly until we have our own results, because the lineage tab shows third-party
 circuits.

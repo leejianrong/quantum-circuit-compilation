@@ -28,6 +28,7 @@ nav = [
   { "Glossary" = "learn/glossary.md" },
   { "Competition" = "COMPETITION.md" },
   { "Plan" = "PLAN.md" },
+  { "Measurement and dashboard" = "MEASUREMENT.md" },
 ]
 
 [project.theme]
