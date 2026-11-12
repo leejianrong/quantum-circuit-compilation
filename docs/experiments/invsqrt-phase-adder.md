@@ -7,7 +7,7 @@ is applied for free. Everything here is our own derivation from the paper's desc
 reference builder (ADR-0009 stage 1); no public circuit was read for this work, so `docs/PROVENANCE.md` has nothing
 new to log.
 
-**Result: the phase adder does not pay (below), but four other changes do: 101 qubits, cost 195,062.72, ratio 10.65, 5 of 5 salts pass (E017; was 121 qubits, 247,262.49, ratio 8.40). The frontier (ratio 21.95) is not reached; nothing here touches `best/`.**
+**Result: the phase adder does not pay (below), but four other changes do: 101 qubits, cost 195,062.72, ratio 10.65, 5 of 5 salts pass (E018; was 121 qubits, 247,262.49, ratio 8.40). The frontier (ratio 21.95) is not reached; nothing here touches `best/`.**
 
 Reproduce: `uv run python -m invsqrt_gen.cli --a 7 --frac 29,19,10 --guard 3 --pm1 --rnd --polish --reachable out/e017`.
 
@@ -58,7 +58,7 @@ the unit tests.
 
 ## What paid
 
-### 1. Signed-digit (+-1) rows: no operand register (E017)
+### 1. Signed-digit (+-1) rows: no operand register (E018)
 
 Booth radix 4 needs, per digit, two selects and one AND per operand bit to build `0, +-V, +-2V` in a scratch register
 before the add (`2 w + (window - 1)` Toffolis, `w + 3` extra qubits at the widest row). The centered remainder
