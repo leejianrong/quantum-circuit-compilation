@@ -82,6 +82,7 @@ class DivstepDecoder:
     def _forward_step(self, builder: Any, k: int, s: Sequence[Any], st: dict[str, Any]) -> None:
         t, gf = self.t, self.gf
         gv, fv, bb, delta = st["gv"], st["fv"], st["b"], st["delta"]
+        w = min(t, k) + 1  # both rows have degree at most k before step k
         with builder.mark("discrepancy"):
             d_reg = builder.alloc_qubits(self.deg)
             for i in range(min(t, k) + 1):
@@ -93,19 +94,23 @@ class DivstepDecoder:
             self._unflag(builder, delta, d_reg, gt, nz)
         with builder.mark("swap_rows"):
             builder.cswap(sw, d_reg, bb)
-            builder.cswap(sw, _cat(gv[: t + 1]), _cat(fv[: t + 1]))
+            builder.cswap(sw, _cat(gv[:w]), _cat(fv[:w]))
             self._negate_delta(builder, delta, sw)
             builder.iadd(1, target=delta)
         with builder.mark("quotient"):
             c = builder.init_gf2_div(d_reg, bb, field=gf)
         with builder.mark("row_update"):
-            self._update_rows(builder, c, st)
+            self._update_rows(builder, c, st, w)
         builder.del_gf2_mul(c, bb, target=d_reg, field=gf)
         builder.free(d_reg)
-        with builder.mark("shift_f"):
-            sh = builder.alloc_qubits(1)[0]
-            self._shift_flag(builder, fv[t], sh)
-            self._shift_f(builder, fv, sh)
+        sh = None
+        if k < t:  # deg f <= k < t: the top register is zero, so the shift is a free relabelling
+            fv.insert(0, fv.pop())
+        else:
+            with builder.mark("shift_f"):
+                sh = builder.alloc_qubits(1)[0]
+                self._shift_flag(builder, fv[t], sh)
+                self._shift_f(builder, fv, sh)
         st["sh"].append(sh)
         st["c"].append(c)
         st["sw"].append(sw)
@@ -130,9 +135,9 @@ class DivstepDecoder:
         for i in order:
             builder.cswap(sh, fv[i], fv[i - 1])
 
-    def _update_rows(self, builder: Any, c: Any, st: dict[str, Any]) -> None:
-        t, gf = self.t, self.gf
-        for i in range(t + 1):
+    def _update_rows(self, builder: Any, c: Any, st: dict[str, Any], width: int) -> None:
+        gf = self.gf
+        for i in range(width):
             builder.ixor_gf2_mul(c, st["fv"][i], target=st["gv"][i], field=gf)
 
     def _backward_step(self, builder: Any, k: int, s: Sequence[Any], st: dict[str, Any]) -> None:
@@ -140,21 +145,25 @@ class DivstepDecoder:
         gv, fv, bb, delta = st["gv"], st["fv"], st["b"], st["delta"]
         c, sw = st["c"].pop(), st["sw"].pop()
         sh = st["sh"].pop()
-        with builder.mark("shift_f"):
-            self._shift_f(builder, fv, sh, inverse=True)
-            self._shift_flag(builder, fv[t], sh)
-            builder.free(sh)
+        w = min(t, k) + 1
+        if sh is None:
+            fv.append(fv.pop(0))
+        else:
+            with builder.mark("shift_f"):
+                self._shift_f(builder, fv, sh, inverse=True)
+                self._shift_flag(builder, fv[t], sh)
+                builder.free(sh)
         d_reg = builder.alloc_qubits(self.deg)
         builder.init_gf2_mul(c, bb, target=d_reg, field=gf)
         with builder.mark("row_update"):
-            self._update_rows(builder, c, st)
+            self._update_rows(builder, c, st, w)
         with builder.mark("quotient"):
             builder.del_gf2_div(d_reg, bb, target=c, field=gf)
         builder.free(c)
         with builder.mark("swap_rows"):
             builder.isub(1, target=delta)
             self._negate_delta(builder, delta, sw)
-            builder.cswap(sw, _cat(gv[: t + 1]), _cat(fv[: t + 1]))
+            builder.cswap(sw, _cat(gv[:w]), _cat(fv[:w]))
             builder.cswap(sw, d_reg, bb)
         with builder.mark("swap_decision"):
             gt, nz = self._sw_flags(builder, delta, d_reg)
@@ -353,8 +362,6 @@ class DivstepDecoder:
         steps += [(gu[k], gf.pow(alpha, (-(k + 1)) % order)) for k in range(t)]
         steps = [(reg, c) for reg, c in steps if c != 1]
         sg, od, om = (builder.alloc_qubits(deg) for _ in range(3))
-        inv = builder.alloc_qubits(deg)
-        located = builder.alloc_qubits(deg)
         pairs = (
             [(gv[k], sg) for k in range(1, t + 1)]
             + [(gv[k], od) for k in range(1, t + 1, 2)]
@@ -364,6 +371,7 @@ class DivstepDecoder:
         dst = _cat([p[1] for p in pairs])
         position = builder.mark("forney_position")
         tower = self._tower_ops(builder)
+        inv, located = (None, None) if tower else (builder.alloc_qubits(deg), builder.alloc_qubits(deg))
         for j in range(m):
             with position:
                 builder.cx(src, dst)
@@ -389,7 +397,8 @@ class DivstepDecoder:
             for reg, c in steps:
                 builder.gf2_idiv(gf.pow(c, m - 1), target=reg, field=gf)
         for reg in (located, inv, sg, od, om):
-            builder.free(reg)
+            if reg is not None:
+                builder.free(reg)
 
     # ---- whole decoder -------------------------------------------------------------------------
 
