@@ -1,7 +1,8 @@
 """Classical reference of the dialog-free Jacobi (Lanczos) key-equation solver (QCC-19).
 
 Design and numbers: docs/experiments/dqi-inplace.md. The syndromes are moments
-`S_i = L(z^i) = sum_j w_j x_j^i` with nodes `x_j = alpha^j` and weights `w_j = e_j x_j` (the benchmark's `S_i = sum_j e_j alpha^((i+1) j)`).
+`S_i = L(z^i) = sum_j w_j x_j^i` with nodes `x_j = alpha^j` and weights `w_j = e_j x_j`
+(the benchmark's `S_i = sum_j e_j alpha^((i+1) j)`).
 The monic polynomials orthogonal for `L` obey, in characteristic 2,
 
     p_{k+1} = (z + a_k) p_k + b_k p_{k-1},   h_k = L(p_k z^k) = sum_i p_{k,i} S_{k+i},
