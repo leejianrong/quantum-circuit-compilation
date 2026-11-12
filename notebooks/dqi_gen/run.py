@@ -10,10 +10,27 @@ import resource
 import subprocess
 import time
 
-BRANCH = "main"
+BRANCH = "qcc-19-dqi-divstep-decoder"
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
+    (
+        "verify-divstep-full",
+        [
+            "-m",
+            "dqi_gen.instances",
+            "--gen",
+            "divstep",
+            "--instance",
+            "full",
+            "--shots",
+            "102400",
+            "--salts",
+            "3",
+            "--save",
+            "{out}/dqi_divstep.kmb",
+        ],
+    ),
     ("audit-reference-full", ["-m", "dqi_gen.audit", "--json", "{out}/audit_reference_full.json"]),
 ]
 

@@ -172,6 +172,67 @@ class DivstepDecoder:
         builder.free(anc)
         builder.x(reg)
 
+    @staticmethod
+    def _subfield_inverse(builder: Any, gf_h: Any) -> Any:
+        """(compute, uncompute) of `ninv = x^-1` in GF(2^h). Even h goes through one more tower level."""
+        h = gf_h.degree
+        if h % 2 or h < 4:
+
+            def compute_plain(x: Any) -> Any:
+                ninv, chain = builder.init_gf2_inverse_with_scaffold(x, field=gf_h)
+                return ninv, chain
+
+            def uncompute_plain(x: Any, ninv: Any, state: Any) -> None:
+                builder.del_gf2_inverse_with_scaffold(x, target=ninv, scaffold=state, field=gf_h)
+                builder.free(state)
+                builder.free(ninv)
+
+            return compute_plain, uncompute_plain
+
+        q = h // 2
+        gf_q = km.GF2Field(q)
+        tw = Tower.build(gf_h, gf_q)
+        norm_b = [gf_q.mul(tw.b, gf_q.square(1 << i)) for i in range(q)]
+
+        def compute(x: Any) -> Any:
+            apply_matrix_inplace(builder, list(x), tw.to_tower)
+            a_, b_ = x[:q], x[q:]
+            norm = builder.init_gf2_mul(a_, b_, field=gf_q)
+            xor_linear(builder, a_, norm, tw.square)
+            xor_linear(builder, b_, norm, norm_b)
+            ninv_q, chain = builder.init_gf2_inverse_with_scaffold(norm, field=gf_q)
+            e_ = builder.alloc_qubits(q)
+            builder.cx(a_, e_)
+            builder.cx(b_, e_)
+            ninv = builder.alloc_qubits(h)
+            builder.init_gf2_mul(e_, ninv_q, target=ninv[:q], field=gf_q)
+            builder.init_gf2_mul(b_, ninv_q, target=ninv[q:], field=gf_q)
+            apply_matrix_inplace(builder, list(ninv), tw.from_tower)
+            apply_matrix_inplace(builder, list(x), tw.from_tower)
+            return ninv, (norm, ninv_q, chain, e_)
+
+        def uncompute(x: Any, ninv: Any, state: Any) -> None:
+            norm, ninv_q, chain, e_ = state
+            apply_matrix_inplace(builder, list(x), tw.to_tower)
+            a_, b_ = x[:q], x[q:]
+            apply_matrix_inplace(builder, list(ninv), tw.to_tower)
+            builder.del_gf2_mul(b_, ninv_q, target=ninv[q:], field=gf_q)
+            builder.del_gf2_mul(e_, ninv_q, target=ninv[:q], field=gf_q)
+            builder.cx(b_, e_)
+            builder.cx(a_, e_)
+            builder.free(e_)
+            builder.del_gf2_inverse_with_scaffold(norm, target=ninv_q, scaffold=chain, field=gf_q)
+            builder.free(chain)
+            builder.free(ninv_q)
+            xor_linear(builder, b_, norm, norm_b)
+            xor_linear(builder, a_, norm, tw.square)
+            builder.del_gf2_mul(a_, b_, target=norm, field=gf_q)
+            builder.free(norm)
+            apply_matrix_inplace(builder, list(x), tw.from_tower)
+            builder.free(ninv)
+
+        return compute, uncompute
+
     def _tower_ops(self, builder: Any) -> Any:
         """Phase kickback of <M, om / od> gated by z through the GF(2^6) tower; None for odd degrees.
 
@@ -187,6 +248,7 @@ class DivstepDecoder:
         gf_h = km.GF2Field(h)
         tw = Tower.build(self.gf, gf_h)
         norm_b = [gf_h.mul(tw.b, gf_h.square(1 << i)) for i in range(h)]
+        inv_compute, inv_uncompute = self._subfield_inverse(builder, gf_h)
 
         def run(od: Any, om: Any, z: Any, mask: Any) -> None:
             apply_matrix_inplace(builder, list(od), tw.to_tower)
@@ -194,7 +256,7 @@ class DivstepDecoder:
             norm = builder.init_gf2_mul(a_, b_, field=gf_h)
             xor_linear(builder, a_, norm, tw.square)
             xor_linear(builder, b_, norm, norm_b)
-            ninv, chain = builder.init_gf2_inverse_with_scaffold(norm, field=gf_h)
+            ninv, inv_state = inv_compute(norm)
             gated = builder.alloc_qubits(h)
             builder.init_and(z, ninv, gated)
             e_ = builder.alloc_qubits(h)
@@ -214,9 +276,7 @@ class DivstepDecoder:
             builder.free(e_)
             builder.del_and(z, ninv, gated)
             builder.free(gated)
-            builder.del_gf2_inverse_with_scaffold(norm, target=ninv, scaffold=chain, field=gf_h)
-            builder.free(chain)
-            builder.free(ninv)
+            inv_uncompute(norm, ninv, inv_state)
             xor_linear(builder, b_, norm, norm_b)
             xor_linear(builder, a_, norm, tw.square)
             builder.del_gf2_mul(a_, b_, target=norm, field=gf_h)
