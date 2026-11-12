@@ -12,8 +12,12 @@ Constant terms come from the rows:
 One step (all control flow is data independent):
     d = g_k(0);  sw = (delta > 0) and d != 0;  if sw: swap rows v_g, v_f and registers d, b; delta -> -delta
     c = d / b  (kept: the dialog);  v_g ^= c * v_f;  delta += 1;  v_f shifts up by z (relabelling).
-After n = 2t steps v_g is sigma up to a nonzero scalar and Omega = sigma S mod z^t (computed once, cleared
-by measurement at the end). Chien search and Forney give e_j = Omega(z_j) / sigma'(z_j) at z_j = alpha^-j,
+After n = 2t steps v_g is sigma up to a nonzero scalar. The f row is shifted up by z only while its top
+coefficient (index t) is zero: past that it is dead (every later discrepancy is zero for decodable syndromes),
+so it is frozen instead of kept as shifted-out garbage (one `sh` bit per step). sigma is then normalised in
+place by 1 / sigma_0 and Omega = sigma S mod z^t is computed in place in the syndrome registers S_0..S_{t-1}
+(descending order); both are undone before the reverse pass.
+Chien search and Forney give e_j = Omega(z_j) / sigma'(z_j) at z_j = alpha^-j,
 and the phase is applied by `gf2_phase_by_product`. Division at the Forney step goes through the GF(2^6)
 tower (`tower.py`). The dialog is erased by running the steps backwards; the discrepancy and `D = c b`
 registers clear by measurement, so the reverse pass skips the convolution.
@@ -98,9 +102,33 @@ class DivstepDecoder:
             self._update_rows(builder, c, st)
         builder.del_gf2_mul(c, bb, target=d_reg, field=gf)
         builder.free(d_reg)
-        fv.insert(0, builder.alloc_qubits(self.deg))
+        with builder.mark("shift_f"):
+            sh = builder.alloc_qubits(1)[0]
+            self._shift_flag(builder, fv[t], sh)
+            self._shift_f(builder, fv, sh)
+        st["sh"].append(sh)
         st["c"].append(c)
         st["sw"].append(sw)
+
+    @staticmethod
+    def _shift_flag(builder: Any, top: Any, sh: Any) -> None:
+        """sh ^= (top == 0). The f row is shifted up by z only while its top coefficient is zero."""
+        ladder = DivstepDecoder._zero_test(builder, top)
+        builder.cx(ladder[-1], sh)
+        DivstepDecoder._zero_untest(builder, top, ladder)
+
+    @staticmethod
+    def _shift_f(builder: Any, fv: list[Any], sh: Any, *, inverse: bool = False) -> None:
+        """Controlled cyclic shift of the t + 1 registers up by one (top coefficient is zero when sh).
+
+        A row whose degree would pass t is dead: for decodable syndromes every later discrepancy is zero, so
+        it is never read again; freezing it keeps the window at t + 1 registers instead of keeping the
+        shifted-out coefficients as garbage.
+        """
+        t = len(fv) - 1
+        order = range(t, 0, -1) if not inverse else range(1, t + 1)
+        for i in order:
+            builder.cswap(sh, fv[i], fv[i - 1])
 
     def _update_rows(self, builder: Any, c: Any, st: dict[str, Any]) -> None:
         t, gf = self.t, self.gf
@@ -111,7 +139,11 @@ class DivstepDecoder:
         t, gf = self.t, self.gf
         gv, fv, bb, delta = st["gv"], st["fv"], st["b"], st["delta"]
         c, sw = st["c"].pop(), st["sw"].pop()
-        builder.free(fv.pop(0))
+        sh = st["sh"].pop()
+        with builder.mark("shift_f"):
+            self._shift_f(builder, fv, sh, inverse=True)
+            self._shift_flag(builder, fv[t], sh)
+            builder.free(sh)
         d_reg = builder.alloc_qubits(self.deg)
         builder.init_gf2_mul(c, bb, target=d_reg, field=gf)
         with builder.mark("row_update"):
@@ -137,22 +169,47 @@ class DivstepDecoder:
             builder.free(mask)
             builder.free(d_reg)
 
-    def _omega(
-        self, builder: Any, gv: list[Any], s: Sequence[Any], omega: list[Any], *, adjoint: bool
-    ) -> None:
-        """Omega_i = sum_{k<=i} sigma_k S_{i-k} for i < t. Cleared by measurement and a free phase fix."""
-        gf, t = self.gf, self.t
-        if not adjoint:
-            for i in range(t):
-                for k in range(i + 1):
-                    builder.ixor_gf2_mul(gv[k], s[i - k], target=omega[i], field=gf)
-            return
-        for i in range(t):
-            mask = builder.alloc_bits(self.deg)
-            builder.hmr(omega[i], mask)
-            for k in range(i + 1):
-                builder.gf2_phase_by_product(gv[k], s[i - k], mask=mask, field=gf)
-            builder.free(mask)
+    def _normalise(self, builder: Any, gv: list[Any], *, inverse: bool = False) -> Any:
+        """Scales sigma by 1 / sigma_0 in place, keeping sigma_0 in gv[0] (the implicit leading 1).
+
+        Each register x becomes y = mu x through an out-of-place product, and x is then cleared by
+        measurement as lam * y (zero Toffolis); the register list is relabelled. Returns mu (12 qubits).
+        """
+        gf, lam = self.gf, gv[0]
+        if not inverse:
+            mu = builder.init_gf2_inverse(lam, field=gf)
+            for k in range(1, self.t + 1):
+                y = builder.init_gf2_mul(gv[k], mu, field=gf)
+                builder.del_gf2_mul(lam, y, target=gv[k], field=gf)
+                builder.free(gv[k])
+                gv[k] = y
+            return mu
+        raise AssertionError("use _unnormalise")
+
+    def _unnormalise(self, builder: Any, gv: list[Any], mu: Any) -> None:
+        gf, lam = self.gf, gv[0]
+        for k in range(1, self.t + 1):
+            x = builder.init_gf2_mul(gv[k], lam, field=gf)
+            builder.del_gf2_mul(mu, x, target=gv[k], field=gf)
+            builder.free(gv[k])
+            gv[k] = x
+        builder.del_gf2_inverse(lam, target=mu, field=gf)
+        builder.free(mu)
+
+    def _omega(self, builder: Any, gv: list[Any], s: Sequence[Any]) -> None:
+        """In place on the syndromes: S_i <- S_i + sum_{1<=k<=i} sigma_k S_{i-k} = Omega_i (i < t).
+
+        Needs the normalised sigma (sigma_0 = 1). Descending i, so every S_{i-k} read is still original.
+        The registers are restored by `_omega_undo`; no qubits are added.
+        """
+        for i in range(self.t - 1, -1, -1):
+            for k in range(1, i + 1):
+                builder.ixor_gf2_mul(gv[k], s[i - k], target=s[i], field=self.gf)
+
+    def _omega_undo(self, builder: Any, gv: list[Any], s: Sequence[Any]) -> None:
+        for i in range(self.t):
+            for k in range(1, i + 1):
+                builder.ixor_gf2_mul(gv[k], s[i - k], target=s[i], field=self.gf)
 
     @staticmethod
     def _zero_test(builder: Any, reg: Any) -> Any:
@@ -299,7 +356,7 @@ class DivstepDecoder:
         inv = builder.alloc_qubits(deg)
         located = builder.alloc_qubits(deg)
         pairs = (
-            [(gv[k], sg) for k in range(t + 1)]
+            [(gv[k], sg) for k in range(1, t + 1)]
             + [(gv[k], od) for k in range(1, t + 1, 2)]
             + [(gu[k], om) for k in range(t)]
         )
@@ -310,6 +367,7 @@ class DivstepDecoder:
         for j in range(m):
             with position:
                 builder.cx(src, dst)
+                builder.x(sg[0])  # sigma_0 = 1 after normalisation (gv[0] holds the scale)
                 ladder = self._zero_test(builder, sg)
                 z = ladder[-1]
                 if tower is None:
@@ -322,6 +380,7 @@ class DivstepDecoder:
                 else:
                     tower(od, om, z, error_mbuc[j])
                 self._zero_untest(builder, sg, ladder)
+                builder.x(sg[0])
                 builder.cx(src, dst)
                 if j + 1 < m:
                     for reg, c in steps:
@@ -350,6 +409,7 @@ class DivstepDecoder:
             "delta": builder.alloc_qubits(width),
             "c": [],
             "sw": [],
+            "sh": [],
         }
         init_ones = km.array([st["gv"][0][0], st["b"][0]])
         builder.x(init_ones)
@@ -358,14 +418,13 @@ class DivstepDecoder:
             for k in range(n):
                 self._forward_step(builder, k, syndromes, st)
         with builder.mark("omega"):
-            omega = self._alloc_regs(builder, t)
-            self._omega(builder, st["gv"], syndromes, omega, adjoint=False)
+            mu = self._normalise(builder, st["gv"])
+            self._omega(builder, st["gv"], syndromes)
         with builder.mark("chien_forney_mbuc"):
-            self._chien_forney(builder, st["gv"], omega, error_mbuc)
+            self._chien_forney(builder, st["gv"], list(syndromes[:t]), error_mbuc)
         with builder.mark("omega_clear"):
-            self._omega(builder, st["gv"], syndromes, omega, adjoint=True)
-            for reg in omega:
-                builder.free(reg)
+            self._omega_undo(builder, st["gv"], syndromes)
+            self._unnormalise(builder, st["gv"], mu)
         with builder.mark("reverse_divsteps"):
             for k in range(n - 1, -1, -1):
                 self._backward_step(builder, k, syndromes, st)
