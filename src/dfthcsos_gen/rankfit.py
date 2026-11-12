@@ -30,7 +30,7 @@ def flip_cost(x: np.ndarray, words: np.ndarray, bit: int, brot: int) -> np.ndarr
         d = (v - x + period / 2) % period - period / 2
         return np.asarray(d * d)
 
-    return err(new) - err(cur)
+    return np.asarray(err(new) - err(cur))
 
 
 def _decode_rows(q: np.ndarray, b: np.ndarray, cost: np.ndarray) -> np.ndarray:
@@ -46,7 +46,9 @@ def _decode_rows(q: np.ndarray, b: np.ndarray, cost: np.ndarray) -> np.ndarray:
     return out
 
 
-def low_rank_plane(plane: np.ndarray, cost: np.ndarray, rank: int, sweeps: int = 6, seed: int = 0) -> np.ndarray:
+def low_rank_plane(
+    plane: np.ndarray, cost: np.ndarray, rank: int, sweeps: int = 6, seed: int = 0
+) -> np.ndarray:
     """Plane of centered rank at most ``rank`` close to ``plane`` in flip-cost-weighted Hamming distance.
 
     ``cost`` is nonnegative with the same shape; zero cost marks a don't-care entry. The ``F(h)``/``G(l)``
