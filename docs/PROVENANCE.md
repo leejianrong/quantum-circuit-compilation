@@ -93,3 +93,10 @@ invsqrt c6519219 + dqi e9f54be3 + dfthcsos 91d0ad25 with S6's angle set, the con
 S5's SHA256SUMS gives its `submission.zip` sha256 as
 `10e0f2a3d18bcde8c2e6fe41a5391f4630fc73414178ec90f1274ba3cb74ab2c`. The reported costs give a
 geometric-mean score of about 25.21 (S5 and S6 claim 25.218 on the board). Not verified by us.
+
+## Ideas learned (ADR-0009 stage 2)
+
+Techniques we studied from public work and rewrote ourselves. One row each: technique, author and source, our generator, date.
+
+| Technique | Author and source | Our generator | Date |
+|---|---|---|---|
