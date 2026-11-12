@@ -14,7 +14,7 @@ import indah
 from starlette.applications import Starlette
 
 from bench import experiments, ledger, plots
-from dashboard import data, lineage_view
+from dashboard import cost_view, data, lineage_view
 
 OURS = plots.COLORS["score"]
 PUBLIC = plots.COLORS["frontier"]
@@ -287,6 +287,7 @@ TABS: list[tuple[str, Tab]] = [
     ("Scoreboard", lambda i: scoreboard(i.rows)),
     ("Experiments", lambda i: experiments_tab(i.rows, i.exps)),
     ("Lineage", lambda i: lineage_tab(i.lineage)),
+    ("Cost explorer", lambda i: cost_view.cost_explorer()),
 ]
 
 

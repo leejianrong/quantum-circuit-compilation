@@ -401,16 +401,12 @@ wheels = [
 [[package]]
 name = "indah"
 version = "0.13.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/leejianrong/indah?rev=2ca67ec91ca8350556d4db5ea77c2124c419e637#2ca67ec91ca8350556d4db5ea77c2124c419e637" }
 dependencies = [
     { name = "pydantic" },
     { name = "python-multipart" },
     { name = "starlette" },
     { name = "uvicorn" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/47/c5/c490b28da37ca57e99cbb0de762ee6196819dd1899b45b52337b0f2c1bec/indah-0.13.0.tar.gz", hash = "sha256:251168f123c7788c0f328eaaacf70b98692bffc08d78b182eb76857ed64bf804", size = 1800254, upload-time = "2026-11-05T03:23:33.051Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ff/75/4e59f3fdd81be2b66ee3d13996d920576de30384154147ae13d140ee08ec/indah-0.13.0-py3-none-any.whl", hash = "sha256:7a4641bf6a91cc3cf94deb76afdc1cb3e0a3fbc5587721b44e71bf76d8322cb7", size = 604963, upload-time = "2026-11-05T03:23:31.061Z" },
 ]
 
 [package.optional-dependencies]
@@ -1439,7 +1435,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "indah", extras = ["plot"], marker = "extra == 'dashboard'" },
+    { name = "indah", extras = ["plot"], marker = "extra == 'dashboard'", git = "https://github.com/leejianrong/indah?rev=2ca67ec91ca8350556d4db5ea77c2124c419e637" },
     { name = "kickmix", specifier = ">=1.0.0" },
     { name = "matplotlib", marker = "extra == 'plots'", specifier = ">=3.8" },
     { name = "numpy" },
