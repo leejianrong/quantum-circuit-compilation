@@ -73,12 +73,49 @@ growth 0.006 to 0.009). The best table is the 8,176,56 one at 0.0138, well insid
    (0.0555 to 0.0419 at 10 bits, 0.0255 to 0.0236 at 12). One-body rows are the eigenvectors of the decoded
    `h1_prime`; their `error_1` scales as `2^-brot` (0.014 at 10 bits, 0.0035 at 12).
 
-## Cost of the passing table and what it says about M2
+## Cost of the passing table (12 bits) and what it says about M2
 
 The cost model gives `T_total` = 29,640 + 4,393 + 3,450 and `Q_total` = 789 at 12 bits. To get back to 6.85 the table
 has to live at 8 bits (J = 13, K = 6, Q = 491) and `lambda_eff` has to come down to about 47. Both are fit
 problems, not loader problems: a continuous fit at 0.0138 has 0.006 of slack under the gate, and an 8-bit grid
 costs about 0.05 of `error_2` when rounded naively, so the optimiser has to be told about the grid.
+
+## Quantization-aware angles (E008)
+
+`scripts/dfthcsos_qat.py`: parametrise every vector by its balanced-tree angles, optimise `error_2` over angles and
+weights (gradient through the decoder, `dfthcsos_gen.post.decode_backward`, tested against finite differences) and
+round progressively: after each L-BFGS stage the free angles closest to the grid are fixed, and a last stage refits
+the weights on the all-rounded vectors. Start: the 0.0138 table; laptop, 14 threads, about 45 minutes per run.
+
+| bits | naive rounding of the continuous fit | short schedule (6 stages x 80 it) | long schedule (12 stages x 250 it) |
+|---:|---:|---:|---:|
+| 10 | 0.0532 | 0.0256 | 0.0260 (fails the gate) |
+| 11 | 0.0289 | not run | **0.0179** |
+
+Continuous `error_2` rises from 0.0138 to 0.0168 over the 11-bit schedule and rounding the last angles costs 0.002.
+The pattern is the one the 10-bit run shows in the extreme: the early stages are free (fixing 60% of the angles
+costs 0.001), the last 10% of the angles carry most of the loss because there is nothing left to compensate them,
+so a gentler end of the schedule (more stages above 0.9, or a few rounding sweeps with word-by-word moves) is the
+next thing to try. A nearly gradient-free schedule (short) does as well at 10 bits, so the long one's gain is at
+11 bits only.
+
+The 11-bit words (`error_1` 0.0070, `error_2` 0.0179 by the verifier's metrics, `Lambda` 481.8, `E_gap` 4.0898,
+`lambda_eff` 62.64) are loaded by our unary loader at J = 9 (9 circuits, 13,338 static Toffolis, 120 qubits) and
+**pass the real verifier at 3 of 3 salts: cost 1,697,674,805, ratio 1.98**, equal to the cost model's prediction.
+That is the best verified fully-own dfthcsos; the best verified overall stays 489,890,973 (6.85, public words).
+
+Cost model for the same shape at other widths (static loader Toffolis scaled from the 12-bit run, `Lambda` 480):
+
+| brot | J, K | `T_total` | `Q_total` | ratio |
+|---:|---|---:|---:|---:|
+| 12 | 8, 10 | 37,483 | 789 | 1.81 |
+| 11 | 9, 9 | 34,219 | 792 | 1.98 |
+| 10 | 10, 8 | 30,955 | 793 | 2.19 |
+| 8 | 13, 6 | 26,811 | 494 | 4.05 |
+
+`Q_total` drops from about 790 to 494 only at the width where the inner QROAM block exponent steps down, so the
+largest single step is reaching 8 bits (4.05 even with our `lambda_eff`, 5.4 with 46.9). Our own QAT does not get
+there yet: 10 bits already fails.
 
 ## Not done
 
