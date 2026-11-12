@@ -31,9 +31,10 @@ from dqi_gen.tower import Tower, apply_matrix_inplace, xor_linear
 class Reg:
     """A field register (or a single flag qubit) whose qubits never change identity."""
 
-    def __init__(self, q: Any, name: str = "") -> None:
+    def __init__(self, q: Any, name: str = "", own: bool = False) -> None:
         self.q = q
         self.name = name
+        self.own = own  # the qubits were allocated by us (the host's syndrome qubits cannot be freed)
 
     def __getitem__(self, i: int) -> Any:
         return self.q[i]
@@ -138,7 +139,7 @@ class Tape:
 
     def _lend(self) -> list[Reg]:
         """Frees the idle zero registers we allocated (not the host syndrome registers) as scratch room."""
-        spare = [r for r in self.pool if r in self.fresh]
+        spare = [r for r in self.pool if r.own]
         for reg in spare:
             self.b.free(reg.q)
         return spare
@@ -225,7 +226,7 @@ class Tape:
         if self.pool:
             reg = self.pool[-1]
         else:
-            reg = Reg(self.b.alloc_qubits(self.deg), f"r{len(self.fresh)}")
+            reg = Reg(self.b.alloc_qubits(self.deg), f"r{len(self.fresh)}", own=True)
             self.fresh.append(reg)
         self.emit("take", reg)
         return reg
@@ -366,6 +367,17 @@ class LanczosDecoder:
         tp.cx(al, 0, b, 0)
         tp.cx(al, 0, lam, 0)
         tp.x(al)
+        # L. carried scalars: alive -> (h, inv_h), dead -> keep (h_prev, inv_prev)
+        tp.x(al)
+        tp.cswap(al, [h, inv_h], [h_prev, inv_prev])
+        tp.x(al)
+        tp.delmul(lam, h, h_prev)  # lam = h_{k-1} / h_k = 1 / b
+        tp.give(h_prev)
+        tp.emit("delinv", b, lam)
+        tp.give(lam)
+        tp.delmul(b, inv_h, inv_prev)
+        tp.give(inv_prev)
+        st["h"], st["inv"] = h, inv_h
         # G (after J, lower peak). a = a0 + p_{k,k-1} gated by alive
         if k >= 1:
             tp.iadd(cur[k - 1], a0)
@@ -378,17 +390,6 @@ class LanczosDecoder:
             tp.iadd(cur[i], prev[i + 1], al)
         cur, prev = prev, cur
         st["cur"], st["prev"] = cur, prev
-        # L. carried scalars: alive -> (h, inv_h), dead -> keep (h_prev, inv_prev)
-        tp.x(al)
-        tp.cswap(al, [h, inv_h], [h_prev, inv_prev])
-        tp.x(al)
-        tp.delmul(lam, h, h_prev)  # lam = h_{k-1} / h_k = 1 / b
-        tp.give(h_prev)
-        tp.emit("delinv", b, lam)
-        tp.give(lam)
-        tp.delmul(b, inv_h, inv_prev)
-        tp.give(inv_prev)
-        st["h"], st["inv"] = h, inv_h
         # M. clear b through the polynomials, then a_eff, a0, and the alive flag
         if k >= 1:
             tp.iadd(cur[k - 1], b, al)
@@ -499,7 +500,7 @@ class LanczosDecoder:
                 self._step(tp, k, s, st)
                 snaps.append((start, len(tp.ops), snap))
         with builder.mark("scan"):
-            spare = [r for r in tp.pool if r in tp.fresh]  # zero registers: lend their qubits to the scan
+            spare = [r for r in tp.pool if r.own]  # zero registers: lend their qubits to the scan
             for reg in spare:
                 builder.free(reg.q)
             self._scan(builder, st, error_mbuc)
@@ -513,7 +514,7 @@ class LanczosDecoder:
         for reg in (one, zero_prev, zero_h, zero_inv):
             tp.emit("give", reg)
         for reg in tp.pool:
-            if reg in tp.fresh:
+            if reg.own:
                 builder.free(reg.q)
         builder.free(al.q)
         builder.free(z0.q)
