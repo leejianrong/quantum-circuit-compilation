@@ -50,13 +50,39 @@ matrices) has to fit inside the remaining 0.02 gate.
 
 ## Results so far (E003, E004)
 
-**E003, own continuous fit from scratch** (`scripts/dfthcsos_fit.py`, shape (8, 143, 44), random unit vectors,
+**E003, own continuous fit from scratch** (`scripts/run_fit.py`, shape (8, 143, 44), random unit vectors,
 L-BFGS on `error_2^2`, 6 threads on a machine at load 40-80): `error_2` 0.446 (100 iterations), 0.219 (200),
 0.153 (300), 0.122 (400), 0.091 (600), 0.083 (700), about 3 to 6 s per iteration. It is still descending, but
 slowly; the gate is 0.02 and the public shape's reported floor is 0.0192, so a from-scratch fit needs many
 thousand more iterations or a better initialisation (the DF eigenvectors are dense, so the fixed-target
 decomposition per group is not a good start). No own table passes the gates yet, so no verifier run is
 justified and the ledger is unchanged: best verified remains 489,890,973 (ratio 6.85) with the public words.
+
+**E003b, the same fit on a 32-vCPU RunPod CPU pod** (`scripts/run_fit.py`, 90 minutes, about 1.5 USD; the
+target `tsym.npy` was sent with `runpodctl send`, the code cloned from the public repo; four processes of
+8 BLAS threads each). Pod speed was 0.7 s per iteration against 3 to 6 s on the laptop. `error_2` after
+the 90 minutes:
+
+| shape (R, B, C) | seed | iterations | `error_2` |
+|---|---:|---:|---:|
+| 8, 143, 44 | 0 | 7,300 | 0.0288 |
+| 8, 143, 44 | 1 | 3,000 | 0.0414 |
+| 8, 143, 44 | 2 | 2,950 | 0.0406 |
+| 9, 127, 39 | 0 | 7,300 | 0.0329 |
+
+Curve of the best run: 0.29 (150 it), 0.087 (650), 0.059 (1,250), 0.036 (3,550), 0.031 (5,900), 0.0288
+(7,300). It is still descending but by about 0.0005 per 700 iterations at the end, so the gate (0.02) is
+not reachable by simply running longer from this start; the public shape's reported floor is 0.0192 and
+needs a better optimiser or a better initialisation. Seeds 1 and 2 ran 2.4x slower per iteration (the
+processes competed for cores unevenly) and are behind at equal wall time, not necessarily at equal
+iterations. The R=9 shape is no better.
+
+Scored with the host's metric code (`scripts/eval_fit.py`; one-body rows are the exact eigenvectors of
+`h1_prime`, so `error_1` is 1e-13; the capital `W_rho_c` is not fitted, only scanned along `W = -t sum_b w`):
+`error_1` 0, `error_2` 0.0288 (fails the 0.02 gate), `Lambda` 745 and `E_gap` 12.6 Ha at the best `t` = 1.40
+(minimum gap along this one-parameter family; the floors Lambda > 49.0 and E_gap > 3.914898 are met). The public
+sample has `Lambda` 308 at `E_gap` 3.958, so fitting `W` properly is a second lever once `error_2` passes.
+Fitted arrays stay in `out/` (not committed). No verifier run is justified; the ledger is unchanged.
 
 **E004, rank-budget rounding on a stand-in table** (`src/dfthcsos_gen/rankfit.py`). To develop the rounding code
 before our own table exists, the host's 12-bit baseline angles (Apache-2.0 sample submission, development only,
