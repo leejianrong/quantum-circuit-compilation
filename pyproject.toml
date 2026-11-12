@@ -16,7 +16,14 @@ bench = "bench.cli:main"
 
 [project.optional-dependencies]
 plots = ["matplotlib>=3.8"]
-dashboard = ["indah[plot]"]
+dashboard = ["indah[plot]>=0.13.0"]
+
+# Where indah comes from. Chart step series, log scales, rules/bands/markers and Slider readout/marks
+# (indah PRs 328 and 329) are on indah main but not on PyPI yet, so the dashboard extra is pinned to a
+# commit. To go back to PyPI: delete this table, bump the floor in the extra above to the release that
+# has those features, and run `uv lock`.
+[tool.uv.sources]
+indah = { git = "https://github.com/leejianrong/indah", rev = "2ca67ec91ca8350556d4db5ea77c2124c419e637" }
 
 [dependency-groups]
 dev = [

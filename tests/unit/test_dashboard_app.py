@@ -18,6 +18,7 @@ def test_app_builds_from_a_fixture_ledger() -> None:
     tabs = next(c for c in root.children if type(c).__name__ == "Tabs")
     assert labels(tabs) == [name for name, _ in app.TABS]
     assert labels(tabs)[:2] == ["Scoreboard", "Experiments"]
+    assert "Cost explorer" in labels(tabs)
 
 
 def test_app_builds_with_no_ledger_at_all(tmp_path: pathlib.Path) -> None:
