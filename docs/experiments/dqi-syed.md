@@ -107,3 +107,16 @@ size on Kaggle (`qcc-dqi-gen`, build 661 s, verify 1,522 s, 18.3 GB peak): PASS 
 1,837 qubits, 444,030 Toffolis, worst-salt cost 1.828e12, i.e. a ratio of about 13.4 against the baseline
 2.4439e13. This is the verified reference the own decoder (`thiele`, 955 qubits at n = 70, 71 positions)
 has to beat. Ledger row appended to `ledger/results.jsonl`.
+
+## Own decoder at full size (Kaggle, 5 salts)
+
+`--gen thiele` (own geometry, wired extract and synthesis, plain scan with a per-position division): PASS at 5
+salts, zero failures, 955 qubits, 615,399 Toffolis (the static prediction was 615k), worst-salt cost 6.717e11,
+ratio 36.4 against 2.4439e13 (verified; the Gu port is 13.4). Build 97 s, verify 739 s, 5.2 GB peak.
+
+## Convert stage: narrow result
+
+`--gen fixed` adds the vendored converter (`night_outer`), `projective_finish` and the additive-FFT scan
+(11 Toffolis per position, no gauge), wired in `src/dqi_gen/fixed.py`. Narrow (n = 70, 71 positions), 2,048
+shots, official verifier: PASS, 903 qubits, 345,875 Toffolis, no value or phase errors. Static estimate at
+full size: about 390k Toffolis at 903 qubits, a ratio of about 65.
