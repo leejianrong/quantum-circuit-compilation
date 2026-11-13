@@ -111,6 +111,67 @@ class BMDecoder(DivstepDecoder):
     def _tower_ops(self, builder: Any, fast: bool = True) -> Any:
         return super()._tower_ops(builder, fast)
 
+    def _chien_forney(self, builder: Any, gv: list[Any], gu: list[Any], error_mbuc: Any) -> None:
+        """The Forney scan with the `sigma(beta)` accumulator released while the tower division runs.
+
+        `sg` is a CNOT image of the coefficient registers, so it is cleared before the division and rebuilt
+        for the zero-test uncompute at no Toffoli cost (the same trick as the Lanczos scan).
+        """
+        if not self._fast:
+            super()._chien_forney(builder, gv, gu, error_mbuc)
+            return
+        t, gf, deg = self.t, self.gf, self.deg
+        order = (1 << deg) - 1
+        alpha = gf.primitive_element
+        m = len(error_mbuc)
+        steps = [(gv[k], gf.pow(alpha, (-k) % order)) for k in range(1, t + 1)]
+        steps += [(gu[k], gf.pow(alpha, (-(k + 1)) % order)) for k in range(t)]
+        steps = [(reg, c) for reg, c in steps if c != 1]
+        od, om = (builder.alloc_qubits(deg) for _ in range(2))
+        od_src = _cat([gv[k] for k in range(1, t + 1, 2)])
+        od_dst = _cat([od for _ in range(1, t + 1, 2)])
+        om_src = _cat([gu[k] for k in range(t)])
+        om_dst = _cat([om for _ in range(t)])
+        sg_src = _cat([gv[k] for k in range(1, t + 1)])
+        position = builder.mark("forney_position")
+        tower = self._tower_ops(builder)
+
+        def fill_sg() -> Any:
+            sg = builder.alloc_qubits(deg)
+            builder.cx(sg_src, _cat([sg for _ in range(t)]))
+            builder.x(sg[0])  # sigma_0 = 1 after normalisation (gv[0] holds the scale)
+            return sg
+
+        def clear_sg(sg: Any) -> None:
+            builder.x(sg[0])
+            builder.cx(sg_src, _cat([sg for _ in range(t)]))
+            builder.free(sg)
+
+        for j in range(m):
+            with position:
+                builder.cx(od_src, od_dst)
+                builder.cx(om_src, om_dst)
+                sg = fill_sg()
+                ladder = self._zero_test(builder, sg)
+                z = ladder[-1]
+                builder.x(sg)  # undo the zero test's complement, then release sg during the division
+                clear_sg(sg)
+                tower(od, om, z, error_mbuc[j])
+                sg = fill_sg()
+                builder.x(sg)
+                self._zero_untest(builder, sg, ladder)
+                clear_sg(sg)
+                builder.cx(od_src, od_dst)
+                builder.cx(om_src, om_dst)
+                if j + 1 < m:
+                    for reg, c in steps:
+                        builder.gf2_imul(c, target=reg, field=gf)
+        if m > 1:
+            for reg, c in steps:
+                builder.gf2_idiv(gf.pow(c, m - 1), target=reg, field=gf)
+        for reg in (od, om):
+            builder.free(reg)
+
     # delta >= 0 (ties replace): stored value delta + OFFSET > OFFSET - 1
     def _sw_flags(self, builder: Any, delta: Any, d_reg: Any) -> tuple[Any, Any]:
         gt = builder.alloc_qubits(1)[0]
