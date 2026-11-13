@@ -130,3 +130,15 @@ not built either. No new full-size circuit was verified in this pass; the best o
 2. Amplitude polynomial `C` with `C(root) = weight`, held in the 70 words: find the in-place map from the pair `(p_N, p_{N-1})`
    (or from the final Jacobi parameters) to `(sigma, C)`; then the scan is 44k instead of 565k.
 3. Only then rebuild the decoder as an in-place Schur or block-Lanczos extraction with a 52-qubit scratch budget.
+
+## Extract overhead and mask gauge (E041 follow-up, 2026-11-14): no gap to close
+
+Measured on small builders (extract and seeded synthesis only, 35 words of 24 bits plus carry; `num_toffoli_like`): `extract.forward`
+73,919 Toffolis; plus the seeded synthesis forward 101,884; plus the seeded synthesis backward 139,437; plus the extractor closing
+222,595. The public circuit's four stages for the same span (extract 54,549, synthesis 31,519, unsynthesis 38,341, unextract 96,765)
+sum to 221,174, so the round trip is within 0.6% (+1.4k). The 73.9k against 54.5k is a stage-boundary difference (our `extract.forward`
+runs part of what the public tags call synthesis, and our reverse is correspondingly cheaper), and the vendored extractor is the
+public kernel verbatim anyway. The full circuit (391,326) is already 1% below the public 395,586.
+The mask gauge (`syndrome_gauge_plan`, 70 selected points skipped by the scan, disabled in `fixed.py`) saves at most 70 x 11 = 770
+Toffolis (0.2%) before the cost of its selected-interpolation, so it cannot move the ratio. Further DQI gains need a different
+decoder design, not these two items.
