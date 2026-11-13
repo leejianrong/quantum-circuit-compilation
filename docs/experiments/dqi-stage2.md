@@ -38,8 +38,7 @@ the static count here (the 4,091 `PUSH_CONDITION` blocks are the per-position co
    element of GF(2^24) through its norm to GF(2^12) (norm 42 Toffolis = one GF(2^12) product, then an `inverse12`, then products).
    Our scheme pivots on one GF(2^12) element and fails when it is zero (2^-12 per step, 0.75% of shots). A pivot that is a
    GF(2^24) element, i.e. a 2 x 2 block treated as one field element, is zero with probability about 2^-24 per step. That is
-   the only explanation we see for the frontier's zero failures (R 1.19) with 35-node inputs. Not verified: it needs a classical
-   prototype of block-2 steps over the extension (next step below).
+   the only explanation we see for the frontier's zero failures (R 1.19) with 35-node inputs. Tested below.
 4. **Scan is 11 Toffolis per position because the weights are in a polynomial** (the `convert` stage, 49 `inverse12`), kept in place.
    It is the zero test only: the phase of a polynomial evaluation against a classical mask is linear (CNOT) and the gate on the
    root flag is a CZ. Ours is 138 per position (the evaluation of two polynomials, a product, an inversion, two more products).
@@ -48,6 +47,37 @@ the static count here (the 4,091 `PUSH_CONDITION` blocks are the per-position co
    forward pass that must be repaid in the reverse.
 6. **Extract has about the same work per step throughout** (about 3,000 Toffolis per 200,000 instructions across 19 windows), not a
    triangle shrinking in time: the 23 steps each touch a window of constant width.
+
+
+## Classical prototype: the quadratic extension does remove the failures (`src/dqi_gen/cayley.py`, E028)
+
+The Cayley map `u = (x + theta) / (x + thetabar)` sends the nodes `x` in F_q to the unit circle of F_{q^2}. The sequence
+`T_i = sum_m [z^m]((z+theta)^i (z+thetabar)^(N-i)) S_m` is a linear image of the syndromes with `T_{N-i} = conj(T_i)` (so the same
+bits as `S`: 35 independent F_{q^2} words for `n = 70`) and weights `w_j (x_j + thetabar)^N` that are generic elements of F_{q^2}.
+Running the Jacobi recursion (`jacobi.solve`) on `T` over F_{q^2}, then `x = (theta + u thetabar) / (1 + u)` at the roots and the
+Gauss weights divided by `(x + thetabar)^N`, decodes the original word. Failing events (premature `h_k = 0`, `p_k(0) = 0`)
+per shot, measured with the official-style weight-`w` words:
+
+| field q | n | w | plain Lanczos over F_q | Cayley over F_{q^2} | about `(w-1)/q` and `(w-1)/q^2` |
+|---:|---:|---:|---:|---:|---|
+| 16 | 8 | 4 | 0.334 | 0.013 | 0.19, 0.012 |
+| 32 | 10 | 5 | 0.217 | 0.0073 | 0.13, 0.0039 |
+| 64 | 10 | 5 | 0.116 | 0.0015 | 0.06, 0.0010 |
+
+(Hankel of `T` with complex weights, q = 64, w = 12 and 35-step windows: 0.0033 against 0.156 for plain Hankel and 0.155 for the Hermitian Toeplitz
+form of the same data, whose minors are F_q-valued and fail as often as the plain one.) At q = 4096 and 35 steps this is
+about `34 / 4096^2 = 2e-6` per shot, i.e. R 1.19 with no look-ahead. **The hypothesis holds for the failure factor (1.74x).** It
+is a classical result for decoding correctness and degeneracy only: the leftover wrong answers (at most 1% at q = 16) vanish with q.
+
+## Cost of the naive quantum version: a loss
+
+Lanczos over F_{q^2} with raw words `T_0 .. T_34` (840 qubits, the high half by conjugation for free) has a pair of
+polynomials with 24-bit coefficients (about 912 qubits instead of 456), a GF(2^24) product is 3 x 42 = 126 Toffolis (3x ours),
+and the scan evaluates over F_{q^2}. Estimate: about 1,900 qubits and 2.5M to 3M Toffolis, `R` 1.19: cost about 1.5e13, ratio 1.6, far
+below 6.81. The frontier gets the failure-free property with 892 qubits and 395k Toffolis, so it must use an in-place
+Schur-type extraction that exploits the conjugation symmetry (our hypothesis: Szego-like recursion where one polynomial and its
+conjugate-reverse replace the pair, about half the work per step), plus the conversion to the F_q locator and the amplitude
+polynomial (`convert`, `unconvert`). That algorithm is not derived yet. No quantum generator was built for it.
 
 ## Negative result: the "phase-only trace" trick does not help our scan
 
@@ -69,9 +99,8 @@ not built either. No new full-size circuit was verified in this pass; the best o
 
 ## Next steps (in order)
 
-1. Classical prototype over GF(2^24): take consecutive moment pairs `(S_{2i}, S_{2i+1})` as one extension element, run the Lanczos or
-   Schur recursion on 35 of them with 2 x 2 block pivots, and measure the degeneracy rate on the DQI weight law (target: under 1e-5 per
-   shot) and whether the pair state is 70 words in place. If it works, the failure factor R 2.07 to 1.19 is 1.74x by itself.
+1. (Done, above.) Failure-free by the Cayley map. Open: a Szego-type recursion that uses `T_{N-i} = conj(T_i)` so the state is one
+   F_{q^2} polynomial and the raw words are erased in place (classical prototype first, count words per step).
 2. Amplitude polynomial `C` with `C(root) = weight`, held in the 70 words: find the in-place map from the pair `(p_N, p_{N-1})`
    (or from the final Jacobi parameters) to `(sigma, C)`; then the scan is 44k instead of 565k.
 3. Only then rebuild the decoder as an in-place Schur or block-Lanczos extraction with a 52-qubit scratch budget.
