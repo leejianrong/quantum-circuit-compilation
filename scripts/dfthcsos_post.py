@@ -133,13 +133,13 @@ def refit_w(tsym: np.ndarray, uq: np.ndarray, w: np.ndarray, iters: int) -> np.n
     return np.asarray(res.x.reshape(w.shape) * sc)
 
 
-def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate):  # type: ignore[no-untyped-def]
+def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False):  # type: ignore[no-untyped-def]
     from dfthcsos.scoreinfra import dfthc_math as dm
 
     from dfthcsos_gen import post
 
     r, b, _ = w0.shape
-    two = post.encode(u.reshape(r * b, -1), edges, brot)
+    two = post.encode(u.reshape(r * b, -1), edges, brot, half)
     uq = post.decode(two, edges, brot).reshape(r, b, -1)
     w = refit_w(tsym, uq, w0, iters) if iters else w0.copy()
     if rotate:
@@ -151,7 +151,7 @@ def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate):  # type: ignore[no
     cap_w = h2i.astype(np.float64) - w.sum(axis=1)
     h1_thc = np.asarray(ctx.ref["oei"]) - 0.5 * np.einsum("prrq->pq", np.asarray(ctx.ref["tei"]))
     h1p = dm.build_h1_prime(h1_thc, ctx.inp.S, ctx.inp.beta_1, ctx.ref["electrons"], cap_w, xmats(uq, w))
-    one = post.encode(np.linalg.eigh(h1p)[1].T, edges, brot)
+    one = post.encode(np.linalg.eigh(h1p)[1].T, edges, brot, half)
     words = np.vstack([one, two])
     res = dm.evaluate_dfthc_angle_words(
         words,
@@ -177,6 +177,10 @@ def main() -> None:
     ap.add_argument("--refit-iters", type=int, default=300, help="quantization-aware weight refit (0 = off)")
     ap.add_argument("--no-rotate", action="store_true")
     ap.add_argument("--no-write", action="store_true")
+    ap.add_argument(
+        "--half", action="store_true", help="angles in the half circle (bit brot-1 == bit brot-2)"
+    )
+    ap.add_argument("--loader", default="unary", choices=("unary", "anf"), help="loader family to write")
     a = ap.parse_args()
     from dfthcsos_gen import post
 
@@ -189,7 +193,9 @@ def main() -> None:
     for tn in a.tree.split(","):
         edges = post.balanced_tree() if tn == "balanced" else post.path_tree()
         for bs in a.brot.split(","):
-            words, res, w, h2i = build(ctx, tsym, u, w0, edges, int(bs), a.refit_iters, not a.no_rotate)
+            words, res, w, h2i = build(
+                ctx, tsym, u, w0, edges, int(bs), a.refit_iters, not a.no_rotate, a.half
+            )
             print(
                 f"tree={tn} brot={bs}:",
                 json.dumps(
@@ -204,7 +210,31 @@ def main() -> None:
     from dfthcsos_gen import build_family, family_stats, write_family
     from dfthcsos_gen.loader import max_words_per_circuit
 
-    circ = build_family(words, a.brot)
+    J = max_words_per_circuit(words.shape[0], a.brot)
+    if a.loader == "anf":
+        from dfthcsos_gen.anf import build_anf_family, max_words
+        from dfthcsos_model import Angles, score
+
+        best = None
+        for lb in (4, 5, 6):
+            j = max_words(words.shape[0], a.brot, lb)
+            if j < 1:
+                continue
+            fam = build_anf_family(words, a.brot, j, lb, sign_ext=a.half)
+            s_ = family_stats(fam)
+            sc = score(
+                (r, b, c),
+                Angles(toffoli=2 * s_["toffoli"], qubits=s_["qubits"], J=j, brot=a.brot),
+                res["Lambda"],
+                res["E_gap"],
+            ).score
+            print(f"anf lb={lb} J={j}: {s_} predicted cost {sc:,.0f}", flush=True)
+            if best is None or sc < best[0]:
+                best = (sc, fam, j)
+        assert best is not None
+        _, circ, J = best
+    else:
+        circ = build_family(words, a.brot)
     write_family(circ, a.out)
     st = family_stats(circ)
     z = np.load(DATA / "sample_submission" / "dfthcsos" / "submission.npz")
@@ -220,7 +250,6 @@ def main() -> None:
     )
     from dfthcsos_model import Angles, score
 
-    J = max_words_per_circuit(words.shape[0], a.brot)
     bd = score(
         (r, b, c),
         Angles(toffoli=2 * st["toffoli"], qubits=st["qubits"], J=J, brot=a.brot),

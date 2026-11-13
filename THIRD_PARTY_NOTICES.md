@@ -5,4 +5,4 @@ the licence, what we took and what we changed. Add an entry in the same PR as th
 
 | Source | Commit | Licence | Files ported | Changes |
 |---|---|---|---|---|
-| https://github.com/andigu/uncompute (Gu, Kemeny, Yelin, Lukin; arXiv:2610.22367) | not yet ported | Apache-2.0 | none yet | none yet |
+| https://github.com/andigu/uncompute (Gu, Kemeny, Yelin, Lukin; arXiv:2610.22367) | not yet ported (studied at 64b5a13aa249f1360846657392e6c66817b26d0f, `tasks/chemistry-fe2s2`: nothing in it ports to the dfthcsos angle loaders, see docs/experiments/dfthcsos-stage2.md) | Apache-2.0 | none yet | none yet |

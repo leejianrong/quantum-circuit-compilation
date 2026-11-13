@@ -493,13 +493,19 @@
      "from": "syed3000 loaders in dfthcsos 91d0ad25, aggregate view",
      "generator": "`src/dfthcsos_gen/anf.py` (built 2026-11-13; own Moebius-transform conversion, exact in kickmix; see `docs/experiments/dfthcsos-stage2.md`)",
      "technique": "Qubit-lean lines: ANF monomials of the selection bits instead of one-hot lines (idea from the gate structure of the public angle loader: selection bits double as degree-1 lines, ANDs only for degree >= 2); analysis only"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "lightningv08, Kaggle notebook \"Bezout-Schur + 5-Word QROM\" (https://www.kaggle.com/code/lightningv08/bezout-schur-5-word-qrom), markdown only; pi-gauge credited there to Atakan Aldemir; the domain statement to Kaggle discussion 753092 (Khattar)",
+     "generator": "`src/dfthcsos_gen/post.py` (`half`), `src/dfthcsos_gen/anf.py` (`sign_ext`)",
+     "technique": "Half-circle angle words (pi-gauge): bit brot-1 equals bit brot-2, so one plane per word is a CNOT; five words of 8 bits in 123 qubits with a 72-qubit monomial cache; coordinates (output bit) x (low monomial) paired two per Toffoli, kernel relations among the hi-functions remove products"
     }
    ],
    "kind": "ours",
    "label": "our dfthcsos generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "5 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "6 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
