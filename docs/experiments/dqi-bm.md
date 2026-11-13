@@ -44,7 +44,8 @@ Full-size prediction is `narrow + 4,024 x per-position` Toffolis (the Forney sca
 | full size, Kaggle official verifier, 102,400 shots per salt, kernel `qcc-dqi-gen` | qubits | Toffolis | worst-salt cost | ratio vs 2.4439e13 | salts |
 |---|---:|---:|---:|---:|---|
 | first build (PR 114, builtin products), sha256 `090fb7f7b7e6...` | 1,874 | 1,120,442 | 4.7593e12 | 5.13 | 5/5 PASS, 0 failures |
-| rank-42 products, tower inversions, step-bounded widths (PRs 116, 118), sha256 `b72bd806f523...` | 1,867 | 740,602 | 3.1490e12 | **7.76** | 5/5 PASS, 0 failures |
+| rank-42 products, tower inversions, step-bounded widths (PRs 116, 118), sha256 `b72bd806f523...` | 1,867 | 740,602 | 3.1490e12 | 7.76 | 5/5 PASS, 0 failures |
+| `sg` accumulator released during the Forney division (PR 124), sha256 `d25804a5a5c6...` | 1,855 | 740,602 | 3.1087e12 | **7.86** | 5/5 PASS, 0 failures |
 
 Per-salt costs of the second run: 3.1316e12, 3.1490e12, 3.1316e12, 3.1316e12, 3.1122e12 (the static count matched the prediction to the Toffoli;
 zero failures in 5 x 102,400 shots gives R = 1.19). Ledger rows are in `ledger/results.jsonl`; the circuits and logs were downloaded by us to
@@ -52,7 +53,9 @@ zero failures in 5 x 102,400 shots gives R = 1.19). Ledger rows are in `ledger/r
 
 ## Where it stands and the next lever
 
-Qubits 1,867 (Lanczos: 1,403), Toffolis 0.74M, R 1.19: ratio 7.76 against the previous best 6.81. The scan is 52% of the Toffolis (4,024 x 96). The reciprocal-polynomial scan of Gu et al. (23 Toffolis per position, `Psi sigma' = 1 mod sigma`,
+Qubits 1,855 (Lanczos: 1,403), Toffolis 0.74M, R 1.19: ratio 7.86 (7.76 before the `sg` release) against the previous best 6.81. PR 125 builds `om` only for the phase (narrow 1,852 qubits); not run at full size.
+
+The small levers were measured and found to be worth about 1 to 3% each, so only the zero-Toffoli qubit trims were taken: `shift_f` (30k) could be narrowed to the live window for under 1% of `T`; folding the quotient and its recomputation into one inversion saves about 80 Toffolis per step (under 3%) at the price of three more registers' worth of control; Omega in place (55k) has no cheaper in-place form. The scan is 52% of the Toffolis (4,024 x 96). The reciprocal-polynomial scan of Gu et al. (23 Toffolis per position, `Psi sigma' = 1 mod sigma`,
 `sigma = E^2 + z O^2` in characteristic 2, Euclid on the half-degree pair) would save about 290k Toffolis (ratio about 11 to 12). It
 needs the Euclid in place in the 35 zero syndrome words (Omega in place leaves `S_35 .. S_69` zero) with a fixed schedule
 and the quotients parked in cleared words; a second BM run on the series `O / E` was costed and loses (about +430 qubits for the rows).
