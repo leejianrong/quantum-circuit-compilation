@@ -99,3 +99,11 @@ pass must leave `h` in the word and 1 in the carry, with `n_i` (24 bits) erased.
 measurement of the old values) and the corresponding deferred phases in the reverse pass; the phase of an erased inverse needs the norm trick
 (`<m, x^-1> = <m, conj(x) N^-1>`). This is the part where the public design spends its 195-Toffoli deferred inverse, its 264-Toffoli affine phases and the
 extra 43k of the reverse pass; we have the multiplier and all the free phase gadgets, not yet the erase protocol.
+
+## Gu port at full size (Kaggle, 5 salts)
+
+The ported decoder (`rs`, Apache-2.0 Gu et al. design, `src/dqi_gen/rs_build.py`) builds and verifies at full
+size on Kaggle (`qcc-dqi-gen`, build 661 s, verify 1,522 s, 18.3 GB peak): PASS at 5 salts, zero failures,
+1,837 qubits, 444,030 Toffolis, worst-salt cost 1.828e12, i.e. a ratio of about 13.4 against the baseline
+2.4439e13. This is the verified reference the own decoder (`thiele`, 955 qubits at n = 70, 71 positions)
+has to beat. Ledger row appended to `ledger/results.jsonl`.

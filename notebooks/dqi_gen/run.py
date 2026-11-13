@@ -16,29 +16,29 @@ OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
     (
-        "build-rs-full",
+        "build-thiele-full",
         [
             "-m",
             "dqi_gen.instances",
             "--gen",
-            "rs",
+            "thiele",
             "--instance",
             "full",
             "--salts",
             "0",
             "--sha",
             "--save",
-            "{out}/rs.kmb",
+            "{out}/thiele.kmb",
         ],
     ),
     (
-        "verify-rs-full",
+        "verify-thiele-full",
         [
             "-c",
             "import sys; from bench.cli import main; sys.exit(main(sys.argv[1:]))",
             "verify",
             "dqi",
-            "{out}/rs.kmb",
+            "{out}/thiele.kmb",
             "--salts",
             "5",
             "--salt-start",
