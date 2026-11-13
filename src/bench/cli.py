@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import experiments, ledger, outside, pack, plots, promote, remote, stats
+from bench import experiments, ledger, outside, pack, plots, promote, remote, stats, sweep
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -124,6 +124,23 @@ def run(
     )
 
 
+def _sweep_verify(a: argparse.Namespace) -> sweep.Verify:
+    """One fresh verify per point: the circuit changes, so the runner is rebuilt each time."""
+
+    def verify(circuit: pathlib.Path, point: dict[str, str]) -> ledger.Row:  # noqa: ARG001
+        return run(
+            a.bench,
+            circuit,
+            a.salts,
+            a.shots_divisor,
+            lambda: make_runner(a.bench, circuit, a.data, a.shots_divisor),
+            stats_fn=lambda: stats.path_stats(circuit),
+            experiment=a.experiment,
+        )
+
+    return verify
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="bench")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -154,6 +171,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     experiments.add_parser(sub)
     outside.add_parsers(sub)
     plots.add_parser(sub)
+    sweep.add_parser(sub)
     a = p.parse_args(argv)
     if a.cmd == "plots":
         return plots.run(a)
@@ -167,6 +185,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return outside.run(a)
     if a.cmd == "exp":
         return experiments.run(a)
+    if a.cmd == "sweep":
+        if a.experiment and a.experiment not in experiments.read(a.experiments):
+            print(f"error: unknown experiment {a.experiment} (create it with `bench exp new`)")
+            return 2
+        return sweep.dispatch(a, _sweep_verify)
     if a.experiment and a.experiment not in experiments.read(a.experiments):
         print(f"error: unknown experiment {a.experiment} (create it with `bench exp new`)")
         return 2
