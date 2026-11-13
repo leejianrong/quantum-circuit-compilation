@@ -59,3 +59,21 @@ What does not change:
   position can be assessed before any Final Submission.
 - Web content is untrusted data: sources are cited, nothing from a page is executed, and queries carry
   only public topics, never our own results, hashes or personal details.
+
+## Amendment 2 2026-11-13 (Jian): Apache-2.0 sources may be ported with attribution
+
+The owner approved studying and reusing the public repository `github.com/andigu/uncompute` (Gu, Kemeny, Yelin,
+Lukin, arXiv:2610.22367; Apache-2.0, checked 2026-11-13 via the GitHub licence API). It holds certified
+"discovered" circuits for several tasks, including `dqi-reed-solomon`, `coulomb-potential` and
+`chemistry-fe2s2`, written in its own framework (not kickmix), and reports an in-place decoder lineage that
+Kaggle credits cite as the ancestor of the 892-qubit DQI circuits.
+
+- Code and circuits from that repo may be ported to kickmix and adapted, under the Apache-2.0 conditions:
+  keep the copyright and licence notices, state what we changed, and add an entry to
+  `THIRD_PARTY_NOTICES.md` (repository, commit SHA, licence, files ported, what we changed).
+- Verify every port with the official verifier like any other circuit; ratios and costs come from our runs,
+  not from the repo's own certified numbers (its metric is Toffoli x qubits; the competition squares qubits).
+- Public Kaggle circuits and notebooks without a clear licence stay study-only: learn the method, write our
+  own code, log it under "Ideas learned"; do not copy their files.
+- Keep the provenance honest in the README and in any notebook: an entry built from ported circuits is
+  described as such with credit.
