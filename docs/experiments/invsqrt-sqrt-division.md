@@ -275,3 +275,30 @@ lookup 126, refinement 100 (twice, with its undo), product 239, division 364, ph
 with derivations in hand: one-wire endpoint (-190), signed-digit refinement (-120), trimmed adder windows (-100), giving about 2,350 executed
 Toffolis at about 80 qubits, about 215k, still above E023 (168,237). Beating E023 needs the consuming multiplier or an equivalent 14-wire
 saving, and the 80,163 reference needs all of the reference's measured-away registers.
+
+## Repaying the multiplier's low columns by recomputation in the mirror: the algebra does not close (QCC-13)
+
+Proposal tested: measure each finished low column of the signed-digit product in the X basis, keep the outcome `m_j`, and in the mirror pay
+`(-1)^(m_j b_j)` with a `Z` on the recomputed bit `b_j`, as `md_add` pays its carries.
+
+* **What closes.** In a product where `t` stays alive (ours), a finished low column of `P` is a function of `(t, D)`. Measuring it at the end of the
+  forward product and recomputing it in the mirror (a product restricted to those columns, from the live `t` and `D`) before undoing the
+  rows reproduces the same bit, so `Z^{m_j}` on the recomputed wire pays the debt exactly (the same algebra as `fd_add`/`md_add`). But the columns of our
+  rows are only final after the last row, they are the low bits of the numerator `X` that the division consumes, and the saving is the
+  number of dropped columns (2 or 3 wires, about 30 Toffolis to recompute): not the 14 wires.
+* **What does not close: the consuming multiplier.** Consuming `t` into the accumulator means the dropped bits `delta_j = (acc_j + e_j D) & 1` are the
+  only place the digits' information survives. Measured away, they cannot be recomputed in the mirror: given `acc_{j+1}`, both values of `delta_j` give
+  an in-range predecessor `acc_j = 2 acc_{j+1} + delta_j - e_j D`, in 100% of the steps (`tests/unit/test_invsqrt_lowcols.py`), although the final
+  accumulator is injective in `t`. The digits are recovered globally by successive approximation (`e_{N-1} = sign(acc_N)`, then compare against
+  `D/2` ...), which is a non-restoring division of the accumulator by `D`: the inverse of a consuming product is a division-like recurrence of
+  about the same cost as the forward product, and it needs `D`, so the table would have to be alive (or reloaded) exactly there.
+  The reference's inverse product costs about 130 Toffolis against 103 forward, consistent with that.
+* **So the reference's 16 wires are not explained by repaying low columns.** Its low columns are never measured (the product stage measures only the
+  two alternating carry wires and `q8`); they stay live as the low bits of `P`, are consumed by the division as the dividend's fine bits, and are restored by
+  the division clean-up before the product is undone. The saving over our `t` plus `P` (31 wires) is that its `h` has 10 bits instead of our 14 (the
+  four low bits of `t` are a function of `R mod 16` and are handled by a three-row seed term) and that the product register reuses the `h`
+  wires. The 4-wire part is derivable (clear the low four bits of `t` with a 16-entry function of `Q`, recompute them in the product rows),
+  but it does not move our peak, which is the product stage (table words alive), not the divider.
+
+Conclusion: roadmap 2 as a 14-wire saving is a dead end by derivation. What remains derivable (one-wire endpoint, signed-digit refinement, trimmed
+windows) is worth about 215k at best, above E023.
