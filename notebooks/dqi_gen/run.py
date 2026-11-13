@@ -11,38 +11,38 @@ import subprocess
 import time
 
 BRANCH = "main"
-REV = "9d9d652"  # commit to build (the 1,855-qubit BM circuit); empty for the branch head
+REV = ""  # commit to build (empty: the branch head)
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
     (
-        "build-bm-full",
+        "build-rs-full",
         [
             "-m",
             "dqi_gen.instances",
             "--gen",
-            "bm",
+            "rs",
             "--instance",
             "full",
             "--salts",
             "0",
             "--sha",
             "--save",
-            "{out}/bm.kmb",
+            "{out}/rs.kmb",
         ],
     ),
     (
-        "verify-bm-full",
+        "verify-rs-full",
         [
             "-c",
             "import sys; from bench.cli import main; sys.exit(main(sys.argv[1:]))",
             "verify",
             "dqi",
-            "{out}/bm.kmb",
+            "{out}/rs.kmb",
             "--salts",
             "5",
             "--salt-start",
-            "5",
+            "0",
             "--data",
             "{comp}",
             "--ledger",
