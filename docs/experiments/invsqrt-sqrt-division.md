@@ -244,3 +244,34 @@ are 84 + 116 + 126 + 100 + 397 + 364 = 1,187 against the reference's 51 + 96 + 5
 cheaper) and the mirror repeats them. The part that is not within reach by derivation alone is the reference's product: a consuming
 multiplier that keeps only the top 16 columns of the in-place product and measures the low columns away, with their phase repaid in
 the clean-up. We derived the odd-multiplier reversibility but not how the low-column debts are repaid cheaply.
+
+## V2: signed-digit product rows (QCC-13), and the consuming multiplier (dead end so far)
+
+**What the decode of the product stage gave.** Row anatomy of ops 5,704 to 6,707: each row is a fan of CNOTs from one `h` wire into the
+accumulator wires, one plain ripple add of the coefficient bits (carries on two alternating wires, no AND temporaries), and the same
+fan again. That is the complement trick with the digit as control: `h_i` selects `+D` or `-D`, so `h` is used as signed digits
+`e_i = +-1` (the centred variable makes that natural) and every row costs one adder, not an adder plus `2 w` ANDs. We adopted this
+(`sqrtdiv.p_int_pm1`, `sqrtdiv_stages.product_pm1`): `2 t + 1 = sum_{i<13} e_i 2^i - e_13 2^13` with `e_i = 2 b_i - 1`, rows
+`e_i R(D >> (12 - i))` with the rounding bit as carry-in (E023's trick), `+ R(D >> 13)` for the `3/4`, and a constant that
+centres the error (`-3` units, free as the register's initial value). Exact model error 2^-24.94 at 27 digits; circuit phase error 2^-25.4.
+
+| build | qubits | executed Toffolis | official verifier, 1/20 shots | cost |
+|---|---:|---:|---|---:|
+| V1 (AND-temporary product) | 105 | 2,904 | PASS | 341,878 |
+| V2 (signed-digit product, deferred adders, lazy carry allocation in `md_add`) | 90 | 2,780 | PASS | 281,802 (ratio 7.37) |
+
+**What did not decode: the consuming multiplier.** At fixed `v`, with all 813 residuals `h`, the reference's product register is 16 wires
+(`q0` to `q8` plus seven new ones) whose flip rates over consecutive `h` fall 669, 645, 572, 480, 323, 286, 161, 81, 41, 21, 11, 5, 3, 1:
+a counter of about 14 bits in which `q0` to `q8` are the high columns and about 5 new wires the low columns (slope about 20 per unit `h`),
+so the product wires reuse the multiplier's wires as its high part. The integer read in flip-rate order is not affine in `h` (the wires
+are in an XOR frame), and the information count says why the idea is not free: `h -> P` is injective only if `D / 2^k >= 1` and the
+circuit must recover `h` from `P` without a second copy, which needs either the dropped low columns (a 29-wire full product, no saving
+over our `t` plus `P`) or a debt repaid by measured low columns, whose rule we could not identify from the gate text (the
+`CZ` networks that repay it sit in the 7,000-gate clean-up block). We do not have an exact repayment rule, so we did not implement the
+consuming product.
+
+**Where that leaves the cost.** Executed Toffolis by stage (forward; the mirror repeats it, the table is loaded again): normalise 84, root 116,
+lookup 126, refinement 100 (twice, with its undo), product 239, division 364, phase barrel about 300 for three calls. Realistic further steps
+with derivations in hand: one-wire endpoint (-190), signed-digit refinement (-120), trimmed adder windows (-100), giving about 2,350 executed
+Toffolis at about 80 qubits, about 215k, still above E023 (168,237). Beating E023 needs the consuming multiplier or an equivalent 14-wire
+saving, and the 80,163 reference needs all of the reference's measured-away registers.

@@ -107,7 +107,7 @@ def md_add(
     s = split if split is not None and 1 <= split <= n_c else n_c
     b.x(t)  # t - a = ~(~t + a): add `a` to the complemented target; its carries are the forward carries
     low = b.alloc_qubits(s) if s else km.array([])
-    high = b.alloc_qubits(n_c - s) if n_c > s else km.array([])
+    high: list[km.q] = []  # allocated after the low block is cleaned up (at most max(s, m - s) carries alive)
 
     def car(j: int) -> km.q:  # carry c_j, the carry into bit j, 1 <= j <= n_c
         return low[j - 1] if j <= s else high[j - s - 1]
@@ -163,6 +163,7 @@ def md_add(
             down(i)
         if s > 1:
             b.free(km.array(list(low)[: s - 1]))
+        high.extend(b.alloc_qubits(n_c - s))
         for i in range(s, n_c):
             up(i)
     j, top = m - 2, m - 1
@@ -187,7 +188,7 @@ def md_add(
     if s < n_c:
         for i in range(n_c - 1, s - 1, -1):
             down(i)
-        b.free(high)
+        b.free(km.array(high))
         # the boundary carry c_s: measured with a pending debt, paid by recomputing the low carries
         # on half the shots
         bit = b.alloc_bits(1)
