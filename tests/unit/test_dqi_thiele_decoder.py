@@ -1,4 +1,4 @@
-"""The own thiele decoder (vendored kernels) verifies on the narrow instance (n = 70, GF(2^12), 71 positions)."""
+"""The own thiele decoder (vendored kernels) verifies on the narrow instance (n = 70)."""
 
 import os
 import pathlib
