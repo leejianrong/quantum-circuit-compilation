@@ -99,7 +99,13 @@ def angles_of(u: np.ndarray, edges: np.ndarray, brot: int, half: bool = False) -
         p, c = edges[t]
         if half:
             sgn = np.where(v[:, p] < 0, -1.0, 1.0)
-            ang[:, t] = np.arctan2(sgn * v[:, c], np.abs(v[:, p]))
+            a = np.arctan2(sgn * v[:, c], np.abs(v[:, p]))
+            # an angle that would round to +pi/2 is not in the half grid [-pi/2, pi/2): use -pi/2 and carry
+            # the sign (R(theta - pi) = -R(theta)), so every word keeps bit brot-1 == bit brot-2
+            edge = a > (np.pi / 2) * (1 - 0.5 / (1 << (brot - 2)))
+            a = np.where(edge, a - np.pi, a)
+            sgn = np.where(edge, -sgn, sgn)
+            ang[:, t] = a
             v[:, p] = sgn * np.hypot(v[:, p], v[:, c])
         else:
             ang[:, t] = np.arctan2(v[:, c], v[:, p])
