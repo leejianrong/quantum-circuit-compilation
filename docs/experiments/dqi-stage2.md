@@ -79,6 +79,32 @@ Schur-type extraction that exploits the conjugation symmetry (our hypothesis: Sz
 conjugate-reverse replace the pair, about half the work per step), plus the conversion to the F_q locator and the amplitude
 polynomial (`convert`, `unconvert`). That algorithm is not derived yet. No quantum generator was built for it.
 
+## Szego-type reduction from `T_{N-i} = conj(T_i)`: analysis, no saving found (derived, not measured)
+
+With `sigma_L(f)(z) = z^N conj(f)(1/z)` the functional obeys `L(f) = conj(L(sigma f))`. For the Jacobi polynomial `p_k`
+(`L(p_k z^l) = 0` for `l < k`) this gives `L(p_k^* z^m) = 0` for `N - 2k < m <= N - k`, where `p_k^* = z^k conj(p_k)(1/z)`: the
+conjugate-reverse of `p_k` is orthogonal in a *high* window, not the low one, so `p_k^*` is not a multiple of `p_k` and no
+single polynomial replaces the pair for `k < N/2 + 1`. Equivalently `det conj(H_k^{(0)}) = det H_k^{(N-2k+2)}`: the symmetry
+relates Hankel minors of two different windows, which is why the Hermitian Toeplitz form (one window, F_q-valued minors) fails
+as often as plain and the Hankel form (generic pivots) has no halving. The symmetry halves only the raw words (35 F_{q^2}
+words, same 840 qubits) and makes the final locator self-conjugate-reversed (`p_N^* = c p_N`, 35 F_q parameters). So the
+pair over F_{q^2} costs about 912 qubits and 3x the products; the estimate of about 1,900 qubits stands. The frontier's 892
+qubits therefore needs an in-place algorithm that this symmetry alone does not give; it is not derived here.
+
+Information count that any in-place design must meet: the Lanczos end state holds raw tail (36 words) plus pair (69) plus
+`h`, 105 words for 70 words of information, so about 35 words are redundant (the tail is a function of the pair), and the
+amplitude polynomial `C` (35 words) can only live there if the tail is erased by an in-place map from the pair to the moments, or
+if `C` is computed in place of `p_{N-1}` (a bijection given `p_N` and `h`, but computing it needs a polynomial inversion
+with garbage). Neither has a cheap known circuit.
+
+## Where this leaves the work (decision needed)
+
+* Frontier-class (892 qubits) needs the missing in-place Schur-type algorithm: open research.
+* Gu et al.'s Berlekamp-Massey design is a build from a published description. By estimate, with our rank-42 multiplier,
+  adaptive ranges and our in-place Omega: dialog-free BM with our Forney scan 1,860 qubits, about 0.7M Toffolis, R about 1.2:
+  3.0e12, ratio about 8; with their half-degree-Euclid reciprocal polynomial scan about 0.5M Toffolis: ratio about 11. Both
+  are multi-day builds (history stack, shared update, cutoff failures at 1.4e-4, parked-quotient Euclid in the zeroed syndrome words).
+
 ## Negative result: the "phase-only trace" trick does not help our scan
 
 Gu et al. (SI I.1) get 23 Toffolis per position with `Tr(nu omega(beta) Psi(beta))`. In our scan the phase is already applied with
