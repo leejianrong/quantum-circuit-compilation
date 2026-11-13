@@ -597,13 +597,19 @@
      "from": "Own derivation and measurement; motivation from the angle set of the 62-qubit invsqrt `c6519219` (see the angle row above)",
      "generator": "`src/invsqrt_gen/joint.py`, `src/invsqrt_gen/angles.py`; `docs/experiments/invsqrt-onepass.md` follow-up 4",
      "technique": "Coefficient rounding as a 2-D lattice problem per segment (each bit off `c_1` or `c_2` costs half a bit of error), wide-box joint search plus per-position angle scales up to 20% (idea suggested by the frontier's tuned angles, measured negative for narrower words)"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "Dynamic decode of the 46-qubit `invsqrt.kmb` above: wire classes per 50 ops, Toffoli targets and controls of the product stage (`q0` to `q7` accumulate, `h` control counts 9 down to 1); the odd-multiplier reversibility argument is our own derivation",
+     "generator": "`src/invsqrt_gen/sqrtdiv_build.py` (root stage built; product not yet); `docs/experiments/invsqrt-sqrt-division.md`",
+     "technique": "Consuming product (Horner order, odd multiplier, accumulator in the wires of the multiplier) and consuming root; coefficient wires measured away after the product and the table loaded again for the undo"
     }
    ],
    "kind": "ours",
    "label": "our invsqrt generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "3 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "4 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   }
  ],
