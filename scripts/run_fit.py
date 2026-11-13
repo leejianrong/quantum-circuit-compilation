@@ -38,7 +38,7 @@ def parse(argv: list[str] | None = None) -> argparse.Namespace:
     )
     ap.add_argument(
         "--init",
-        choices=("random", "compact", "sparse"),
+        choices=("random", "compact", "sparse", "leaf", "centered"),
         default="random",
         help="start point (compact: seed.py)",
     )
@@ -48,6 +48,7 @@ def parse(argv: list[str] | None = None) -> argparse.Namespace:
         default=0,
         help="truncate the target to this many eigenpairs (fit_fast; 0 = exact)",
     )
+    ap.add_argument("--sigma", type=float, default=0.3, help="tail size of the centered start")
     ap.add_argument("--max-secs", type=float, default=0.0, help="stop (and save) after this wall time")
     return ap.parse_args(argv)
 
@@ -119,6 +120,15 @@ def run(args: argparse.Namespace) -> float:
 
         v, w = compact_seed(obj, (r, b, c), args.seed)
         print(f"compact seed error_2={obj.error2(v, w):.5f}", flush=True)
+    elif args.init == "leaf":
+        from dfthcsos_gen.seed import leaf_seed
+
+        v, w = leaf_seed(obj, (r, b, c), args.seed)
+        print(f"leaf seed error_2={obj.error2(v, w):.5f}", flush=True)
+    elif args.init == "centered":
+        from dfthcsos_gen.seed import centered_seed
+
+        v, w = centered_seed(obj, (r, b, c), args.seed, args.sigma)
     elif args.init == "sparse":
         from dfthcsos_gen.seed import sparse_seed
 

@@ -1,0 +1,15 @@
+{
+  "id": "leejianrong/qcc-dfthcsos-cen",
+  "title": "qcc dfthcsos cen",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [
+    "google-verifiable-quantum-circuit-compilation"
+  ],
+  "kernel_sources": []
+}
