@@ -36,6 +36,7 @@ from invsqrt_gen.build import (
     normalise,
     ripple_add,
 )
+from invsqrt_gen.defadd import fd_add, md_add
 from invsqrt_gen.model import (
     Tables,
     _shift,
@@ -345,8 +346,15 @@ def centered_step(
     levels: list[Level],
     inverse: bool,
     tops: list[int] | None = None,
+    store: dict[tuple[int, int], list[km.b]] | None = None,
+    split_over: int = 12,
 ) -> None:
-    """`V_j -= T(rho V_{j+1})`, then `hi += ext` (undone first on the way back)."""
+    """`V_j -= T(rho V_{j+1})`, then `hi += ext` (undone first on the way back).
+
+    With `store` the signed-digit rows use the deferred-phase adder pair of `defadd.py`: the forward rows keep
+    two carry wires and leave their measurement outcomes in `store`; the mirror rows pay them back, cutting
+    the carry chain in two when it is longer than `split_over` carries.
+    """
     src, tgt = levels[j + 1].value, levels[j]
     assert tgt.ext is not None
     if inverse and len(tgt.hi):
@@ -368,7 +376,16 @@ def centered_step(
             win = window[max(0, sh) : tops[k] if tops else len(window)]
             b.x(x[i])
             b.cx(x[i], win)
-            ripple_add(b, op, win, subtract=not inverse, cin=cin)
+            if store is None:
+                ripple_add(b, op, win, subtract=not inverse, cin=cin)
+            else:
+                b.x(win)
+                if inverse:
+                    n_c = max(0, len(win) - 2)
+                    md_add(b, op, win, store.pop((j, k)), cin, (n_c + 1) // 2 if n_c > split_over else None)
+                else:
+                    store[(j, k)] = fd_add(b, op, win, cin)
+                b.x(win)
             b.cx(x[i], win)
             b.x(x[i])
     else:
@@ -390,6 +407,8 @@ def build_centered(
     fine: str = "barrel",
     spare_leading_one: bool = True,
     trim_windows: bool = True,
+    deferred: bool = False,
+    split_over: int = 12,
 ) -> km.Circuit:
     """Split-phase generator with the remainder centered on its segment (`Params(centered=True)`)."""
     assert p.centered and not p.ceil and coarse in ("barrel", "serial") and fine in ("barrel", "serial")
@@ -461,9 +480,12 @@ def build_centered(
     b.free(cw)
     if not p.pm1:
         b.x(top)
+    store: dict[tuple[int, int], list[km.b]] | None = {} if deferred else None
     for j in range(d - 1, -1, -1):
         with b.mark(f"horner{j}"):
-            centered_step(b, p, j, x, levels, inverse=False, tops=tops[j] or None)
+            centered_step(
+                b, p, j, x, levels, inverse=False, tops=tops[j] or None, store=store, split_over=split_over
+            )
     with b.mark("fine"):
         if fine == "serial":
             serial_phase(b, levels[0].lo[p.guard :], shift_flags, 0, f_bits, 1)
@@ -474,7 +496,9 @@ def build_centered(
             b.free(head)
     for j in range(d):
         with b.mark(f"unhorner{j}"):
-            centered_step(b, p, j, x, levels, inverse=True, tops=tops[j] or None)
+            centered_step(
+                b, p, j, x, levels, inverse=True, tops=tops[j] or None, store=store, split_over=split_over
+            )
     if not p.pm1:
         b.x(top)
     with b.mark("unlookup"):

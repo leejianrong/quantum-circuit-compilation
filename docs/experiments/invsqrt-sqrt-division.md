@@ -152,3 +152,41 @@ odd `D` (we must force `D` odd: one table bit); (4) measure `D` away; (5) consum
 with `k` varied through the endpoint, 9,900 to 10,700); (6) rotations on the quotient wires through one working wire;
 (7) undo in reverse with the table reloaded. A peak of 46 to 50 is plausible only if (5) works as in the reference;
 until it is understood, no stage after the root is worth building.
+
+## The divider and the deferred-phase adder (QCC-13, decoded and built as a gadget)
+
+**Quotient bits appear one per row, in wires freed by the shrinking remainder.** Classifying every wire against the
+binary digits of `Y` (inputs with `k = 0`, snapshots every 50 ops, ops 6,700 to 10,750): from op 7,000 a new wire
+holds the complement of bit `y_3`, then `y_4`, `y_5`, ... one every 150 ops (one row each): the wires are first the former
+table wires (q34, q36, q30, q32, q28, q35, q33, q31, q29, q26, q27, q37, q38 carry `y_3` to `y_15`), then the former `h` wires
+(q6 down to q0 carry `y_16` to `y_22`), complemented until op 9,900 and plain at the endpoint. So the quotient is held as
+one wire per digit (20 of them by op 9,650), while the remainder window shrinks from about 16 wires to a few: the total
+grows only by 9 wires over the divider (31 live to 40), which resolves the earlier puzzle. It is the same consuming
+pattern as the root.
+
+**Row anatomy (forward).** One row is about 150 ops and 11 to 13 Toffolis: the window wires are complemented by the
+previous digit wire (a fan of CNOTs), then a ripple add of the divisor bits (the root wires `v`) in which **only two carry
+wires exist, used alternately and each measured (`HMR`) as soon as the next carry exists, with no phase repair at that
+moment** (no `CZ` between the measurements; the outcome bits are kept). Before each measurement the divisor bit and the window
+bit are un-primed (`cx c a`, `cx a t`): the sum bit is final and the carry is no longer a function of live qubits, so its
+phase debt cannot be paid now.
+
+**The debts are paid in the mirror.** The clean-up rows (ops 10,800 to 17,300, 323 Toffolis against 270) recompute the same
+carries (the borrow chain of the subtraction equals the carry chain of the addition) and apply a `Z` conditioned on the
+recorded outcome bit directly on each recomputed carry (the `PUSH_CONDITION ... Z ... POP_CONDITION` triplets). The mirror's own
+carries are erased in blocks of about 5 with the usual measured clean-up (the `HMR ... CZ if` pairs); a block boundary carry
+is measured with a new pending bit and its debt is paid inside one `PUSH_CONDITION` block that recomputes the block
+below and applies `CZ`s, so it costs Toffolis only on the shots whose outcome is 1.
+
+**Our gadget (`src/invsqrt_gen/defadd.py`, `tests/unit/test_invsqrt_defadd.py`).** `fd_add` is the forward adder with two
+carry wires (`m - 1` Toffolis, as `ripple_add`); `md_add` is its exact inverse with the debts paid and an optional split
+(one boundary carry, low block recomputed under a condition). Verified on 49 parameter sets (windows 6 to 12, addends 4 and 8
+bits, with and without carry-in, splits 1, 3, 5) against integers, with a clean global phase on every one of 512 random
+shots. Carries alive: 2 forward; `max(s, m - s)` in the mirror with a split `s` (19 down to 10 at `m = 21`).
+
+**Does it shrink E023? Not by itself.** E023's peak of 93 is reached in two places: the Horner step with the 19-bit window
+(74 live plus 19 carries) and the coarse phase (22 + 5 + 47 + 9 + 10 headroom qubits). Making the Horner adders deferred
+(`build_centered(..., deferred=True)`, off by default) leaves the peak at 93 because the coarse phase still needs 93, and the
+unary-iteration lookup needs 91. Moving the coarse phase after the main table is cleared would remove that peak but keeps
+the nine coarse-word qubits alive through the Horner stage (83 plus carries), so the best case is about 90 (about -3%). The
+gadget is the enabler for the new architecture, where every add is a deferred add and the live set is 46 to 50.
