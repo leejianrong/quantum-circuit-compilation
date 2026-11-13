@@ -11,7 +11,7 @@ Split the address ``a = h * L + l``. A table of ``nout`` output bits is
 however many output bits it feeds: its two pivot lines (CNOT-combinations of the lines of ``alpha_t`` and
 ``beta_t``) are ANDed into one output bit ``p``, and the other output bits ``o`` in ``v_t`` get the product by
 a CNOT ``p -> o`` before and after the Toffoli (``o ^= p_old ^ (p_old ^ prod) = prod``). So the Toffoli count
-of a circuit is ``lines + number of terms``, set by the tensor rank of the table, not by its planes one at a time
+of a circuit is ``lines + number of terms``, set by the tensor rank of the table, not by its planes singly
 (``bilinear.py``). The loader is correct for every table of this form; choosing ``alpha, beta, v`` for a given
 table, or rounding a fit into the form, is a separate problem.
 """
