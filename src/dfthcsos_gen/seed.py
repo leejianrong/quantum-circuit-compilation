@@ -107,7 +107,7 @@ def sparse_seed(
     """Random LOCAL start: every vector lives on ``k`` of its group's ``group_orbitals`` random orbitals.
 
     Public frontier tables have vectors of participation ratio about 4 (docs/experiments/dfthcsos-stage2.md),
-    so the fit starts from that kind of support instead of dense Gaussian vectors. Weights are scaled so that the
+    so the fit starts from that kind of support instead of dense Gaussian vectors. Weights are scaled so the
     objective is minimal along the ray, as in ``run_fit.init_point``.
     """
     r, b, c = shape
