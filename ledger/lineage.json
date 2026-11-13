@@ -560,13 +560,19 @@
      "from": "Gu, Kemeny, Yelin, Lukin, arXiv:2610.22367 SI I.1",
      "generator": "`src/dqi_gen/bezout.py` (classical only), `docs/experiments/dqi-psi.md`",
      "technique": "DQI (stage 2): reciprocal-polynomial scan: in characteristic 2, sigma = E^2 + z O^2, sigma' = O^2, so 1/sigma' at the roots follows from a Bezout identity of the half-degree pair (E, O), evaluated by CNOT networks; phase-only recovery with a classical mask; 23 Toffolis per scan position. Read in the paper text only. Our own derivation of the constant-time version (divsteps on the reversed pair, 36 steps, monomial index 36, cofactor windows [2,18] and [2,19]), verified classically; the in-place circuit is not built. The public DQI lineage has no licence; the source repository states Apache-2.0 (licence use pending with the owner)."
+    },
+    {
+     "date": "2026-11-13",
+     "from": "syed3000, Apache-2.0 (kaggle.com/datasets/syed3000/vqcc-own-circuit-portfolio), credits Opus and Astra agents",
+     "generator": "`src/dqi_gen/thiele.py` (classical), `docs/experiments/dqi-syed.md`",
+     "technique": "DQI (stage 2): the 889-qubit architecture re-derived from the Apache-2.0 sources of syed3000's own-circuit portfolio (dataset vqcc-own-circuit-portfolio, dqi_source_zip; read as a reference, nothing copied): residue map to 35 GF(2^24) words (CRT modulus the product of 35 irreducible quadratics), Thiele-type in-place extraction of the partial quotients, polynomial synthesis, amplitude polynomial by a half-degree Euclid, 11-Toffoli root-test scan, GF(2^24) multiplier of bilinear rank 99 (degree 6 over GF(16), 11 points, rank 9 each). Our classical model is original."
     }
    ],
    "kind": "ours",
    "label": "our dqi generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "8 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "9 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
