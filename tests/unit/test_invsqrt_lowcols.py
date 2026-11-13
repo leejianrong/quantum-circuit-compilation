@@ -1,8 +1,8 @@
 """Why a consuming signed-digit multiplier cannot repay its dropped low columns locally (QCC-13).
 
-LSB-first Horner with an odd `D`: `acc <- (acc + e D) >> 1`, the dropped bit is `(acc + e D) & 1`. The final accumulator alone
-determines the digits (the map is injective), but one backward step never does: both values of the dropped bit give an
-in-range predecessor, so a mirror that has measured the dropped bits cannot recompute them step by step.
+LSB-first Horner with an odd `D`: `acc <- (acc + e D) >> 1`, the dropped bit is `(acc + e D) & 1`. The final
+accumulator determines the digits (injective), but one backward step never does: both values of the dropped
+bit give an in-range predecessor, so a mirror that has measured the dropped bits cannot recompute them.
 """
 
 
