@@ -20,7 +20,7 @@ from .fit_fast import FastObjective
 
 
 def solve_w(
-    obj: FastObjective, h: np.ndarray, tt: list[np.ndarray], w0: np.ndarray, iters: int
+    obj: FastObjective, h: np.ndarray, tt: list[np.ndarray], w0: np.ndarray, iters: int, l1: float = 0.0
 ) -> tuple[np.ndarray, float]:
     """Minimise over ``w`` with ``tt`` and ``h`` fixed; returns ``(w, f)``."""
     r_, b_, c_ = obj.R, obj.B, obj.C
@@ -38,7 +38,13 @@ def solve_w(
         for r in range(r_):
             lin += float(np.einsum("ik,ij,jk->", w[r], tt[r], w[r]))
             gw[r] = -4 * (tt[r] @ w[r]) + 4 * hvp[sl[r]][:, cl[r]]
-        return (obj.t2 - 2 * lin + float(np.sum(p * p))) * 1e3, gw.ravel() * sc * 1e3
+        f = obj.t2 - 2 * lin + float(np.sum(p * p))
+        if l1:  # smooth (1/4) sum_(rho,c) |w_c|_1^2, a proxy of Lambda
+            phi = np.sqrt(w * w + 1e-8 * sc * sc)
+            a1 = phi.sum(axis=1, keepdims=True)
+            f += l1 * 0.25 * float(np.sum(a1 * a1))
+            gw = gw + l1 * 0.5 * a1 * w / phi
+        return f * 1e3, gw.ravel() * sc * 1e3
 
     res = minimize(fg, w0.ravel() / sc, jac=True, method="L-BFGS-B", options={"maxiter": iters, "maxcor": 30})
     return np.asarray(res.x.reshape(w0.shape) * sc), float(res.fun) * 1e-3
@@ -87,3 +93,41 @@ def minimize_v(
     )
     v = res.x.reshape(v0.shape)
     return v, state["w"], float(np.sqrt(max(res.fun * 1e-3, 0.0)))
+
+
+def gram_blocks(obj: FastObjective, v: np.ndarray) -> tuple[np.ndarray, list[np.ndarray]]:
+    """``(H, tt_r)`` for fixed vectors (the expensive part of any weights-only refit)."""
+    r_, b_ = obj.R, obj.B
+    u = v / np.linalg.norm(v, axis=1, keepdims=True)
+    z = obj.zvec(u)
+    tt = [z[r * b_ : (r + 1) * b_] @ obj.tsym @ z[r * b_ : (r + 1) * b_].T for r in range(r_)]
+    return (u @ u.T) ** 2, tt
+
+
+def refit_w_l1(
+    obj: FastObjective, v: np.ndarray, w0: np.ndarray, target: float, iters: int = 400
+) -> tuple[np.ndarray, float, float]:
+    """Fixed vectors: smallest L1 proxy whose ``error_2`` stays at ``target`` (bisection on
+    the penalty weight); returns ``(w, error_2, mu)``."""
+    h, tt = gram_blocks(obj, v)
+
+    def err(w: np.ndarray) -> float:
+        r_, b_ = obj.R, obj.B
+        lin = sum(float(np.einsum("ik,ij,jk->", w[r], tt[r], w[r])) for r in range(r_))
+        hv = np.concatenate([h[:, r * b_ : (r + 1) * b_] @ w[r] for r in range(r_)], axis=1)
+        p = np.concatenate([w[r].T @ hv[r * b_ : (r + 1) * b_] for r in range(r_)], axis=0)
+        return float(np.sqrt(max(obj.t2 - 2 * lin + float(np.sum(p * p)), 0.0)))
+
+    w_base, _ = solve_w(obj, h, tt, w0, iters)
+    best = (w_base, err(w_base), 0.0)
+    lo, hi = 0.0, 1e-4
+    for _ in range(8):
+        mu = (lo + hi) / 2 if lo else hi / 2
+        w, _ = solve_w(obj, h, tt, best[0], iters, l1=mu)
+        e = err(w)
+        if e <= target:
+            best = (w, e, mu)
+            lo = mu
+        else:
+            hi = mu
+    return best

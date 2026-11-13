@@ -52,8 +52,9 @@ REPO = OUT / "repo"
 URL = "https://github.com/leejianrong/quantum-circuit-compilation"
 subprocess.run(["git", "clone", "--depth=1", "--branch", BRANCH, URL, str(REPO)], check=True)
 FIT.mkdir(parents=True, exist_ok=True)
-for prev in INPUT.glob("*/fit"):  # a previous kernel's output, attached as a kernel source
-    shutil.copytree(prev, FIT, dirs_exist_ok=True)
+for pattern in ("*/fit", "*/*/fit", "*/*/*/fit"):  # a previous kernel's output, attached as a kernel source
+    for prev in INPUT.glob(pattern):
+        shutil.copytree(prev, FIT, dirs_exist_ok=True)
 env = {**os.environ, "PYTHONPATH": str(REPO / "src"), "QCC_DATA": str(COMP)}
 if not (FIT / "tsym.npy").exists():
     # the host verifier imports kickmix at module level (the pip wheel, as in uv sync)

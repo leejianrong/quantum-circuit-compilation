@@ -133,7 +133,7 @@ def refit_w(tsym: np.ndarray, uq: np.ndarray, w: np.ndarray, iters: int) -> np.n
     return np.asarray(res.x.reshape(w.shape) * sc)
 
 
-def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False):  # type: ignore[no-untyped-def]
+def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False, l1_target=0.0):  # type: ignore[no-untyped-def]
     from dfthcsos.scoreinfra import dfthc_math as dm
 
     from dfthcsos_gen import post
@@ -142,6 +142,14 @@ def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False):  # typ
     two = post.encode(u.reshape(r * b, -1), edges, brot, half)
     uq = post.decode(two, edges, brot).reshape(r, b, -1)
     w = refit_w(tsym, uq, w0, iters) if iters else w0.copy()
+    if l1_target:  # spend the error slack below the gate on a smaller Lambda
+        from dfthcsos_gen.fit_fast import FastObjective
+        from dfthcsos_gen.fit_varpro import refit_w_l1
+
+        w, e2, mu = refit_w_l1(
+            FastObjective(tsym, uq.shape[-1], w.shape), uq.reshape(r * b, -1), w, l1_target
+        )
+        print(f"  L1 refit: mu {mu:.2e}, error_2 {e2:.5f}", flush=True)
     if rotate:
         for k in range(r):
             w[k], _ = post.rotate_min_l1(w[k], iters=300)
@@ -178,6 +186,9 @@ def main() -> None:
     ap.add_argument("--no-rotate", action="store_true")
     ap.add_argument("--no-write", action="store_true")
     ap.add_argument(
+        "--l1-target", type=float, default=0.0, help="refit weights for a small L1 proxy at this error_2"
+    )
+    ap.add_argument(
         "--half", action="store_true", help="angles in the half circle (bit brot-1 == bit brot-2)"
     )
     ap.add_argument("--loader", default="unary", choices=("unary", "anf"), help="loader family to write")
@@ -194,7 +205,7 @@ def main() -> None:
         edges = post.balanced_tree() if tn == "balanced" else post.path_tree()
         for bs in a.brot.split(","):
             words, res, w, h2i = build(
-                ctx, tsym, u, w0, edges, int(bs), a.refit_iters, not a.no_rotate, a.half
+                ctx, tsym, u, w0, edges, int(bs), a.refit_iters, not a.no_rotate, a.half, a.l1_target
             )
             print(
                 f"tree={tn} brot={bs}:",
