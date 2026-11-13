@@ -64,3 +64,16 @@ Predicted static cost of a faithful rebuild: the public circuit's own numbers (8
 be beaten: the reverse of extract (97k against 55k forward) and the 24 spare qubits; the realistic first milestone is a verified full-size
 build of the same architecture. That is a multi-week build for one agent; the stage-by-stage plan is: classical in-place extract (n = 35 words),
 quantum extract on `narrow` with `n = 70`, then synthesis, convert, scan, and mirror, each checked against `thiele.py` before the next.
+
+## Classical in-place pass, verified (E041, own code)
+
+`thiele.extract` and `thiele.synthesize` implement steps 3 and 4 on the residues: per node the pair `(n_l, d_l)` (values of `(N, D)` up to
+one scale, started as `(Y_l, 1)`), head `P_i = d_i / n_i` in the node ring `GF(2^12)[z] / (z^2 + z + kappa_i)`, update
+`(n_l, d_l) <- ((d_l + P_i n_l) / (kappa_l + kappa_i), n_l)`. The division by `q_i(alpha_l)` is by the public nonzero constant
+`kappa_l + kappa_i` (in node `l`, `z^2 = z + kappa_l`), so the only data-dependent inverse per step is the one pivot inverse (a norm to
+GF(2^12) and one 12-bit inverse). Synthesis `(N, D) <- (D, q_i N + P_i D)` rebuilds the polynomials exactly; the error values then come from
+`e = N(a) / (a M(a) D'(a))` (`tests/unit/test_dqi_thiele.py`, weights 1, 3, 19, 28, 35 all recover the planted word). Over 600 draws from the DQI
+weight law the pass finds the true weight every time (0 failures; the expected rate is about 35 / 2^24 per shot).
+
+Counts that follow for the quantum pass: step `i` costs `35 - i - 1` node updates (one GF(2^24) product each, rank 99 or 126) plus one pivot
+inverse and the head product: about `35 * 34 / 2 = 595` products. This is the "595 node pairs" of the public circuit's notebook text.

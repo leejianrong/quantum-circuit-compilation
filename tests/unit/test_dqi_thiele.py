@@ -35,3 +35,20 @@ def test_residues_are_values_of_one_rational_function() -> None:
         total = T.padd(T.pmul(gf, d, p), n)
         for r in T.residues(gf, total):
             assert r == (0, 0)
+
+
+def test_extract_and_synthesize_recover_the_rational_function() -> None:
+    gf = T.field()
+    rng = random.Random(8)
+    for weight in (1, 3, 19, 28, 35):
+        pos = rng.sample(range(4095), weight)
+        word = {j: rng.randint(1, 4095) for j in pos}
+        p = T.residue_polynomial(gf, T.syndromes_of(gf, word))
+        heads, w = T.extract(gf, T.residues(gf, p))
+        assert w == weight
+        n, d = T.synthesize(gf, heads)
+        alpha = gf.primitive_element
+        for j, e in word.items():
+            a = int(gf.pow(alpha, j))
+            assert T.peval(gf, d, a) == 0
+            assert T.amplitude(gf, n, d, a) == e
