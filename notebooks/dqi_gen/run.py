@@ -11,6 +11,7 @@ import subprocess
 import time
 
 BRANCH = "main"
+REV = "9d9d652"  # commit to build (the 1,855-qubit BM circuit); empty for the branch head
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
@@ -40,6 +41,8 @@ JOBS = [
             "{out}/bm.kmb",
             "--salts",
             "5",
+            "--salt-start",
+            "5",
             "--data",
             "{comp}",
             "--ledger",
@@ -55,7 +58,6 @@ subprocess.run(
     [
         "git",
         "clone",
-        "--depth=1",
         "--branch",
         BRANCH,
         "https://github.com/leejianrong/quantum-circuit-compilation",
@@ -63,6 +65,8 @@ subprocess.run(
     ],
     check=True,
 )
+if REV:
+    subprocess.run(["git", "checkout", "-q", REV], cwd=REPO, check=True)
 env = {"PYTHONPATH": str(REPO / "src"), "QCC_DATA": str(COMP), "PATH": "/usr/bin:/bin:/usr/local/bin"}
 for name, argv in JOBS:
     argv = [a.format(out=OUT, repo=REPO, comp=COMP) for a in argv]
