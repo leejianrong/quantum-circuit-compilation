@@ -262,3 +262,12 @@ rank test) accepted none: random annihilating functionals break the candidate st
 from a feasible plan and take cuts as the annihilator of its columns, then refine; that bootstrap (and a candidate
 set with all pairwise sums of `out` vectors, which I sampled) is the missing step. Expected gain if solved: about 25%
 of the angle part, 8% of `T_total`.
+
+A counting bound for the block structure (three low monomials per block, five blocks, 35 planes): the local target
+space of a block has dimension `rank S` (= `H - 1`, 87 here, 75 for 1,220 addresses) inside the block's 105 dimensions, so
+a cut family can remove at most `105 - (H - 1)` dimensions per block and `dim W >= 5 (H - 1)`, i.e. at least
+`5 (H - 1) / 2` products: 218 for our 1,408-address table (against 262 without cuts), 188 for 1,220 addresses (the public
+plan has 212). Whether a rank-one-spanned `W` that tight exists is a subspace-selection problem (for each of the seven
+forms `l` of a block a subspace `V_l` of the 35 output dimensions with `S_block` inside `sum_l l (x) V_l`); a dimension
+count says seven `V_l` of dimension 13 should suffice (about 1,200 conditions on about 2,000 parameters per block), which
+points to an alternating least-squares style search over the `V_l` rather than random cuts. Not built.
