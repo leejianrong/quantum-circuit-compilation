@@ -53,7 +53,7 @@ def table_of(plan: SharedPlan) -> np.ndarray:
     t = t + np.einsum(
         "to,th,tl->ohl", plan.v.astype(np.int64), plan.alpha.astype(np.int64), plan.beta.astype(np.int64)
     )
-    return (t & 1).astype(np.uint8)
+    return np.asarray(t & 1, dtype=np.uint8)
 
 
 def random_plan(nout: int, h: int, ll: int, terms: int, rng: np.random.Generator) -> SharedPlan:
