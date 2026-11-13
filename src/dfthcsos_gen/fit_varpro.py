@@ -1,11 +1,12 @@
-"""Variable projection for the DF-THC fit: optimise the vectors ``v`` with the weights ``w`` solved out (QCC-16).
+"""Variable projection for the DF-THC fit: optimise the vectors ``v`` with the weights ``w`` solved out
+(QCC-16).
 
-``f(v, w) = |T|^2 - 2 sum_r w_r^T (Z_r T Z_r^T) w_r + |V^T H V|^2`` depends on ``w`` only through the small
-Gram matrices ``tt_r = Z_r T Z_r^T`` (``B x B``) and ``H = (U U^T)^2``. For fixed ``v`` those are computed once
-(the expensive ``T`` products), after which the minimisation over ``w`` costs milliseconds per step. The reduced
-function ``F(v) = min_w f(v, w)`` has gradient ``df/dv`` at the optimal ``w`` (envelope theorem), so an outer
-L-BFGS on ``v`` sees a smoother, better-conditioned problem than the joint one. ``reduced`` returns
-``(F, grad_v, w_star)``; ``w`` is warm started between calls.
+``f(v, w) = |T|^2 - 2 sum_r w_r^T (Z_r T Z_r^T) w_r + |V^T H V|^2`` depends on ``w`` only through the
+small Gram matrices ``tt_r = Z_r T Z_r^T`` (``B x B``) and ``H = (U U^T)^2``. For fixed ``v`` those are
+computed once (the expensive ``T`` products), after which the minimisation over ``w`` costs milliseconds
+per step. The reduced function ``F(v) = min_w f(v, w)`` has gradient ``df/dv`` at the optimal ``w``
+(envelope theorem), so an outer L-BFGS on ``v`` sees a smoother, better-conditioned problem than the
+joint one. ``reduced`` returns ``(F, grad_v, w_star)``; ``w`` is warm started between calls.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize  # type: ignore[import-untyped,unused-ignore]
 
 from .fit_fast import FastObjective
 

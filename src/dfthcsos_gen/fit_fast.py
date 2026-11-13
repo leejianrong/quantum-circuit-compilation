@@ -7,7 +7,7 @@ Three savings over ``fit.Objective``:
   ``(A z) T`` then cost ``B x M x rank`` (``rank = None`` keeps the exact dense path). The tail dropped
   (``|T - T_rank|_F`` is 0.0013 at rank 500) moves the objective by a few percent of ``error_2^2`` near the
   gate, so use it for the long bulk of a fit and finish with ``rank=None``;
-* the Gram algebra ``V^T H V`` and its gradient use the block structure of ``V`` (one ``B x C`` block per group)
+* the Gram algebra ``V^T H V`` and its gradient use the block structure of ``V`` (a ``B x C`` block per group)
   instead of dense ``RB x RC`` matrices (8x fewer flops);
 * the large products can run in ``float32`` (``dtype``) while all sums stay in ``float64``.
 
