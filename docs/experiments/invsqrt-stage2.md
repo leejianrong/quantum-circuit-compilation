@@ -96,3 +96,37 @@ not explain it), and its arithmetic stage is not cheaper than ours.
 Scripts lived in the agent scratchpad (not committed): dump with `km.Circuit.from_file(...).to_file(out, format='kmx')`;
 stage counts by instruction range; prefix simulation with `km.Simulator`, `write_across_shots('x', bits)`, `do`,
 `read_across_shots(km.q(i))`, `read_shot_phase(i)`; algebraic degree by Moebius transform of a qubit's truth table.
+
+## Follow-up costing of the three levers (2026-11-13, no circuit built)
+
+Costed against our generator before writing code, because each lever turned out to fail for our qubit budget.
+
+* **Conditional execution (lever 1).** The frontier's saving sits in blocks that fix up an erased AND of two live qubits
+  against a classically selected parity of a measured register. Our Horner mirror erases in-place sums, which cannot
+  be fixed up that way (`invsqrt-uncompute.md`), and our only erasable Toffoli blocks (flag clears) are already
+  conditional. No candidate block exists in our architecture; it needs the frontier's different arithmetic stage,
+  which was not reconstructed. Gain with today's layout: 0.
+* **Thermometer normalisation (lever 2).** The chain replaces our 26-Toffoli `multi_controlled_x` ladder by 19, a
+  saving of 7 forward. A move of `22 - m` bits into known-zero slots costs one Toffoli per bit whether written as a
+  CSWAP or as `Toffoli + CX`, so the 79 CSWAP of the shifts only fall if the frontier's reversal trick (about 10 per
+  level, orientation of the register not restored between levels) is reproduced; we could not derive how the later
+  stages then read the address. Gain with a derived design: 7 of 40 hoped; the rest unproven.
+* **Blocked Reed-Muller lookup (lever 3).** Cost `2^p - p - 1` (high monomials) `+ 2^q - q - 1 + m (2^q - 1)` Toffolis,
+  with the `2^p - p - 1` monomials alive as qubits:
+
+  | m outputs | p, q | Toffolis | extra qubits |
+  |---:|---|---:|---:|
+  | 37 | 6, 2 | 169 | 57 |
+  | 37 | 7, 1 | 157 | 120 |
+  | 37 | 5, 3 | 289 | 26 |
+  | 51 (ours) | 6, 2 | 211 | 57 |
+  | 51 | 5, 3 | 387 | 26 |
+
+  Our lookup stage already sits at 92 of 93 qubits, so the 57 qubits of the cheapest split cost about 57 x 19 =
+  1,080 Toffoli-equivalents against a saving of 43 to 70. The frontier's 166 with 38 output qubits therefore
+  cannot be this scheme with stored monomials; it computes products of address parities directly into the outputs
+  with CX basis changes between them, a synthesis we did not reconstruct. Negative for our layout.
+* **Qubit cut (lever 4).** Depends on 1 to 3. No cut derived.
+
+Conclusion: dead end for a patch of the Horner generator; the frontier needs a rebuilt architecture (one forward
+pass, no mirror, products erased by conditional fix-ups) whose arithmetic stage we have not recovered.
