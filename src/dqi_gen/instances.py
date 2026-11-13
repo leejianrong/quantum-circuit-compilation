@@ -80,6 +80,11 @@ def build(generator: str, inst: Instance) -> Any:
         return importlib.import_module("dqi_gen.bm").build_circuit(m, n, b)
 
     builders["bm"] = bm
+
+    def rs(m: int, n: int, b: int) -> Any:
+        return importlib.import_module("dqi_gen.rs_build").build_circuit(m, n, b)
+
+    builders["rs"] = rs
     if generator not in builders:
         raise ValueError(f"unknown generator {generator!r}; choose from {sorted(builders)}")
     host.verifier()  # puts kickmix on the path
@@ -103,7 +108,7 @@ def verify(
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--gen", default="reference", choices=("reference", "divstep", "lanczos", "bm"))
+    p.add_argument("--gen", default="reference", choices=("reference", "divstep", "lanczos", "bm", "rs"))
     p.add_argument("--instance", default="small", choices=sorted(INSTANCES))
     p.add_argument("--shots", type=int, default=None)
     p.add_argument("--salts", type=int, default=1, help="verify under this many salts (build once)")

@@ -56,3 +56,35 @@ def test_anf_loader_loads_and_counts(a: int, brot: int, j: int, lb: int) -> None
     assert (sim.read_across_shots(sel) == ((addr[None, :] >> np.arange(n)[:, None]) & 1)).all()
     work = km.array([km.q(i) for i in range(n + j * brot, circ.num_qubits)])
     assert not sim.read_across_shots(work).any()
+
+
+def test_sign_ext_loads_deltas_onto_reachable_words() -> None:
+    km = pytest.importorskip("kickmix")
+    rng = np.random.default_rng(9)
+    a, brot, j, lb = 90, 5, 2, 3
+
+    def half_words(shape: tuple[int, ...]) -> np.ndarray:
+        low = rng.integers(0, 1 << (brot - 1), size=shape)
+        return low | ((low >> (brot - 2)) << (brot - 1))  # copy bit brot-2 into bit brot-1
+
+    prev, cur = half_words((a, j)), half_words((a, j))
+    delta = prev ^ cur
+    circ = build_anf_loader(delta, brot, lb, sign_ext=True)
+    assert circ.operation_statistics().num_toffoli_like == anf_toffolis(delta, brot, lb, sign_ext=True)
+    assert anf_toffolis(delta, brot, lb, sign_ext=True) < anf_toffolis(delta, brot, lb)
+    n = (a - 1).bit_length()
+    sim = km.Simulator(batch_size=a, debug_print=False, seed=1)
+    sim.use_same_registers_as(circ)
+    addr = np.arange(a)
+    sim.write_across_shots(
+        km.array([km.q(i) for i in range(n)]), ((addr[None, :] >> np.arange(n)[:, None]) & 1).astype(bool)
+    )
+    for w in range(j):
+        reg = km.array([km.q(n + w * brot + i) for i in range(brot)])
+        sim.write_across_shots(reg, ((prev[:, w][None, :] >> np.arange(brot)[:, None]) & 1).astype(bool))
+    sim.do(circ)
+    assert not sim.read_phase_flipped_across_shots().any()
+    for w in range(j):
+        reg = km.array([km.q(n + w * brot + i) for i in range(brot)])
+        got = (sim.read_across_shots(reg).astype(np.int64) * (1 << np.arange(brot))[:, None]).sum(axis=0)
+        assert (got == cur[:, w]).all()

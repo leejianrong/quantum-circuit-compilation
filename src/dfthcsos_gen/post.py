@@ -34,18 +34,17 @@ def decode(words: np.ndarray, edges: np.ndarray, brot: int) -> np.ndarray:
     return v
 
 
-def encode(u: np.ndarray, edges: np.ndarray, brot: int) -> np.ndarray:
-    """Nearest integer words ``(m, n-1)`` in ``[0, 2**brot)`` whose decoding approximates ``u``."""
-    v = np.array(u, dtype=np.float64)
-    v /= np.linalg.norm(v, axis=1, keepdims=True)
-    ang = np.zeros((v.shape[0], len(edges)))
-    for t in range(len(edges) - 1, -1, -1):
-        p, c = edges[t]
-        ang[:, t] = np.arctan2(v[:, c], v[:, p])
-        v[:, p] = np.hypot(v[:, p], v[:, c])
-        v[:, c] = 0.0
-    scale = 1 << (brot - 1)
-    return np.rint(ang / np.pi * scale).astype(np.int64) % (1 << brot)
+def encode(u: np.ndarray, edges: np.ndarray, brot: int, half: bool = False) -> np.ndarray:
+    """Nearest integer words ``(m, n-1)`` in ``[0, 2**brot)`` whose decoding approximates ``u``.
+
+    ``half``: angles in the half circle (see ``angles_of``), so bit ``brot - 1`` of every word equals bit
+    ``brot - 2`` and the decoded vector may be ``-u`` (the objective only sees ``u u^T``).
+    """
+    ang = angles_of(u, edges, brot, half)
+    w = np.rint(ang).astype(np.int64)
+    if half:
+        w = np.clip(w, -(1 << (brot - 2)), (1 << (brot - 2)) - 1)
+    return np.asarray(w % (1 << brot))
 
 
 def _l1_obj(w: np.ndarray, eps: float) -> tuple[float, np.ndarray]:
@@ -86,15 +85,25 @@ def rotate_min_l1(
     return w @ o, o
 
 
-def angles_of(u: np.ndarray, edges: np.ndarray, brot: int) -> np.ndarray:
-    """Real-valued angles in word units: ``encode`` before rounding."""
+def angles_of(u: np.ndarray, edges: np.ndarray, brot: int, half: bool = False) -> np.ndarray:
+    """Real-valued angles in word units: ``encode`` before rounding.
+
+    ``half`` keeps every angle in ``[-pi/2, pi/2]``: a rotation by ``theta + pi`` negates both outputs, so
+    a negative parent amplitude is carried up the tree with its sign instead of rotating past ``pi / 2``. Idea
+    seen in public Kaggle notebook text (pi-gauge, bit7 == bit6 domain; docs/PROVENANCE.md), written fresh.
+    """
     v = np.array(u, dtype=np.float64)
     v /= np.linalg.norm(v, axis=1, keepdims=True)
     ang = np.zeros((v.shape[0], len(edges)))
     for t in range(len(edges) - 1, -1, -1):
         p, c = edges[t]
-        ang[:, t] = np.arctan2(v[:, c], v[:, p])
-        v[:, p] = np.hypot(v[:, p], v[:, c])
+        if half:
+            sgn = np.where(v[:, p] < 0, -1.0, 1.0)
+            ang[:, t] = np.arctan2(sgn * v[:, c], np.abs(v[:, p]))
+            v[:, p] = sgn * np.hypot(v[:, p], v[:, c])
+        else:
+            ang[:, t] = np.arctan2(v[:, c], v[:, p])
+            v[:, p] = np.hypot(v[:, p], v[:, c])
         v[:, c] = 0.0
     return np.asarray(ang / np.pi * (1 << (brot - 1)))
 

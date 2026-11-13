@@ -45,7 +45,7 @@ packages = ["src/bench", "src/dfthcsos_model", "src/dqi_gen", "src/invsqrt_gen"]
 [tool.ruff]
 line-length = 110
 src = ["src", "tests", "."]
-extend-exclude = [".claude"]  # agent worktrees live here and must not be linted from the main checkout
+extend-exclude = [".claude", "third_party", "src/dqi_gen/rs"]  # agent worktrees; vendored Apache-2.0 code kept as ported
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
@@ -54,6 +54,7 @@ select = ["E", "F", "I", "B", "UP"]
 python_version = "3.12"
 strict = true
 files = ["src", "dashboard"]
+exclude = ["src/dqi_gen/rs/", "third_party/"]
 
 [[tool.mypy.overrides]]
 module = ["indah", "indah.*", "starlette", "starlette.*"]

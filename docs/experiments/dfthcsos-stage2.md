@@ -172,3 +172,34 @@ at 11 bits (3 words per circuit), against about 13,300 for the unary loader with
 loader change does not help; the gain is bound to 8 bits and to a shared decomposition (the 8-bit table is
 the blocker). Next levers in order: the continuation fit, then a decomposition search over GF(2) for an 8-bit
 table (kernel search), then 8-bit rounding.
+
+## Study of andigu/uncompute `chemistry-fe2s2` and of more public loader write-ups
+
+Studied the README and the discovered-circuit README at commit 64b5a13a (Apache-2.0, ADR-0009 Amendment 2). Nothing is
+ported: that task is the alias-sampling PREPARE plus Pauli SELECT of a 40-qubit Fe2S2 Hamiltonian with 41,052 terms, a
+different data-loading problem from our 1,220-row Givens-angle tables. What they do, and whether it transfers:
+
+| technique (theirs) | transfers? |
+|---|---|
+| Repeated-span pruning: a split of the lookup tree is dropped when both children hold identical words in the graded range; free choices (alias schedule, out-of-range rows) are spent to create repeats, 41,050 to 10,271 Toffolis | Our unary loader already breaks early on equal subtrees, but angle words of distinct vectors never repeat; the analogue is the freedom in the rounding (gauge, row order), not exploitable now |
+| Frame blocking: rows related by commuting Cliffords share one block root | No analogue in THC angles |
+| Quadratic forms of GF(2)-rank 2r need r CCZs after a CNOT change of coordinates; Z-gauge search over the table | Same algebra as our two-products-per-Toffoli planes (`bilinear.py`, `anf.py`) |
+| Measurement-based unlookup with a joint phase fix on a one-hot window | Not usable: the verifier runs each `ANGLE_k` as an XOR oracle forward and reversed, so the reverse cannot be a cheaper measured uncompute |
+| Exact dynamic program over "hold" budgets per tree node (keep a conjunction alive vs recompute it) | Possible small gain for the unary tree at 11 bits; not tried |
+
+From the Kaggle write-ups (lightningv08 "Bezout-Schur + 5-Word QROM", markdown only; ideas logged in PROVENANCE) the loader
+structure matches what we reverse-engineered, with these extra details: (1) the word domain has bit `brot-1` equal to
+bit `brot-2` (angles in the half circle: "pi-gauge"), so a word carries only 7 independent Boolean functions at 8 bits and the
+top bit is one CNOT; (2) the lookup cache (monomial lines) takes 72 work qubits, so the circuit has
+`11 + 8 J + 72` qubits, J = 5 fits at 123 and divides the 75 angle columns into 15 circuits; (3) per circuit the
+coordinates are (output bit) x (low-address monomial) with a hi-address function each, paired two per Toffoli, and
+"kernel relations" (linear dependencies among those hi-functions) remove products: 420 coordinates and 60 relations give
+180 paired products for J = 4, 450 coordinates and 75 relations give 225 for J = 5 (297 Toffolis per circuit with the
+72-Toffoli cache).
+
+Implemented from that: `post.angles_of(half=True)` / `post.encode(half=True)` (half-circle angles via a signed
+parent carry: a rotation by theta + pi negates both outputs, and the decoded vector may be -u, which `u u^T` ignores),
+`anf.build_anf_loader(..., sign_ext=True)` (the top plane is never loaded; CNOT from bit brot-2 to brot-1 before and
+after the planes, so the XOR chain of deltas stays consistent), `--half` and `--loader anf` in
+`scripts/dfthcsos_post.py`, `--half` in `scripts/dfthcsos_qat.py`. Test: random reachable words (top bits equal) load
+exactly. Not yet done: the kernel-relation search over the (output bit, low monomial) hi-functions.
