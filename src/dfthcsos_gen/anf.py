@@ -102,16 +102,34 @@ def plane_toffolis(plan: PlanePlan) -> int:
     return len(plan.products)
 
 
-def anf_toffolis(delta: np.ndarray, brot: int, lb: int) -> int:
-    """Static Toffoli count of ``build_anf_loader(delta, brot, lb)``."""
+def _live_planes(delta: np.ndarray, brot: int, lb: int, sign_ext: bool) -> list[tuple[int, np.ndarray]]:
+    """``(output index, plane)`` pairs to build; with ``sign_ext`` a word's top bit copies the next one."""
+    planes = planes_of(np.asarray(delta, dtype=np.int64), brot, lb)
+    out = []
+    for idx, plane in enumerate(planes):
+        if sign_ext and idx % brot == brot - 1:
+            if not (plane == planes[idx - 1]).all():
+                raise ValueError("sign_ext needs bit brot-1 equal to bit brot-2 in every delta word")
+            continue
+        out.append((idx, plane))
+    return out
+
+
+def anf_toffolis(delta: np.ndarray, brot: int, lb: int, sign_ext: bool = False) -> int:
+    """Static Toffoli count of ``build_anf_loader(delta, brot, lb, sign_ext)``."""
     a = delta.shape[0]
     h, ll = geometry(a, lb)
-    planes = planes_of(np.asarray(delta, dtype=np.int64), brot, lb)
+    planes = [p for _, p in _live_planes(delta, brot, lb, sign_ext)]
     return monomial_ands(h) + monomial_ands(ll) + sum(len(plan_plane(p).products) for p in planes)
 
 
-def build_anf_loader(delta: np.ndarray, brot: int, lb: int) -> Any:
-    """One ``ANGLE_k`` circuit for an ``(A, J)`` XOR table of ``brot``-bit words, on monomial lines."""
+def build_anf_loader(delta: np.ndarray, brot: int, lb: int, sign_ext: bool = False) -> Any:
+    """One ``ANGLE_k`` circuit for an ``(A, J)`` XOR table of ``brot``-bit words, on monomial lines.
+
+    ``sign_ext``: every word has bit ``brot-1`` equal to bit ``brot-2`` (angles in the half circle, see
+    ``post.angles_of(half=True)``), so that plane is not loaded: the output bit gets the delta of bit
+    ``brot - 2`` by a CNOT from it before and after the planes (``o ^= old ^ new``), which is free.
+    """
     km = _km()
     delta = np.asarray(delta, dtype=np.int64)
     a, j = delta.shape
@@ -121,7 +139,7 @@ def build_anf_loader(delta: np.ndarray, brot: int, lb: int) -> Any:
     h, ll = geometry(a, lb)
     if n + j * brot + work_qubits(a, lb) > QUBIT_CAP:
         raise ValueError("does not fit in the qubit cap; use fewer words per circuit")
-    planes = planes_of(delta, brot, lb)
+    live = _live_planes(delta, brot, lb, sign_ext)
     b = km.CircuitBuilder()
     sel = b.create_quantum_register(n, "selection")
     words = [b.create_quantum_register(brot, f"word_{w}") for w in range(j)]
@@ -144,7 +162,10 @@ def build_anf_loader(delta: np.ndarray, brot: int, lb: int) -> Any:
             b.init_and(ctrl, sel[sel_off + top], out)
             ands.append((ctrl, sel[sel_off + top], out))
             lines[idx(s)] = out
-    for idx_w, plane in enumerate(planes):
+    if sign_ext:
+        for w in words:
+            b.cx(w[brot - 2], w[brot - 1])
+    for idx_w, plane in live:
         target = words[idx_w // brot][idx_w % brot]
         plan = plan_plane(plane)
         for q in sorted(_fan_set(plan.f, "hi", h, ll)):
@@ -153,11 +174,16 @@ def build_anf_loader(delta: np.ndarray, brot: int, lb: int) -> Any:
             b.cx(lines[q], target)
         for s1, s2 in plan.products:
             _emit_product(b, lines, target, convert_set(s1, h, ll), convert_set(s2, h, ll))
+    if sign_ext:
+        for w in words:
+            b.cx(w[brot - 2], w[brot - 1])
     for ctrl, x, out in reversed(ands):
         b.del_and(ctrl, x, out)
     b.x(const)
     return b.finish_circuit()
 
 
-def build_anf_family(words: np.ndarray, brot: int, J: int, lb: int) -> tuple[Any, ...]:
-    return tuple(build_anf_loader(d, brot, lb) for d in angle_deltas(np.asarray(words), J))
+def build_anf_family(
+    words: np.ndarray, brot: int, J: int, lb: int, sign_ext: bool = False
+) -> tuple[Any, ...]:
+    return tuple(build_anf_loader(d, brot, lb, sign_ext) for d in angle_deltas(np.asarray(words), J))

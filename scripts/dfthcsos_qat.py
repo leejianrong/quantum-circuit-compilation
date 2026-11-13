@@ -28,6 +28,9 @@ def main() -> None:
     ap.add_argument("--stages", default="0.4,0.65,0.8,0.9,0.96,1.0")
     ap.add_argument("--iters", type=int, default=80)
     ap.add_argument("--threads", type=int, default=12)
+    ap.add_argument(
+        "--half", action="store_true", help="angles in the half circle (bit brot-1 == bit brot-2)"
+    )
     a = ap.parse_args()
     for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
         os.environ[k] = str(a.threads)
@@ -44,7 +47,7 @@ def main() -> None:
     edges, brot = balanced_tree(), a.brot
     obj = Objective(tsym, 76, (r, b, c))
     scale = (1 << (brot - 1)) / np.pi  # word units per radian
-    theta = angles_of(v0, edges, brot)
+    theta = angles_of(v0, edges, brot, a.half)
     fixed = np.zeros(theta.shape, dtype=bool)
     sc = float(np.abs(w).mean())
     wshape = w.shape
