@@ -31,9 +31,17 @@ from dqi_gen.tower import Tower, apply_matrix_inplace, xor_linear
 
 class BMDecoder(DivstepDecoder):
     _fm: FastMul | None = None
+    margin = (
+        1  # coefficients above ceil((k + 1) / 2) + margin are assumed zero (measured: excess is always 1)
+    )
     _tw: Any = None
 
     # ---- products and inversions through the rank-42 multiplier and the GF(2^6) tower --------------
+
+    def _width(self, k: int) -> int:
+        """Registers of each row that step `k` touches: the locator degree is about `k / 2`."""
+        full = min(self.t, k) + 1
+        return int(full if self.margin < 0 else min(full, (k + 2) // 2 + self.margin))
 
     @property
     def _fast(self) -> bool:
@@ -179,10 +187,10 @@ class BMDecoder(DivstepDecoder):
     def _forward_step(self, builder: Any, k: int, s: Any, st: dict[str, Any]) -> None:
         t, gf = self.t, self.gf
         gv, fv, bb, delta = st["gv"], st["fv"], st["b"], st["delta"]
-        w = min(t, k) + 1
+        w = self._width(k)
         with builder.mark("discrepancy"):
             d_reg = builder.alloc_qubits(self.deg)
-            for i in range(min(t, k) + 1):
+            for i in range(w):
                 self._xm(builder, gv[i], s[k - i], d_reg)
         with builder.mark("swap_decision"):
             gt, nz = self._sw_flags(builder, delta, d_reg)
@@ -227,7 +235,7 @@ class BMDecoder(DivstepDecoder):
         t, gf = self.t, self.gf
         gv, fv, bb, delta = st["gv"], st["fv"], st["b"], st["delta"]
         sh = st["sh"].pop()
-        w = min(t, k) + 1
+        w = self._width(k)
         if sh is None:
             fv.append(fv.pop(0))
         else:
@@ -266,7 +274,7 @@ class BMDecoder(DivstepDecoder):
         with builder.mark("discrepancy_clear"):
             mask = builder.alloc_bits(self.deg)
             builder.hmr(d_reg, mask)
-            for i in range(min(t, k) + 1):
+            for i in range(w):
                 builder.gf2_phase_by_product(gv[i], s[k - i], mask=mask, field=gf)
             builder.free(mask)
             builder.free(d_reg)
