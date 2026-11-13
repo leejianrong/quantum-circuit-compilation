@@ -33,20 +33,38 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
     tags: list[tuple[int, str]] = []
     cur_tof = 0
     cur_ids: set[int] = set()
+    stack: list[str] = []
+    paths: dict[str, dict[str, Any]] = {}
     i = 0
     for i, line in enumerate(lines):
         op = line.split(" ", 1)[0].rstrip("\n")
         mix[op] += 1
         if op == "INFO_TAG":
             m = TAG.match(line)
-            if m and len(tags) < 4000:
-                tags.append((i, m.group(1)))
+            if m:
+                name = m.group(1)
+                if name.startswith("@enter:"):
+                    stack.append(name[7:])
+                    rec = paths.setdefault(
+                        " > ".join(stack[:3]), {"enter": 0, "toffoli": 0, "first": i, "ids": set()}
+                    )
+                    if len(stack) <= 3:
+                        rec["enter"] += 1
+                elif name.startswith("@exit:") and stack:
+                    stack.pop()
+                if len(tags) < 400:
+                    tags.append((i, name))
         elif op not in ("APPEND_TO_REGISTER", "REGISTER"):
             ids = [int(x) for x in QRE.findall(line)]
             for q in ids:
                 first.setdefault(q, i)
                 last[q] = i
             cur_ids.update(ids)
+            if stack:
+                prec = paths[" > ".join(stack[:3])]
+                prec["ids"].update(ids)
+                if op in TOFFOLI:
+                    prec["toffoli"] += 1
             if op in TOFFOLI:
                 cur_tof += 1
                 for q in ids:
@@ -69,6 +87,10 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
         "windows": wins,
         "blocks": {str(k): v for k, v in blocks.items()},
         "tags": tags,
+        "paths": {
+            k: {"enter": v["enter"], "toffoli": v["toffoli"], "first": v["first"], "qubits": len(v["ids"])}
+            for k, v in paths.items()
+        },
     }
 
 
