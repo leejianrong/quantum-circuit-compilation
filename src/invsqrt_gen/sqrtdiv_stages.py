@@ -5,10 +5,41 @@ Every stage appends to a `Rec` program; the full circuit is `replay(program)`, t
 `replay(inverse(program))`. Qubits are virtual ints, arrays are lists.
 """
 
+import itertools
 from typing import Any
 
-from invsqrt_gen.build import ripple_add
+import kickmix as km  # type: ignore[import-not-found,unused-ignore]
+
+from invsqrt_gen.build import ripple_add as _ripple_add
+from invsqrt_gen.defadd import fd_add, md_add
 from invsqrt_gen.rec import Rec
+
+DEFER = {"on": False, "split_over": 12}
+_KEYS = itertools.count()
+
+
+def _add_fwd(b: Any, bind: Any, a: Any, t: Any, cin: Any, key: Any, split: Any) -> None:
+    bind.store[key] = fd_add(b, km.array(a), km.array(t), cin)
+
+
+def _add_inv(b: Any, bind: Any, a: Any, t: Any, cin: Any, key: Any, split: Any) -> None:
+    md_add(b, km.array(a), km.array(t), bind.store.pop(key), cin, split[1])
+
+
+def ripple_add(r: Rec, a: Any, t: Any, subtract: bool = False, cin: Any = None) -> None:
+    """`t +-= a + cin`: the deferred-phase adder pair when `DEFER["on"]`, else the plain ripple adder."""
+    if not DEFER["on"]:
+        _ripple_add(r, a, t, subtract=subtract, cin=cin)
+        return
+    t = list(t)
+    n_c = max(0, len(t) - 2)
+    split = (n_c + 1) // 2 if n_c > int(DEFER["split_over"]) else None
+    if subtract:
+        r.x(t)
+    r.macro(_add_fwd, _add_inv, list(a), t, cin, ("k", next(_KEYS)), ("sp", split))
+    if subtract:
+        r.x(t)
+
 
 LEVELS = (2, 4, 8, 16)  # even normalisation shifts, binary digits of 2 k, k = 0 .. 10
 
@@ -156,9 +187,13 @@ def refine_d(r: Rec, q: list[int], dw: list[int], ew: list[int]) -> None:
         _cadd(r, q[i], ew[6 - i :], dw, subtract=True)
 
 
-def product(r: Rec, t: list[int], dw: list[int], p_bits: int, sh: int) -> list[int]:
+def product(
+    r: Rec, t: list[int], dw: list[int], p_bits: int, sh: int, init_minus_one: bool = True
+) -> list[int]:
     """`P = sum_{i<13} t_i (D >> (sh - i)) - t_13 (D << (13 - sh)) + (D >> (sh + 1)) + (D >> (sh + 2))` (signed)."""
     p = r.alloc_qubits(p_bits)
+    if init_minus_one:  # the register holds P - 1 (so that ~ of it is -P, see `numerator_inplace`)
+        r.x(p)
     for i in range(13):
         if i <= sh:
             _cadd(r, t[i], dw[sh - i :], p)
@@ -220,3 +255,24 @@ def divide_rows(r: Rec, q: list[int], w: list[int], fp: int, digits: int) -> tup
     for z in zeros:
         r.free(z)
     return gs, w
+
+
+def numerator_inplace(r: Rec, q: list[int], p: list[int], fp: int) -> list[int]:
+    """`r_1 = 2 (1 - P) - s` built in place on the product wires.
+
+    The product register holds `Pr = P - 1` (it was initialised to all ones), so `~Pr = -P` and the window is
+    `[0, ~Pr (2x), sign copies] + ((2^14 - d) << sh)` with `2^14 - d = [1, ~Q_0 .. ~Q_12]` (`d` is odd: no carry). The
+    product wires become window bits 1 ..., nothing is copied except the sign extension.
+    """
+    sh = fp - 13
+    nb = len(p)
+    low = r.alloc_qubits(1)
+    r.x(p)  # ~Pr
+    ext = r.alloc_qubits(fp + 2 - 1 - nb)
+    r.cx(p[-1], ext)
+    w = low + list(p) + ext
+    r.x(q)
+    ripple_add(r, q, w[sh + 1 :], cin=w[sh])
+    r.x(w[sh])
+    r.x(q)
+    return w

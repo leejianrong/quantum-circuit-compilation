@@ -15,6 +15,7 @@ from invsqrt_gen.sqrtdiv_stages import (
     finish_root,
     load_table,
     normalise_even,
+    numerator_inplace,
     numerator_window,
     product,
     refine_d,
@@ -32,26 +33,55 @@ class Program:
     gs: list[int]
 
 
-def forward_program(tab: SdTables, digits: int = 27) -> Program:
+def forward_program(
+    tab: SdTables,
+    digits: int = 27,
+    release_table: bool = True,
+    inplace: bool = True,
+    trace: list[tuple[str, int, int]] | None = None,
+) -> Program:
     _, _, widths = nr_model(reachable_n())
     r = Rec(22)
     x = list(range(22))
+
+    def mark(name: str) -> None:
+        if trace is not None:
+            trace.append((name, r.live, r.peak))
+
     flags = normalise_even(r, x)
+    mark("normalise")
     q, w, zeros = sqrt_root(r, x, widths)
+    mark("root")
     t = finish_root(r, q, w, zeros)
+    mark("finish")
     d_bits = int(tab.d0.max()).bit_length()
     e_bits = int(tab.e.max()).bit_length()
     words = [int(a) | (int(b) << d_bits) for a, b in zip(tab.d0, tab.e, strict=True)]
     dw, ew = load_table(r, q, words, d_bits, e_bits)
+    mark("lookup")
+    a0 = len(r.ops)
     refine_d(r, q, dw, ew)
-    p = product(r, t, dw, 17, tab.fd - tab.fp)
-    wn = numerator_window(r, q, p, tab.fp)
+    a1 = len(r.ops)
+    mark("refine")
+    p = product(r, t, dw, 17, tab.fd - tab.fp, init_minus_one=inplace)
+    if (
+        release_table
+    ):  # D and E are not needed while dividing: undo the refinement, clear the lookup by measurement
+        r.ops.extend(inverse(r.ops[a0:a1]))
+        r.lookup(words, q[5:12], dw + ew, inverse=True)
+        r.free(dw + ew)
+    mark("product")
+    wn = numerator_inplace(r, q, p, tab.fp) if inplace else numerator_window(r, q, p, tab.fp)
+    mark("numerator")
     gs, _ = divide_rows(r, q, wn, tab.fp, digits)
+    mark("divide")
     return Program(r.ops, flags, q, gs)
 
 
-def build_circuit(tab: SdTables, digits: int = 27) -> km.Circuit:
-    prog = forward_program(tab, digits)
+def build_circuit(
+    tab: SdTables, digits: int = 27, release_table: bool = True, inplace: bool = True
+) -> km.Circuit:
+    prog = forward_program(tab, digits, release_table, inplace)
     b = km.CircuitBuilder()
     xr = b.create_quantum_register(22, name="x")
     bind = Binding({i: xr[i] for i in range(22)})

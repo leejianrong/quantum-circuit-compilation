@@ -214,3 +214,33 @@ Roadmap to the reference's profile (in order of expected effect on cost = qubits
 window and `t`, `D`, `E` out of the live set (measure `D`, `E` away after the product, reload for the undo): peak 134 to about 75;
 (2) consuming odd-`D` multiplier in place of the 397-Toffoli product; (3) deferred-phase adders everywhere (`defadd.py`): carries
 19 to 2; (4) one-wire endpoint instead of the barrel; (5) tighter table and digit count.
+
+## V1: table released during the division, numerator built in place (QCC-13)
+
+Two lifecycle changes, both from the reference's timeline, in `sqrtdiv_circuit.forward_program` (flags `release_table`, `inplace`):
+
+* **Release.** After the product the refinement is undone and `D`, `E` are cleared by measurement (`del_lookup`, 18 Toffolis); the
+  mirror reloads them (126) and redoes the refinement. +344 Toffolis, 25 wires fewer while dividing.
+* **In place.** The product register is initialised to `-1` (all ones) so that it holds `P - 1`; its complement is `-P`, and with
+  `d` odd the term `(2^14 - d) << 13` is `[1, ~Q_0 .. ~Q_12]` with no carry, so the window of `r_1 = 2 (1 - P) - s` is the product wires plus
+  one zero wire and 13 sign copies, plus one carry-in add: -58 Toffolis, no separate window.
+
+| build | qubits | static Toffolis | official verifier, 1/20 shots | cost |
+|---|---:|---:|---|---:|
+| V0 | 134 | 2,618 | PASS | 397,977.6 |
+| in place only | 113 | 2,560 | not run | about 326k |
+| V1 (both) | 105 | 2,904 | PASS | 341,878.1 (ratio 6.07) |
+| deferred adders on (`DEFER["on"]`) | 105 | 3,296 | not run | no gain: peak unchanged |
+
+Peak by stage (virtual live wires): normalise 41, root 46, lookup 58, refinement 79, product 105, then 105 at the numerator and
+division. The peak is the product's AND temporaries (15 wires) plus the adder carries (about 15) on top of 73 live wires
+(`Q` 13, `t` 14, flags 4, `D` 15, `E` 10, `P` 17), not the divider. Deferring the adds (flag `DEFER`) removes carries but the
+mirror's split blocks and the temporaries keep the peak at 105.
+
+**Distance to the targets, honestly.** E023 is 168,237 and the reference 80,163. Our floor with the changes still open (on-the-fly
+controlled adds without a temporary register, deferred adders everywhere, release of `E` earlier) is about 82 qubits at about 3,300
+Toffolis, about 295k. To reach E023 the Toffolis must fall to about 1,900 as well as the qubits to about 65: the forward stages
+are 84 + 116 + 126 + 100 + 397 + 364 = 1,187 against the reference's 51 + 96 + 56 + 44 + 103 + 270 = 620 (its product alone is 4x
+cheaper) and the mirror repeats them. The part that is not within reach by derivation alone is the reference's product: a consuming
+multiplier that keeps only the top 16 columns of the in-place product and measures the low columns away, with their phase repaid in
+the clean-up. We derived the odd-multiplier reversibility but not how the low-column debts are repaid cheaply.
