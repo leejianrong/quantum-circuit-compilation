@@ -99,3 +99,27 @@ def compact_seed(
         v[g * b : (g + 1) * b] = u
         w[g, :, : coef.shape[1]] = coef
     return v, w
+
+
+def sparse_seed(
+    obj: Objective, shape: tuple[int, int, int], seed: int = 0, k: int = 5, group_orbitals: int = 20
+) -> tuple[np.ndarray, np.ndarray]:
+    """Random LOCAL start: every vector lives on ``k`` of its group's ``group_orbitals`` random orbitals.
+
+    Public frontier tables have vectors of participation ratio about 4 (docs/experiments/dfthcsos-stage2.md),
+    so the fit starts from that kind of support instead of dense Gaussian vectors. Weights are scaled so the
+    objective is minimal along the ray, as in ``run_fit.init_point``.
+    """
+    r, b, c = shape
+    rng = np.random.default_rng(seed)
+    v = np.zeros((r * b, obj.n))
+    for g in range(r):
+        sub = rng.choice(obj.n, group_orbitals, replace=False)
+        for i in range(b):
+            v[g * b + i, rng.choice(sub, k, replace=False)] = rng.normal(size=k)
+    v += 1e-3 * rng.normal(size=v.shape)
+    w = rng.normal(size=(r, b, c))
+    f1 = obj.value_grad(v, w, need_v=False)[0]
+    fh = obj.value_grad(v, 0.5 * w, need_v=False)[0]
+    a, bq = np.linalg.solve([[-0.5, 0.0625], [-2.0, 1.0]], [fh - obj.t2, f1 - obj.t2])
+    return v, w * np.sqrt(max(a / bq, 1e-12))
