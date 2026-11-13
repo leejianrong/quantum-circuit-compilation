@@ -316,3 +316,12 @@ plan has 212). Whether a rank-one-spanned `W` that tight exists is a subspace-se
 forms `l` of a block a subspace `V_l` of the 35 output dimensions with `S_block` inside `sum_l l (x) V_l`); a dimension
 count says seven `V_l` of dimension 13 should suffice (about 1,200 conditions on about 2,000 parameters per block), which
 points to an alternating least-squares style search over the `V_l` rather than random cuts. Not built.
+
+## fit-e and QAT at 11/10/8 bits (negative)
+
+Kaggle fits fetched 2026-11-13: `fit-e` (`exact_8x176x56`, continuous `error_2` 0.01158; `fast_` 0.01207), `fit-c` 0.01471, `cen` 0.02377,
+`sparse1` 0.02622, `sparse2` 0.02603 (the structured starts end behind the dense fit). Half-circle QAT (`dfthcsos_qat.py --half`, all-rounded
+`error_2`): fit-c at 10 bits 0.02935, 8 bits 0.08313; fit-e at 11 bits 0.01749, 10 bits 0.02703, 8 bits 0.08558. The 8-bit wall is the
+rounding, not the continuous fit: a 22% better fit leaves it unchanged. fit-e at 11 bits through `dfthcsos_post.py --half --loader anf`:
+`error_2` 0.01743, `Lambda` 518.7, `lambda_eff` 64.96 (E040: 63.14), best `lb = 6`, J = 3, 10,875 Toffolis, predicted cost 1,381,521,485
+(ratio 2.43, below E040's 2.50), so not verified. Lower `error_2` bought a larger `lambda_eff`; the lever is `lambda_eff`, not error.
