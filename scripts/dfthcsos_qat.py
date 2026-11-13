@@ -85,6 +85,8 @@ def main() -> None:
             flat[idx] = True
             sel = flat.reshape(theta.shape)
             theta[sel] = np.rint(theta[sel])
+            if a.half:  # keep bit brot-1 == bit brot-2: the grid is [-2^(b-2), 2^(b-2) - 1]
+                theta[sel] = np.clip(theta[sel], -(1 << (brot - 2)), (1 << (brot - 2)) - 1)
             fixed |= sel
         print(
             f"frac {frac}: continuous {cont:.5f} after fixing {err(theta, w):.5f} "

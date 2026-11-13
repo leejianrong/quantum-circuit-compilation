@@ -261,6 +261,33 @@ centered 0.140 (`sigma = 0.1`) and 0.148 (`sigma = 0.3`). So a structured start 
 iterations (roughly 2x in iterations at this stage); whether the advantage persists to the asymptote is what the long kernel
 (`leejianrong/qcc-dfthcsos-cen`, centered `sigma = 0.3`, rank 800, 150k iterations) will show. Not a basin change on its own.
 
+## First fully-own candidate to pass the verifier with the ANF loader (E040)
+
+Fit: `leejianrong/qcc-dfthcsos-fit-c` (continuation of the (8,176,56) fit, 14,527 more iterations, continuous `error_2`
+0.01471), saved at `~/qcc-fits/kaggle/leejianrong__qcc-dfthcsos-fit-c/fit/8x176x56/` (sha256 prefixes `v.npy` 79cb8daf7a22a53e500e,
+`w.npy` 2807cc6b5d7759acbf97). QAT at 11 bits with half-circle angles (`dfthcsos_qat.py --half --brot 11`, 6 stages of 80
+iterations): all-rounded `error_2` 0.01906 (words `bit10 == bit9` everywhere), saved at `~/qcc-fits/own/qat11_half_fitc/` (sha256 prefixes
+v 547df30ecaa2de8b, w 2f45efd543dc32a8, words 5c9f4babde45b4c7). Post (`dfthcsos_post.py --half --loader anf`): `error_1` 0.00715,
+`error_2` 0.01901, `Lambda` 488.7, `E_gap` 4.096, `lambda_eff` 63.14; the best loader of three splits is `lb = 6`, J = 3 (25 circuits, 120 qubits,
+10,875 Toffolis per pass; `lb = 4` J = 1 predicts 1.509e9, `lb = 5` J = 4 1.599e9, `lb = 6` J = 3 1.343e9).
+Official verifier, 3 salts: PASS 3/3, cost 1,342,757,005, ratio 3,355,599,588 / 1,342,757,005 = 2.50 (model prediction 1,342,757,005 to
+the digit; the unary-loader own table was 1,697,674,805, ratio 1.98). Circuits at `~/qcc-circuits/own_dfthcsos_11bit_anf/`, submission sha256 prefix 4d127a0ed6dc67cf.
+
+Two bugs found on the way, both fixed in this PR: (1) a half-circle angle that would round to exactly +pi/2 (every node with all
+amplitude moved to the child, common) is not on the grid `[-2^(b-2), 2^(b-2) - 1]`; rounding it into the grid costs 1 LSB and, over
+0.6% of the words, took `error_2` from 0.0186 to 0.0276 on re-encoding. `post.angles_of(half=True)` now uses -pi/2 with a carried sign
+(`R(theta - pi) = -R(theta)`), which is exact; the QAT rounding also clips to the grid. (2) Without that, 0.6% of words broke the sign
+extension the ANF loader relies on.
+
+The next step to ratio 3 and beyond is the same pipeline at 8 bits (model: 5.3), which needs a continuous fit of about 0.012.
+
+## Two-stage structured fit (negative)
+
+Stage A: optimise with a fixed support of 6 orbitals per vector (the dominant orbital plus the 5 largest tail entries of the
+centered start): `error_2` 0.805 after 300 iterations; stage B: relax to dense vectors with a 0.05 tail: 0.112 after 400 more. The single
+centered start reaches 0.065 after 700, so the two-stage fit is worse, consistent with the finding that the tail is not
+optional.
+
 ## Matroid-parity pair planner (built; the cut search is the open problem)
 
 `src/dfthcsos_gen/parity.py` (randomized alternating matrix over GF(2^8), perfect-pairing extraction by contraction;
