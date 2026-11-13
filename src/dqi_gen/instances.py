@@ -90,6 +90,11 @@ def build(generator: str, inst: Instance) -> Any:
         return importlib.import_module("dqi_gen.thiele_decoder").build_circuit(m, n, b)
 
     builders["thiele"] = thiele
+
+    def fixed(m: int, n: int, b: int) -> Any:
+        return importlib.import_module("dqi_gen.fixed").build_circuit(m, n, b)
+
+    builders["fixed"] = fixed
     if generator not in builders:
         raise ValueError(f"unknown generator {generator!r}; choose from {sorted(builders)}")
     host.verifier()  # puts kickmix on the path
@@ -114,7 +119,9 @@ def verify(
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument(
-        "--gen", default="reference", choices=("reference", "divstep", "lanczos", "bm", "rs", "thiele")
+        "--gen",
+        default="reference",
+        choices=("reference", "divstep", "lanczos", "bm", "rs", "thiele", "fixed"),
     )
     p.add_argument("--instance", default="small", choices=sorted(INSTANCES))
     p.add_argument("--shots", type=int, default=None)
