@@ -25,9 +25,84 @@ from typing import Any
 import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 
 from dqi_gen.decoder import OFFSET, DivstepDecoder, _cat
+from dqi_gen.gfmul import FastMul
+from dqi_gen.tower import Tower, apply_matrix_inplace, xor_linear
 
 
 class BMDecoder(DivstepDecoder):
+    _fm: FastMul | None = None
+    _tw: Any = None
+
+    # ---- products and inversions through the rank-42 multiplier and the GF(2^6) tower --------------
+
+    @property
+    def _fast(self) -> bool:
+        return int(self.deg) % 6 == 0
+
+    def _xm(self, builder: Any, a: Any, b: Any, target: Any) -> None:
+        """`target ^= a * b`, with the low-rank multiplier when the field has one."""
+        if self._fm is None:
+            try:
+                self._fm = FastMul(builder, self.gf)
+            except ValueError:
+                self._fm = False  # type: ignore[assignment]
+        if self._fm:
+            self._fm.ixor_mul(a, b, target)
+        else:
+            builder.ixor_gf2_mul(a, b, target=target, field=self.gf)
+
+    def _tinv(self, builder: Any, x: Any, out: Any, *, clear: bool) -> None:
+        """`out ^= 1 / x` (or clear `out`, known to hold `1 / x`, by measurement); `x` is unchanged.
+
+        x = A + B y, 1 / x = (A + B + B y) / N with N = A^2 + A B + b B^2 in GF(2^6).
+        """
+        h = self.deg // 2
+        if self._tw is None:
+            gf_h = km.GF2Field(h)
+            self._tw = (gf_h, Tower.build(self.gf, gf_h), self._subfield_inverse(builder, gf_h, True))
+        gf_h, tw, (inv_compute, inv_uncompute) = self._tw
+        norm_b = [gf_h.mul(tw.b, gf_h.square(1 << i)) for i in range(h)]
+        mul = self._mul
+        apply_matrix_inplace(builder, list(x), tw.to_tower)
+        a_, b_ = x[:h], x[h:]
+        norm = mul(builder, a_, b_, gf_h, fast=True)
+        xor_linear(builder, a_, norm, tw.square)
+        xor_linear(builder, b_, norm, norm_b)
+        ninv, state = inv_compute(norm)
+        builder.cx(b_, a_)
+        if clear:
+            apply_matrix_inplace(builder, list(out), tw.to_tower)
+            builder.del_gf2_mul(b_, ninv, target=out[h:], field=gf_h)
+            builder.del_gf2_mul(a_, ninv, target=out[:h], field=gf_h)
+        else:
+            mul(builder, a_, ninv, gf_h, out[:h], True)
+            mul(builder, b_, ninv, gf_h, out[h:], True)
+            apply_matrix_inplace(builder, list(out), tw.from_tower)
+        builder.cx(b_, a_)
+        inv_uncompute(norm, ninv, state)
+        xor_linear(builder, b_, norm, norm_b)
+        xor_linear(builder, a_, norm, tw.square)
+        builder.del_gf2_mul(a_, b_, target=norm, field=gf_h)
+        builder.free(norm)
+        apply_matrix_inplace(builder, list(x), tw.from_tower)
+
+    def _update_rows(self, builder: Any, c: Any, st: dict[str, Any], width: int) -> None:
+        for i in range(width):
+            self._xm(builder, c, st["fv"][i], st["gv"][i])
+
+    def _omega(self, builder: Any, gv: list[Any], s: Any) -> None:
+        for i in range(self.t - 1, -1, -1):
+            for k in range(1, i + 1):
+                self._xm(builder, gv[k], s[i - k], s[i])
+
+    def _omega_undo(self, builder: Any, gv: list[Any], s: Any) -> None:
+        for i in range(self.t):
+            for k in range(1, i + 1):
+                self._xm(builder, gv[k], s[i - k], s[i])
+
+    def _tower_ops(self, builder: Any, fast: bool = True) -> Any:
+        return super()._tower_ops(builder, fast)
+
     # delta >= 0 (ties replace): stored value delta + OFFSET > OFFSET - 1
     def _sw_flags(self, builder: Any, delta: Any, d_reg: Any) -> tuple[Any, Any]:
         gt = builder.alloc_qubits(1)[0]
@@ -55,13 +130,47 @@ class BMDecoder(DivstepDecoder):
     def _xor_replace_quotient(self, builder: Any, fv0: Any, bb: Any, c: Any) -> None:
         """c ^= 1 / (f[0] * b): the quotient of a swap step from its after-state (zero when f[0] = 0)."""
         gf = self.gf
-        prod = builder.init_gf2_mul(fv0, bb, field=gf)
-        inv = builder.init_gf2_inverse(prod, field=gf)
+        if not self._fast:
+            prod = builder.init_gf2_mul(fv0, bb, field=gf)
+            inv = builder.init_gf2_inverse(prod, field=gf)
+            builder.cx(inv, c)
+            builder.del_gf2_inverse(prod, target=inv, field=gf)
+            builder.free(inv)
+            builder.del_gf2_mul(fv0, bb, target=prod, field=gf)
+            builder.free(prod)
+            return
+        prod = builder.alloc_qubits(self.deg)
+        self._xm(builder, fv0, bb, prod)
+        inv = builder.alloc_qubits(self.deg)
+        self._tinv(builder, prod, inv, clear=False)
         builder.cx(inv, c)
-        builder.del_gf2_inverse(prod, target=inv, field=gf)
+        self._tinv(builder, prod, inv, clear=True)
         builder.free(inv)
         builder.del_gf2_mul(fv0, bb, target=prod, field=gf)
         builder.free(prod)
+
+    def _div_init(self, builder: Any, d_reg: Any, bb: Any) -> Any:
+        """A fresh register holding `d / b`."""
+        if not self._fast:
+            return builder.init_gf2_div(d_reg, bb, field=self.gf)
+        inv = builder.alloc_qubits(self.deg)
+        self._tinv(builder, bb, inv, clear=False)
+        c = builder.alloc_qubits(self.deg)
+        self._xm(builder, d_reg, inv, c)
+        self._tinv(builder, bb, inv, clear=True)
+        builder.free(inv)
+        return c
+
+    def _div_del(self, builder: Any, d_reg: Any, bb: Any, c: Any) -> None:
+        """Clears `c` known to hold `d / b`."""
+        if not self._fast:
+            builder.del_gf2_div(d_reg, bb, target=c, field=self.gf)
+            return
+        inv = builder.alloc_qubits(self.deg)
+        self._tinv(builder, bb, inv, clear=False)
+        builder.del_gf2_mul(d_reg, inv, target=c, field=self.gf)
+        self._tinv(builder, bb, inv, clear=True)
+        builder.free(inv)
 
     @staticmethod
     def _index_bits(si: Any, value: int) -> Any:
@@ -74,7 +183,7 @@ class BMDecoder(DivstepDecoder):
         with builder.mark("discrepancy"):
             d_reg = builder.alloc_qubits(self.deg)
             for i in range(min(t, k) + 1):
-                builder.ixor_gf2_mul(gv[i], s[k - i], target=d_reg, field=gf)
+                self._xm(builder, gv[i], s[k - i], d_reg)
         with builder.mark("swap_decision"):
             gt, nz = self._sw_flags(builder, delta, d_reg)
             sw = builder.alloc_qubits(1)[0]
@@ -86,7 +195,7 @@ class BMDecoder(DivstepDecoder):
             self._negate_delta(builder, delta, sw)
             builder.iadd(1, target=delta)
         with builder.mark("quotient"):
-            c = builder.init_gf2_div(d_reg, bb, field=gf)
+            c = self._div_init(builder, d_reg, bb)
         with builder.mark("row_update"):
             self._update_rows(builder, c, st, w)
         builder.del_gf2_mul(c, bb, target=d_reg, field=gf)
@@ -142,7 +251,7 @@ class BMDecoder(DivstepDecoder):
         with builder.mark("row_update"):
             self._update_rows(builder, c, st, w)
         with builder.mark("quotient"):
-            builder.del_gf2_div(d_reg, bb, target=c, field=gf)
+            self._div_del(builder, d_reg, bb, c)
         builder.free(c)
         with builder.mark("swap_rows"):
             builder.isub(1, target=delta)
@@ -166,6 +275,8 @@ class BMDecoder(DivstepDecoder):
         n, t = self.n, self.t
         if len(syndromes) != n:
             raise ValueError(f"Expected {n} syndrome registers, got {len(syndromes)}.")
+        self._tw = None
+        self._fm = None
         width = (n + 2 * OFFSET + 2).bit_length() + 1
         st: dict[str, Any] = {
             "gv": self._alloc_regs(builder, t + 1),
