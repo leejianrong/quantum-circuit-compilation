@@ -36,6 +36,9 @@ def parse(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument(
         "--l1", type=float, default=0.0, help="weight of 1/4 sum_(rho,c) |w_c|_1^2 (Lambda proxy)"
     )
+    ap.add_argument(
+        "--init", choices=("random", "compact"), default="random", help="start point (compact: seed.py)"
+    )
     ap.add_argument("--max-secs", type=float, default=0.0, help="stop (and save) after this wall time")
     return ap.parse_args(argv)
 
@@ -102,6 +105,11 @@ def run(args: argparse.Namespace) -> float:
         v, w = grow(
             np.load(args.init_from / "v.npy"), np.load(args.init_from / "w.npy"), (r, b, c), args.seed
         )
+    elif args.init == "compact":
+        from dfthcsos_gen.seed import compact_seed
+
+        v, w = compact_seed(obj, (r, b, c), args.seed)
+        print(f"compact seed error_2={obj.error2(v, w):.5f}", flush=True)
     else:
         v, w = init_point(obj, args.seed)
     wsc = float(np.abs(w).mean())

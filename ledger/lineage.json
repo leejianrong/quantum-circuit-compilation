@@ -469,13 +469,19 @@
      "from": "syed3000 loaders inside dfthcsos 91d0ad25 (see the dfthcsos table above); studied 2026-11-12 by the QCC-49 agent after our paper-first loader stalled at the unary-iteration cost",
      "generator": "Not yet implemented. `src/dfthcsos_gen` has only the unary-iteration loader (Babbush et al. 2018). What we learned and will rewrite fresh: about 75 temporary ANDs (all products of the high address bits) feed about 200 CCX whose controls are address bits XORed in place with those products (by CX) and whose targets are word bits, so each output bit is a short sum of products of two linear forms; the table has to be fitted to that family.",
      "technique": "Angle loader as a rank-1 quadratic form per output bit: structure of the public dfthcsos `angle_k` circuits seen as an aggregate (gate-type counts, which register each CCX controls and targets), not copied"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "marculera, Kaggle notebook \"DF-THC 10x: compact groups from the Hamiltonian\" (https://www.kaggle.com/code/marculera/df-thc-10x-compact-groups-from-the-hamiltonian), markdown only",
+     "generator": "`src/dfthcsos_gen/seed.py` (QCC-16, docs/experiments/dfthcsos-stage2.md)",
+     "technique": "dfthcsos fit seed from compact groups: pivoted Cholesky leaves of the target, balanced k-means of leaf orbital profiles, simultaneous OMP of shared vectors per group, least-squares weights (implemented from the description only; no code, table or weight read)"
     }
    ],
    "kind": "ours",
    "label": "our dfthcsos generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "1 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "2 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
