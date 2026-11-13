@@ -579,13 +579,19 @@
      "from": "Same aggregate view: two rotation blocks about 7,800 instructions apart with overlapping angle ranges",
      "generator": "`src/invsqrt_gen/split.py` `build_split` and `build_centered` (our own table decomposition `V_0 = coarse + fine`, derived in the module docstring; QCC-13)",
      "technique": "Split the phase into a coarse word and a fine word, phased and cleared separately (implemented)"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "Own derivation and measurement; motivation from the angle set of the 62-qubit invsqrt `c6519219` (see the angle row above)",
+     "generator": "`src/invsqrt_gen/joint.py`, `src/invsqrt_gen/angles.py`; `docs/experiments/invsqrt-onepass.md` follow-up 4",
+     "technique": "Coefficient rounding as a 2-D lattice problem per segment (each bit off `c_1` or `c_2` costs half a bit of error), wide-box joint search plus per-position angle scales up to 20% (idea suggested by the frontier's tuned angles, measured negative for narrower words)"
     }
    ],
    "kind": "ours",
    "label": "our invsqrt generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "2 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "3 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   }
  ],

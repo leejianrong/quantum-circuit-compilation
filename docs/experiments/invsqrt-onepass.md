@@ -255,3 +255,31 @@ was copied.
 * **Where the qubits are.** Of the 20, the 13 for the address and flag registers need the in-place lookup (follow-up 2),
   the 7 for width need the joint search above. Neither is available to us now, so no narrow-table circuit was
   built or predicted; ratio stays 12.34 (ledger E035).
+
+## Follow-up 4: joint coefficient and angle search for narrower words (QCC-13, negative)
+
+Code: `src/invsqrt_gen/joint.py` (`refine`: wide-box search on the worst segments, `c_0` recentred, repeated), the angle LP
+`angles.py` after it (now keeping the best iterate and allowing larger per-position scales). Start tables are the plain
+rounded minimax fits (12 s each); `refine` then searches all `(c_1, c_2)` offsets in `[-8, 8] x [-3, 3]` (the previous
+polish used `+-2`), about 8 minutes per round per width set.
+
+| Words `f0,f1,f2` guard | Reachable error after `refine` | Segments above `2^-24` | After angle LP |
+|---|---:|---:|---|
+| 28,19,9 g2 (E023, polish radius 2) | 2^-24.16 | 0 | slack 2^-37.77 turns |
+| 28,19,8 g2 | 2^-23.92 | 2 | slack +1.07e-12 turns (2^-39.9), scales up to 20% |
+| 28,18,9 g2 | 2^-23.64 | 76 | not feasible |
+| 28,18,8 g2 | 2^-23.36 after one round | 109 | not feasible |
+| 27,19,9 g1 | 2^-23.52 after one round | 59 | not feasible |
+
+Predicted cost of the only feasible new set (28,19,8, 92 qubits, 1,490.5 executed Toffolis, margin 2^-39.9): 167,911
+against 168,237 (ratio 12.37, -0.19%): the saved qubit (-1.1%) is paid back by 2 bits of margin (about 13 Toffolis), as before. Not built.
+
+**Why the wide search cannot reach 7 qubits.** The coefficient error is a lattice problem: per segment the error curve is
+`e_0 + e_1 rho + e_2 rho^2` with `(e_1, e_2)` ranging over a lattice of cell `q_1 q_2`, so the best attainable sup-norm
+scales as `sqrt(q_1 q_2)` and every bit removed from `c_1` or `c_2` costs about half a bit of error (the table above shows
+0.5 per bit, exactly). `c_0` is already free. Evaluating E023's integer coefficients with exact arithmetic gives
+2^-24.55, so the row truncation noise costs 0.4 bits of the 24.16 and is what the search partly absorbs; the rest is the
+lattice. A joint search over the lattice cannot remove that law; only more precision somewhere (guard bits, which cost
+as many qubits as they save), a different segmentation (a = 8 doubles the table; degree 3 at a = 5 or 6 adds a Horner step
+and 8 to 13 table qubits) or the frontier's actual structure would. The frontier's 2^-24.4 at 16-bit slopes therefore
+cannot come from coefficient rounding alone.
