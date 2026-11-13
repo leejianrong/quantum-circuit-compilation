@@ -203,3 +203,42 @@ parent carry: a rotation by theta + pi negates both outputs, and the decoded vec
 after the planes, so the XOR chain of deltas stays consistent), `--half` and `--loader anf` in
 `scripts/dfthcsos_post.py`, `--half` in `scripts/dfthcsos_qat.py`. Test: random reachable words (top bits equal) load
 exactly. Not yet done: the kernel-relation search over the (output bit, low monomial) hi-functions.
+
+## Reverse engineering syed3000's chemistry set (Apache-2.0, studied; nothing ported yet)
+
+Source: Kaggle dataset `syed3000/vqcc-own-circuit-portfolio` (licence apache-2.0, copyright 2026 Syed Asad Ali), file
+`dfthcsos_source_zip`, read from `~/qcc-circuits/syed_src/` (outside the repo). Their record: 427 qubits, 14,810 Toffolis,
+`lambda_eff` 46.907, ratio 11.31, 4,074 angle Toffolis per pass (263 to 293 per circuit, 15 circuits).
+
+Loader (`compiler/emit_plan.py`, read and re-derived, our `anf.py` matches its architecture):
+- 11 selection qubits, five 8-bit words, 69 hi monomial ANDs (`S < 77`), 15 low monomials (some low monomials are
+  carried by the helper qubits), uncomputed by measurement (HMR plus CZ).
+- Planes: 7 per word (35). The 8th bit is the "helper" `bit7 xor bit6`, a table that is almost always 0 and is loaded as
+  a cheap pure monomial; CX bit6 to bit7 before and after (the same trick as our `sign_ext`).
+- Each Toffoli computes `(l1 + h1)(l2 + h2)`, a PAIR of rank-one terms, and fans the result out to an output mask over
+  the 35 planes (CX from the first output qubit to the others before and after). 212 products per circuit, every one
+  paired, every out mask distinct, then a final CX layer for the `F(h) + G(l)` remainder.
+- The product plan is chosen by a matroid-parity formulation: candidate pairs of outer products (low form x out mask), a
+  required span dimension (525 minus "cuts"), and a randomized matching with an alternating-matrix witness over GF(2^8)
+  that is verified separately for independence over GF(2). 424 independent columns give 212 products. Our per-plane
+  planner needs about 280 products for 35 planes at 8 bits, so this is worth about 25% of the angle part (about 8% of
+  `T_total`). Not rebuilt: it needs the cross tensor (target matrices per hi monomial) and the span-dimension
+  bookkeeping, which is the next generator task.
+
+Words and accuracy (`research/scripts`, 54 files, not rerunnable without their intermediate arrays):
+- Word search keeps bits 0 to 2 of every word as codes (an affine code in the low address bits and "parity codes": the
+  parity of bit 1, and a quadratic code for bit 2, over the five words of a batch must lie in
+  `S = {A(h) + sum_i l_i B_i(h) + C(l)}`), decoded exactly by enumerating the 2^11 nonlinear parts `C` and choosing the
+  best affine part per hi block (`parity_code.py`). Higher bits move in steps of 8, 16, 32 on the later columns, each move
+  priced exactly with a fast metric model (`fastchem.py`, `flipcost.py`), applied one at a time, then the weights are
+  refit by SQP / exact Hessian (`exact_refit2.py`, `sqp.py`) keeping only feasible states. This is the "polish after
+  rounding" that takes a 12 mHa continuous fit to the 20 mHa gate at 8 bits.
+- Their vectors are local: decoding their words gives a participation ratio of 4.4 orbitals per vector (1.1 to 20) and
+  12.6 to 26.6 effective orbitals per group, against our dense random starts (76). A random SPARSE start (5 of a random 20
+  orbitals per group) already reaches `error_2` 0.0782 after 600 iterations against 0.091 for the dense start at the same
+  count (`scripts/run_fit.py --init-from`); the longer run is in progress.
+- The continuous gap is mostly compute: the public notebook text fits on an A100 for hundreds of thousands of
+  L-BFGS iterations; our 9,000 to 30,000 on four CPU cores are one to two orders fewer. `scripts/run_fit_gpu.py`
+  (torch float64, autograd, parity-tested against the numpy objective) and two kernels
+  (`notebooks/dfthcsos_fit_gpu_a`, `_b`, continuing fit-b and fit) are ready, but the weekly Kaggle GPU quota
+  (30 h) is exhausted, so neither is pushed yet.
