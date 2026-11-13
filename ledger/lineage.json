@@ -500,13 +500,19 @@
      "from": "public notebook text (rank figure only)",
      "generator": "`src/dqi_gen/gfmul.py`, `src/dqi_gen/lanczos.py` (QCC-19)",
      "technique": "DQI: a GF(2^12) multiplier of bilinear rank 42 exists (number only, from the public notebook text via our own notes; no circuit or generator read). We derived our own rank-42 algorithm (degree-4 extension of GF(8), 7 evaluation points, 6 ANDs per GF(8) product) and tower inversion from standard algebra."
+    },
+    {
+     "date": "2026-11-13",
+     "from": "Gu et al., arXiv 2610.22367 (paper main text)",
+     "generator": "Not implemented; candidate for `src/dqi_gen` under ADR-0009 stage 1",
+     "technique": "Berlekamp-Massey with a rescaled update (no polynomial history) and a one-entry history stack priced as a rare failure (about 1e-4 of inputs)"
     }
    ],
    "kind": "ours",
    "label": "our dqi generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "3 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "4 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
