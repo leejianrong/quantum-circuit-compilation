@@ -100,9 +100,8 @@ def solve(
             break
         cand = res.x[:k]
         slack = tol - np.abs(e0 + (m @ cand) * f)
-        if float(slack.min()) < after:  # the sampled LP over-promised and no violator helped: keep the best
-            break
-        d, after = cand, float(slack.min())
+        if float(slack.min()) > after:
+            d, after = cand, float(slack.min())
         bad = np.where(slack < res.x[k] - 1e-18)[0]
         if not len(bad):
             break
