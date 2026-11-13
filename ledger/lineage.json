@@ -506,13 +506,19 @@
      "from": "Gu et al., arXiv 2610.22367 (paper main text)",
      "generator": "Not implemented; candidate for `src/dqi_gen` under ADR-0009 stage 1",
      "technique": "Berlekamp-Massey with a rescaled update (no polynomial history) and a one-entry history stack priced as a rare failure (about 1e-4 of inputs)"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "Gu, Kemeny, Yelin, Lukin, arXiv:2610.22367 SI I.1; https://github.com/andigu/uncompute `tasks/dqi-reed-solomon` README (Apache-2.0 stated)",
+     "generator": "Ranked in `docs/research/dqi.md`; implemented in `src/dqi_gen/` where noted in `docs/experiments/dqi-stage2.md`",
+     "technique": "DQI (stage 2, amendment of 2026-11-13): phase-only recovery (the DQI phase is one bit, `Tr(mu_j e_j)`, so Forney needs only a bilinear form of `omega(beta)` and a reciprocal polynomial `Psi` with `Psi sigma' = 1 mod sigma`, 23 Toffolis per scan position); `Psi` by a half-degree Euclid on the even and odd parts of `sigma` (characteristic 2); dialog-free Berlekamp-Massey by the invariant `sigma_0 delta = 1` and a one-entry history stack; adaptive coefficient ranges from the DQI weight law. Read in the paper text and the task README only; no circuit file. The public DQI lineage has no licence; this source states Apache-2.0."
     }
    ],
    "kind": "ours",
    "label": "our dqi generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "4 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "5 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
