@@ -603,13 +603,19 @@
      "from": "Dynamic decode of the 46-qubit `invsqrt.kmb` above: wire classes per 50 ops, Toffoli targets and controls of the product stage (`q0` to `q7` accumulate, `h` control counts 9 down to 1); the odd-multiplier reversibility argument is our own derivation",
      "generator": "`src/invsqrt_gen/sqrtdiv_build.py` (root stage built; product not yet); `docs/experiments/invsqrt-sqrt-division.md`",
      "technique": "Consuming product (Horner order, odd multiplier, accumulator in the wires of the multiplier) and consuming root; coefficient wires measured away after the product and the table loaded again for the undo"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "Dynamic decode of the 46-qubit `invsqrt.kmb` above (`https://www.kaggle.com/datasets/syed3000/vqcc-own-circuit-portfolio`, Apache-2.0): gate order of one forward and one mirror row, wire classes against the binary digits of Y",
+     "generator": "`src/invsqrt_gen/defadd.py` (own code, verified with phase check); `docs/experiments/invsqrt-sqrt-division.md`",
+     "technique": "Deferred-phase adder: two alternating carry wires measured at once with the phase debt left pending, debts paid by a conditional Z on the recomputed carries in the mirror, mirror carries erased in blocks with the boundary debt paid in a PUSH_CONDITION block; the divider is a consuming division whose quotient bits take wires freed by the shrinking remainder"
     }
    ],
    "kind": "ours",
    "label": "our invsqrt generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "4 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "5 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   }
  ],
