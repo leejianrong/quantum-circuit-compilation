@@ -475,13 +475,19 @@
      "from": "marculera, Kaggle notebook \"DF-THC 10x: compact groups from the Hamiltonian\" (https://www.kaggle.com/code/marculera/df-thc-10x-compact-groups-from-the-hamiltonian), markdown only",
      "generator": "`src/dfthcsos_gen/seed.py` (QCC-16, docs/experiments/dfthcsos-stage2.md)",
      "technique": "dfthcsos fit seed from compact groups: pivoted Cholesky leaves of the target, balanced k-means of leaf orbital profiles, simultaneous OMP of shared vectors per group, least-squares weights (implemented from the description only; no code, table or weight read)"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "syed3000 loaders in dfthcsos 91d0ad25 (see the dfthcsos table above); studied 2026-11-13 by the QCC-16 agent",
+     "generator": "Description only in `docs/experiments/dfthcsos-stage2.md`; generator not built (`src/dfthcsos_gen/bilinear.py` is the per-plane precursor)",
+     "technique": "dfthcsos angle-loader architecture seen by simulating the public `angle_k_0` (91d0ad25) in kickmix and reading gate-type aggregates: monomial lines of the high 7 and low 4 address bits (ANDs, uncomputed by HMR+CZ), CX-only F(h)+G(l) parts, about 220 shared rank-1 products per circuit with CX fan-out between word bits; no gate list, word or constant copied"
     }
    ],
    "kind": "ours",
    "label": "our dfthcsos generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "2 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "3 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
