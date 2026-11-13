@@ -487,13 +487,19 @@
      "from": "Kauers and Moosbauer, arXiv 2212.01175; Arai, Ichikawa, Hukushima, arXiv 2312.08793",
      "generator": "`src/dfthcsos_gen/gf2tensor.py` (QCC-16)",
      "technique": "GF(2) tensor decomposition by flip graphs (flips, reductions, plus transitions); literature method, no public circuit read"
+    },
+    {
+     "date": "2026-11-13",
+     "from": "syed3000 loaders in dfthcsos 91d0ad25, aggregate view",
+     "generator": "`src/dfthcsos_gen/anf.py` (built 2026-11-13; own Moebius-transform conversion, exact in kickmix; see `docs/experiments/dfthcsos-stage2.md`)",
+     "technique": "Qubit-lean lines: ANF monomials of the selection bits instead of one-hot lines (idea from the gate structure of the public angle loader: selection bits double as degree-1 lines, ANDs only for degree >= 2); analysis only"
     }
    ],
    "kind": "ours",
    "label": "our dfthcsos generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "4 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "5 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {

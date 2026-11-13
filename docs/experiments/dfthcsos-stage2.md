@@ -118,6 +118,36 @@ lines and only the `H - 1 - 7` and `L - 1 - 4` products of degree >= 2 take a qu
 line basis before any 8-bit candidate fits in 128 qubits; not yet built. Per-plane cost at lb = 5 would be 58 work
 qubits (J = 7) but plane rank 31, so 16 Toffolis per plane.
 
+## ANF line-basis loader (built, exact, cost-modelled)
+
+`src/dfthcsos_gen/anf.py` keeps the per-plane planner but swaps one-hot lines for monomial lines of the selection
+bits: `m_S`, `S < H` on the high bits and `T < L` on the low bits; the selection qubits are the degree-1 lines, a constant
+qubit is line 0, and each `S` with at least two bits takes one work qubit and one AND (`m_S = m_(S minus top bit) AND
+x_top`), uncomputed by measurement. One-hot forms convert to monomial sets by the Moebius transform. Tests:
+`tests/unit/test_dfthcsos_anf.py` (transform inverse, form values, kickmix load of three table shapes: exact on all
+addresses, selection restored, work clean, no phase flip, static count = kickmix count). At scale (our 8-bit table from the
+failing 11-bit QAT words, 1,408 addresses, `lb = 6`, J = 5) the family of 15 circuits builds in 1 s, uses 125 qubits and
+7,257 Toffolis per pass, and circuits 0, 7 and 14 load exactly on all addresses and shots.
+
+Angle cost per pass by split (same table; `work` includes the constant line):
+
+| bits | lb | work | J | K | Toffolis per pass |
+|---:|---:|---:|---:|---:|---:|
+| 8 | 4 | 92 | 3 | 25 | 6,765 |
+| 8 | 5 | 64 | 6 | 13 | 9,910 |
+| 8 | 6 | 74 | 5 | 15 | 7,257 |
+| 11 | 4 | 92 | 2 | 38 | 9,701 |
+| 11 | 5 | 64 | 4 | 19 | 13,679 |
+| 11 | 6 | 74 | 3 | 25 | 10,473 |
+
+(Unary iteration at 11 bits: about 13,300 per pass with J = 9.) Cost-model predictions for (8,176,56) with our
+`lambda_eff` 62.6 (`dfthcsos_model.score`; `lambda_eff` 46.9 in brackets): 8 bits, `lb = 6`, J = 5: T 23,541,
+Q 430, ratio 5.3 (7.1); the same on a (8,143,44) shape: 5.9 (7.9); 11 bits, `lb = 4`, J = 2: T 26,945, Q 715,
+ratio 2.78 (3.71) against 1.98 for unary at 11 bits. So the loader alone lifts an 11-bit table from 1.98 to about 2.8
+and an 8-bit table to about 5.3 to 5.9, which makes the fit quality (an 11-bit table passing the gates, and 8-bit
+below 0.012 continuous) the only gate to ratio 3 and beyond. These are predictions: no verifier run yet, since no own
+table passes the accuracy gates (QAT of the 0.0168 fit gives 0.0226 at 11 bits).
+
 ## Shared-product loader (built) and a correction to the reading above
 
 `src/dfthcsos_gen/shared.py` builds a circuit for any table of the form `F(h) + G(l) + sum_t v_t alpha_t(h) beta_t(l)`
