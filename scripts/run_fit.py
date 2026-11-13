@@ -42,6 +42,12 @@ def parse(argv: list[str] | None = None) -> argparse.Namespace:
         default="random",
         help="start point (compact: seed.py)",
     )
+    ap.add_argument(
+        "--rank",
+        type=int,
+        default=0,
+        help="truncate the target to this many eigenpairs (fit_fast; 0 = exact)",
+    )
     ap.add_argument("--max-secs", type=float, default=0.0, help="stop (and save) after this wall time")
     return ap.parse_args(argv)
 
@@ -90,12 +96,12 @@ def run(args: argparse.Namespace) -> float:
     import numpy as np
     from scipy.optimize import minimize
 
-    from dfthcsos_gen.fit import Objective
+    from dfthcsos_gen.fit_fast import FastObjective
 
     tsym = np.load(args.tsym)
     n = round((np.sqrt(8 * tsym.shape[0] + 1) - 1) / 2)
     r, b, c = args.shape
-    obj = Objective(tsym, n, (r, b, c))
+    obj = FastObjective(tsym, n, (r, b, c), rank=args.rank or None)
     out: Path = args.out
     out.mkdir(parents=True, exist_ok=True)
     done = 0
