@@ -203,3 +203,20 @@ The tuned angles of the frontier are therefore a margin trick of this size, not 
 and address/flag recycling (needs the frontier-style lookup, lever 3), the deferred-phase adder (worth 2%), and the lookup
 ANDs (7%). Ratio 14 needs levers 1 and 3 together or a different table (narrower coefficients through a co-designed
 quantisation), which the frontier's generic table rules out as the explanation of its width.
+
+## Follow-up 2: lookup synthesis as GF(2) linear algebra (prototype, negative)
+
+Model (ours). With live functions `S` (truth tables over the 256 addresses: the address bits, finished outputs, scratch)
+a new output `T` costs `k` ANDs exactly when `T` lies in `span(S) + sum_{i<=k} u_i * span(S)` for some `u_i` in `span(S)`: given the
+hubs `u_i` this is a linear system (256 equations, `(k+1) |S|` unknowns), so `k` is about `256 / |S| - 1` once the products
+reach every degree. The free reverse-measurement erase works because the AND operands are linear forms of `S` and `S` only
+grows. For the frontier (39 outputs, `|S|` averaging 57) this predicts 3.5 ANDs per output, 137 plus setup, which matches
+its 166. For our table (48 main plus 9 coarse bits) with the 10 spare qubits our lookup stage has, `|S|` starts at 19:
+`sum_j (256 / (19 + j) - 1)` is about 296, worse than unary iteration (254 plus 25). A prototype (rank by Gaussian
+elimination on 256-bit integers, sampled hubs, up to 28 degree-2 monomials of the address bits as scratch, `k` up to 16)
+could not even produce the first output: products of live functions only reach the degree the live set already has
+(address bits give degree 2, scratch monomials degree 4), and a generic 8-bit output has degree 7 to 8, so a nested chain
+of scratch levels is needed before any output is cheap. The frontier solves that with an engineered order and about 10
+scratch qubits; we could not reproduce it, and without it a lookup network needs 30 or more scratch qubits, which more than
+cancels the 100 saved Toffolis (7%). Together with the adder estimate (-2%) the combined design predicts no meaningful
+improvement over 12.34, so nothing was built (ledger E034).
