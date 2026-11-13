@@ -123,3 +123,66 @@ def sparse_seed(
     fh = obj.value_grad(v, 0.5 * w, need_v=False)[0]
     a, bq = np.linalg.solve([[-0.5, 0.0625], [-2.0, 1.0]], [fh - obj.t2, f1 - obj.t2])
     return v, w * np.sqrt(max(a / bq, 1e-12))
+
+
+def leaf_seed(
+    obj: Objective, shape: tuple[int, int, int], seed: int = 0, per_leaf: int = 3, ridge: float = 1e-8
+) -> tuple[np.ndarray, np.ndarray]:
+    """Local start from pivoted-Cholesky leaves of the target (our own, from the FCIDUMP integrals).
+
+    Each leaf is a symmetric matrix on a few orbitals; its ``per_leaf`` leading eigenvectors become the shared
+    vectors, leaves are grouped by balanced k-means on their orbital profile, weights are least-squares
+    coefficients of every leaf on its group. Fills the ``B`` vectors of a group with the leading
+    eigenvectors of its leaves, round robin over leaves, until ``B`` are chosen.
+    """
+    r, b, c = shape
+    n = obj.n
+    rng = np.random.default_rng(seed)
+    nleaf = r * c
+    leaves = pivoted_cholesky(obj.tsym, nleaf)
+    mats = obj.unpack(leaves)
+    prof = np.sqrt((mats**2).sum(2))
+    prof /= np.linalg.norm(prof, axis=1, keepdims=True)
+    lab = balanced_kmeans(prof, r, rng)
+    v = np.zeros((r * b, n))
+    w = np.zeros((r, b, c))
+    for g in range(r):
+        gm = mats[lab == g]
+        evals, evecs = np.linalg.eigh(gm)
+        order = np.argsort(-np.abs(evals), axis=1)
+        picked: list[np.ndarray] = []
+        rank = 0
+        while len(picked) < b:
+            for li in range(gm.shape[0]):
+                if len(picked) < b and rank < n:
+                    picked.append(evecs[li][:, order[li, rank]])
+            rank += 1
+        u = np.array(picked[:b])
+        hg = (u @ u.T) ** 2
+        rhs = np.einsum("bp,lpq,bq->bl", u, gm, u, optimize=True)
+        coef = np.linalg.solve(hg + ridge * np.eye(b), rhs)
+        v[g * b : (g + 1) * b] = u
+        w[g, :, : coef.shape[1]] = coef
+    return v + 1e-4 * rng.normal(size=v.shape), w
+
+
+def centered_seed(
+    obj: Objective, shape: tuple[int, int, int], seed: int = 0, sigma: float = 0.3
+) -> tuple[np.ndarray, np.ndarray]:
+    """Orbital-centered start: vector ``i`` of a group is ``e_p + sigma g``, ``p`` cycling over the orbitals.
+
+    Public frontier tables have vectors dominated by one to three orbitals (median 3 hold 90% of ``u^2``)
+    with a dense small tail that matters for accuracy (docs/experiments/dfthcsos-stage2.md), so the start is a
+    unit axis vector plus a dense Gaussian tail.
+    """
+    r, b, c = shape
+    rng = np.random.default_rng(seed)
+    v = sigma * rng.normal(size=(r * b, obj.n))
+    for g in range(r):
+        orb = rng.permutation(np.arange(b) % obj.n)
+        v[g * b + np.arange(b), orb] += 1.0
+    w = rng.normal(size=(r, b, c))
+    f1 = obj.value_grad(v, w, need_v=False)[0]
+    fh = obj.value_grad(v, 0.5 * w, need_v=False)[0]
+    a, bq = np.linalg.solve([[-0.5, 0.0625], [-2.0, 1.0]], [fh - obj.t2, f1 - obj.t2])
+    return v, w * np.sqrt(max(a / bq, 1e-12))

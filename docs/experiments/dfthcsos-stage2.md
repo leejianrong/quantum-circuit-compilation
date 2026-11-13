@@ -243,6 +243,24 @@ Words and accuracy (`research/scripts`, 54 files, not rerunnable without their i
   (`notebooks/dfthcsos_fit_gpu_a`, `_b`, continuing fit-b and fit) are ready, but the weekly Kaggle GPU quota
   (30 h) is exhausted, so neither is pushed yet.
 
+## The basin question: structure of a frontier solution, structured starts (QCC-16)
+
+Decoded vectors of the Apache-2.0 reference set (aggregate statistics only): the orbitals holding 50% of `u^2` number 1 for
+the median vector (mean 1.6), holding 90% median 3 (mean 4.3), holding 99% median 11 (mean 12.8); the dominant orbital of the
+143 vectors of a group takes 43 to 62 distinct values (spread over the orbitals, at most 13 repeats); 6 of 143 vectors per group
+sit above 0.9 on one orbital; `W` has 18% zeros, per-copy L1 norms 0.5 to 4.1, top singular value of a group `W`
+0.8 to 1.0 against 0.08 for the 44th. The tail matters: with `w` re-fitted, their vectors give `error_2` 0.0198, but keeping only
+the top 1, 2, 3, 5, 8, 12 orbitals of each vector gives 1.93, 1.26, 1.00, 0.81, 0.71, 0.60, so locality is a property of the
+optimum (a dominant orbital plus a dense small tail), not a sparsity pattern to impose.
+
+Starts tried (shape 8,143,44, `rank 800`, equal settings, `error_2` after 600 to 700 L-BFGS iterations): dense random 0.0831;
+random 5-of-20 orbital supports 0.0713; Cholesky-leaf eigenvectors with least-squares weights 0.74 (bad); orbital-centered
+(`e_p + sigma g`, `p` cycling over the orbitals of each group, `seed.centered_seed`) 0.0713 at 600 iterations for
+`sigma = 0.3` (about 0.065 at 700) and 0.081 at 600 for `sigma = 0.1`. At 200 iterations: dense 0.220, sparse 0.162,
+centered 0.140 (`sigma = 0.1`) and 0.148 (`sigma = 0.3`). So a structured start is about 15 to 20% ahead of the dense one at equal
+iterations (roughly 2x in iterations at this stage); whether the advantage persists to the asymptote is what the long kernel
+(`leejianrong/qcc-dfthcsos-cen`, centered `sigma = 0.3`, rank 800, 150k iterations) will show. Not a basin change on its own.
+
 ## Matroid-parity pair planner (built; the cut search is the open problem)
 
 `src/dfthcsos_gen/parity.py` (randomized alternating matrix over GF(2^8), perfect-pairing extraction by contraction;
