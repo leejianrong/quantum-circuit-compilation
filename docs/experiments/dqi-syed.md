@@ -64,3 +64,38 @@ Predicted static cost of a faithful rebuild: the public circuit's own numbers (8
 be beaten: the reverse of extract (97k against 55k forward) and the 24 spare qubits; the realistic first milestone is a verified full-size
 build of the same architecture. That is a multi-week build for one agent; the stage-by-stage plan is: classical in-place extract (n = 35 words),
 quantum extract on `narrow` with `n = 70`, then synthesis, convert, scan, and mirror, each checked against `thiele.py` before the next.
+
+## Classical in-place pass, verified (E041, own code)
+
+`thiele.extract` and `thiele.synthesize` implement steps 3 and 4 on the residues: per node the pair `(n_l, d_l)` (values of `(N, D)` up to
+one scale, started as `(Y_l, 1)`), head `P_i = d_i / n_i` in the node ring `GF(2^12)[z] / (z^2 + z + kappa_i)`, update
+`(n_l, d_l) <- ((d_l + P_i n_l) / (kappa_l + kappa_i), n_l)`. The division by `q_i(alpha_l)` is by the public nonzero constant
+`kappa_l + kappa_i` (in node `l`, `z^2 = z + kappa_l`), so the only data-dependent inverse per step is the one pivot inverse (a norm to
+GF(2^12) and one 12-bit inverse). Synthesis `(N, D) <- (D, q_i N + P_i D)` rebuilds the polynomials exactly; the error values then come from
+`e = N(a) / (a M(a) D'(a))` (`tests/unit/test_dqi_thiele.py`, weights 1, 3, 19, 28, 35 all recover the planted word). Over 600 draws from the DQI
+weight law the pass finds the true weight every time (0 failures; the expected rate is about 35 / 2^24 per shot).
+
+Counts that follow for the quantum pass: step `i` costs `35 - i - 1` node updates (one GF(2^24) product each, rank 99 or 126) plus one pivot
+inverse and the head product: about `35 * 34 / 2 = 595` products. This is the "595 node pairs" of the public circuit's notebook text.
+
+## Step 1 done: our GF(2^24) multiplier of rank 99 (`src/dqi_gen/gfmul24.py`)
+
+Built from the recipe above (degree 6 over GF(16), 11 points, two-level quadratic Karatsuba for each GF(16) product), with the output matrix found
+by solving from random samples. Exact on all 576 basis pairs and 3,000 random pairs; the circuit (`FastMul24.ixor_mul`) costs exactly **99 Toffolis**, uses
+3 ancillas, restores them, and the kickmix simulator shows no phase flips (`tests/unit/test_dqi_gfmul24.py`). Phase against a classical mask,
+`(-1)^{<m, x y>}`, is free for the same reason as in GF(2^12): `<m, x y> = sum_i <m, W_i> (<f_i, x> <f_i, y>)`, a classically controlled CZ per AND term.
+
+## Step 2 (common basis): no new multiplier needed
+
+Nodes are `alpha_i = theta + t_i`, `t_i = 2 i`, `kappa_i = DELTA + t_i^2 + t_i`, so every node ring `GF(2^12)[z]/(z^2 + z + kappa_i)` is the one ring
+`K` with `z = theta + t_i`. A head stored as coefficients `(h0, h1)` (`h0 + h1 z`) has the K-value `(h0 + t_i h1, h1)` at node `i`: one in-place CNOT map. The
+division by `q_i(alpha_l)` is by the public constant `kappa_l + kappa_i`, applied to both halves of a word (a constant GF(2^12) multiply: CNOTs).
+
+## Step 3: what the quantum pass needs (our own analysis, not yet built)
+
+Per node `i` with the earlier heads in place and the carry holding 1: `i` times `d += P_old(alpha_i) n` (one rank-99 product, XOR into the carry), then the
+constant scale, and the roles of `(n, d)` alternate by relabelling (no swap gate). After the loop `(n_i, d_i)` lie on the line `d = h n` with `h` the head. The
+pass must leave `h` in the word and 1 in the carry, with `n_i` (24 bits) erased. That needs the "normalise by `1/n`" move (a consuming product plus
+measurement of the old values) and the corresponding deferred phases in the reverse pass; the phase of an erased inverse needs the norm trick
+(`<m, x^-1> = <m, conj(x) N^-1>`). This is the part where the public design spends its 195-Toffoli deferred inverse, its 264-Toffoli affine phases and the
+extra 43k of the reverse pass; we have the multiplier and all the free phase gadgets, not yet the erase protocol.

@@ -165,3 +165,66 @@ def amplitude(gf: Any, n: Sequence[int], d: Sequence[int], a: int) -> int:
     num = peval(gf, n, a)
     den = int(gf.mul(w, peval(gf, dp, a)))
     return int(gf.mul(num, gf.invert(den)))
+
+
+# ---- residue-level extraction and synthesis (the in-place algorithm, classically) --------------------
+
+Pair = tuple[int, int]
+
+
+def qmul(gf: Any, x: Pair, y: Pair, c: int) -> Pair:
+    """Product in `GF(2^12)[z] / (z^2 + z + c)`; an element is `(r0, r1) = r0 + r1 z`."""
+    a, b = x
+    d, e = y
+    s = int(gf.mul(b, e))
+    return int(gf.mul(a, d)) ^ int(gf.mul(c, s)), int(gf.mul(a, e)) ^ int(gf.mul(b, d)) ^ s
+
+
+def qinv(gf: Any, y: Pair, c: int) -> Pair | None:
+    """Inverse via the norm `a^2 + a b + c b^2`; `None` when the norm is zero."""
+    a, b = y
+    norm = int(gf.mul(a, a)) ^ int(gf.mul(a, b)) ^ int(gf.mul(c, gf.mul(b, b)))
+    if not norm:
+        return None
+    r = int(gf.invert(norm))
+    return int(gf.mul(a ^ b, r)), int(gf.mul(b, r))
+
+
+def extract(gf: Any, res: Sequence[Pair]) -> tuple[list[Pair], int]:
+    """Thiele-type pass on the residues: the heads `P_0 .. P_{w-1}` (each `r0 + r1 z`) and the weight `w`.
+
+    Per node `l` the pair `(n_l, d_l)` holds the values of `(N, D)` up to a common scale, from `(Y_l, 1)`.
+    Step `i`: `P_i = d_i / n_i`; for later nodes `(n_l, d_l) <- ((d_l + P_i n_l) / q_i(alpha_l), n_l)`; node
+    `l` the ring has `z^2 = z + kappa_l`, so `q_i(alpha_l) = kappa_l + kappa_i` is a nonzero constant. Returns
+    `w = -1` when a pivot that should be invertible has zero norm (a failure of the pass).
+    """
+    ks = kappas(gf)
+    n = [(int(r[0]), int(r[1])) for r in res]
+    d: list[Pair] = [(1, 0)] * NODES
+    heads: list[Pair] = []
+    for i in range(NODES):
+        if n[i] == (0, 0):
+            return heads, i
+        inv = qinv(gf, n[i], ks[i])
+        if inv is None:
+            return heads, -1
+        h = qmul(gf, d[i], inv, ks[i])
+        heads.append(h)
+        for lnode in range(i + 1, NODES):
+            c = ks[lnode]
+            pn = qmul(gf, h, n[lnode], c)
+            scale = int(gf.invert(ks[lnode] ^ ks[i]))
+            top = (d[lnode][0] ^ pn[0], d[lnode][1] ^ pn[1])
+            d[lnode] = n[lnode]
+            n[lnode] = (int(gf.mul(top[0], scale)), int(gf.mul(top[1], scale)))
+    return heads, NODES
+
+
+def synthesize(gf: Any, heads: Sequence[Pair]) -> tuple[list[int], list[int]]:
+    """`(N, D)` up to a scalar from the heads: `(N, D) <- (D, q_i N + P_i D)`, last head first."""
+    ks = kappas(gf)
+    n: list[int] = []
+    d: list[int] = [1]
+    for i in reversed(range(len(heads))):
+        n, d = d, padd(pmul(gf, [ks[i], 1, 1], n), pmul(gf, trim(list(heads[i])), d))
+    return n, d
