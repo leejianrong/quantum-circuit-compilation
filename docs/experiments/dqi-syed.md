@@ -120,3 +120,7 @@ ratio 36.4 against 2.4439e13 (verified; the Gu port is 13.4). Build 97 s, verify
 (11 Toffolis per position, no gauge), wired in `src/dqi_gen/fixed.py`. Narrow (n = 70, 71 positions), 2,048
 shots, official verifier: PASS, 903 qubits, 345,875 Toffolis, no value or phase errors. Static estimate at
 full size: about 390k Toffolis at 903 qubits, a ratio of about 65.
+
+Seeding the synthesis from the carry word (gauge chart bit, scalar seed, rolling-tail seam, as in the reference
+pipeline) removes the extra word: narrow official verifier PASS at 2,048 shots with 890 qubits and 346,192
+Toffolis (was 903 and 345,875). Static full-size estimate about 390.5k Toffolis, ratio about 66.
