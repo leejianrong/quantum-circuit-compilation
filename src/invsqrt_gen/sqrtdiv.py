@@ -92,3 +92,70 @@ def worst_error_bits(n: Int, table: DTable) -> float:
     """`log2` of the largest relative error after removing the mean bias (one free constant)."""
     e = relative_error(n, table)
     return math.log2(float(np.abs(e - 0.5 * (e.max() + e.min())).max()))
+
+
+@dataclass(frozen=True)
+class SdTables:
+    """Integer pipeline of the circuit: `D = D0[a] - sum_i u_i (E[a] >> (6 - i))` (units 2^-fd), the product
+    `P` of `D (4 t + 3) / 4` in rows of shifted `D` (units 2^-fp), and the quotient digits."""
+
+    fd: int
+    fp: int
+    d0: NDArray[np.int64]
+    e: NDArray[np.int64]
+
+
+def fit_sd(fd: int = 40, fp: int = 29) -> SdTables:
+    """Per row: the pair `(D0, E)` whose floored refinement is closest to `D(R)` (max error over the row)."""
+    sc = 2.0**fd
+    d0 = np.zeros(128, dtype=np.int64)
+    e = np.zeros(128, dtype=np.int64)
+    u = np.arange(32)
+    for row in range(128):
+        dr = true_d(4096 + (row << 5) + u) * sc
+        e0 = int(round(-(dr[-1] - dr[0]) / 31 * 64))
+        best: tuple[float, int, int] | None = None
+        for ee in range(max(0, e0 - 10), e0 + 11):
+            sub = np.array([sum(((uu >> i) & 1) * (ee >> (6 - i)) for i in range(5)) for uu in range(32)])
+            c = int(round(float((dr + sub).mean())))
+            for dd in (c - 1, c, c + 1):
+                err = float(np.abs(dd - sub - dr).max())
+                if best is None or err < best[0]:
+                    best = (err, dd, ee)
+        assert best is not None
+        d0[row], e[row] = best[1], best[2]
+    return SdTables(fd, fp, d0, e)
+
+
+def d_int(tab: SdTables, v: Int) -> Int:
+    a, u = v >> 5, v & 31
+    return np.asarray(
+        tab.d0[a] - sum(((u >> i) & 1) * (tab.e[a] >> (6 - i)) for i in range(5)), dtype=np.int64
+    )
+
+
+def p_int(tab: SdTables, t: Int, dd: Int) -> Int:
+    """`floor`-row product of `D` and `t + 3/4` in units `2^-fp`; `t` signed (14 bits)."""
+    sh = tab.fd - tab.fp
+    tu = t & ((1 << 14) - 1)
+    p = np.zeros_like(t)
+    for i in range(13):
+        p += ((tu >> i) & 1) * ((dd >> (sh - i)) if i <= sh else (dd << (i - sh)))
+    p -= ((tu >> 13) & 1) * (dd << (13 - sh))
+    p += (dd >> (sh + 1)) + (dd >> (sh + 2))
+    return p
+
+
+def divide(tab: SdTables, r: Int, p: Int, digits: int) -> tuple[NDArray[np.float64], list[Int]]:
+    """Non-restoring division of `X = 1 - P` by `s = (2R + 1) / 2^13`: `(sum q_j 2^-j, [q_j])`."""
+    d = 2 * r + 1
+    rem = ((1 << tab.fp) - p) * (1 << 13)
+    s = d * (1 << tab.fp)
+    total = np.zeros(len(r), dtype=np.float64)
+    qs: list[Int] = []
+    for j in range(1, digits + 1):
+        q = np.where(rem >= 0, 1, -1).astype(np.int64)
+        total += q * 2.0**-j
+        qs.append(q)
+        rem = 2 * rem - q * s
+    return total, qs
