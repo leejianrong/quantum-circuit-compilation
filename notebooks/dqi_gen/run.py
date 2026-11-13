@@ -40,7 +40,7 @@ JOBS = [
             "dqi",
             "{out}/fixed.kmb",
             "--salts",
-            "5",
+            "10",
             "--salt-start",
             "0",
             "--data",
