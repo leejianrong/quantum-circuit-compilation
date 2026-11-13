@@ -220,3 +220,38 @@ of scratch levels is needed before any output is cheap. The frontier solves that
 scratch qubits; we could not reproduce it, and without it a lookup network needs 30 or more scratch qubits, which more than
 cancels the 100 saved Toffolis (7%). Together with the adder estimate (-2%) the combined design predicts no meaningful
 improvement over 12.34, so nothing was built (ledger E034).
+
+## Follow-up 3: how wide is the frontier's table, and why (QCC-13)
+
+Method: simulate to instruction 12,300 (table loaded, coarse phase done, arithmetic not started), flip one table qubit
+(an `X`), simulate to the end of the fine phase and read the fine word, on 640 inputs (two leading-zero counts, 8
+segments, 40 remainders each); then fit the change as a polynomial in the remainder per segment. Plus quadratic
+fits of the fine word per segment on 256 addresses x 4 remainders and on 6 segments x 200 remainders. Read-only; no value
+was copied.
+
+* **What a flipped table qubit does.** 16 qubits change the fine word by exactly one power of two between `2^-20` and `2^-26`
+  (four at `2^-25`, two at `2^-24`, `2^-23`, `2^-22`, `2^-21`): low bits of the constant term and of the slope term (the
+  slope bits change the word by `2^-k` times the centred remainder, so their largest effect is half the weight). About 25
+  qubits change it by about `2^-7.2`, the size of the whole fine word: the high bits and the carry or sign
+  qubits of the polynomial registers. Qubits at `2^-15` to `2^-19` (about 8) are the middle bits. The lowest slope bit
+  has weight about `2^-24` to `2^-25` against a slope of about `2^-8.6`, so the slope is stored with about 16 fractional
+  bits against our 18 plus an extension qubit.
+* **Budget accounting.** The frontier holds about 40 address-dependent qubits at that moment (36 table plus the four address
+  qubits that stay), where we hold `21 + 18 + 8` table qubits plus 8 address plus 5 flags (about 60). The difference
+  of about 20 is: guard bits of `V_0` (frontier 19 data bits against our 21), slope two bits narrower, curvature one
+  bit narrower (about 7 qubits), and the address and flag registers that we keep separate and the frontier does not
+  (about 13). The span of the 36 table columns is 37, no larger than their number, so there is no free linear
+  redundancy to exploit.
+* **What did not work.** The slope and curvature fits are limited by the word's own truncation noise (`2^-25`), so a
+  grid test ("is `c_1 2^k` an integer") was inconclusive; the finite differences of the fitted slope across segments are
+  below the noise from the third difference on (`2^-20.8`; the true third difference of `c_1` is about `2^-26`), so a slope
+  predicted from neighbouring segments is possible in principle but needs several table reads.
+* **Why our fit cannot copy the width.** Our minimax fits fail at 28,18,x (`2^-23.8`), 28,19,8 only passes with tuned
+  angles at a margin that costs the saving back (follow-up 1, lever 4): with plain uniform segments, our quantisation
+  needs the widths we have. The frontier reaches 16-bit slopes through error tuned jointly over the three coefficients
+  and the angles (its error is `2^-24.4` at the optimum, ours `2^-24.16`), which our per-segment polish does not do
+  (it searches `+-2` ulps of `c_1` and `c_2` only). That joint search over a wider lattice, with `angles.py` in the loop, is
+  the part of the table work still open.
+* **Where the qubits are.** Of the 20, the 13 for the address and flag registers need the in-place lookup (follow-up 2),
+  the 7 for width need the joint search above. Neither is available to us now, so no narrow-table circuit was
+  built or predicted; ratio stays 12.34 (ledger E035).
