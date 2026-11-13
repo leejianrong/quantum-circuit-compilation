@@ -23,6 +23,8 @@ Board: Pandan `QCC`, id 46 (use the `pandan` skill; `pandan board use 46`). Trus
 
 ## Rules that are easy to get wrong
 - The official verifier is the oracle. Reduced-shot runs (`--shots-divisor`) are screening only and never gate promotion.
+- `bench verify --engine kickmix-engine` (third-party Rust verifier built from audited source, `docs/MEASUREMENT.md`) is
+  screening only: rows are `kind=screen` with an `engine` tag and never count for promotion. The official verifier gates.
 - Submit only what is in `best/`, verified at several salts with zero failures. A salt-dependent failure rejects everything.
 - `Circuit.to_file(path)` writes text unless `format='kmb'`; a text file named `.kmb` is rejected silently.
 - The ledger is append-only: never rewrite old lines. `toffolis` there is a static count, not the official cost.

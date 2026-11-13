@@ -40,6 +40,7 @@ class Row:
     stage_shares: dict[str, float] | None = None
     salt_costs: list[float] | None = None
     leaderboard_score: float | None = None
+    engine: str | None = None  # screening engine and commit (kickmix-engine@sha); never evidence
 
     def __post_init__(self) -> None:
         self.host = self.host or socket.gethostname()

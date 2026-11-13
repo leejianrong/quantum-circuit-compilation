@@ -38,7 +38,11 @@ def evidence(rows: list[ledger.Row], bench: str, sha: str) -> list[ledger.Row]:
     return [
         r
         for r in rows
-        if r.bench == bench and r.circuit_sha256 == sha and not r.reduced_shots and r.kind not in NOT_EVIDENCE
+        if r.bench == bench
+        and r.circuit_sha256 == sha
+        and not r.reduced_shots
+        and r.kind not in NOT_EVIDENCE
+        and not r.engine
     ]
 
 
