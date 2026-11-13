@@ -190,3 +190,27 @@ shots. Carries alive: 2 forward; `max(s, m - s)` in the mirror with a split `s` 
 unary-iteration lookup needs 91. Moving the coarse phase after the main table is cleared would remove that peak but keeps
 the nine coarse-word qubits alive through the Horner stage (83 plus carries), so the best case is about 90 (about -3%). The
 gadget is the enabler for the new architecture, where every add is a deferred add and the live set is 46 to 50.
+
+## First verifying full circuit (V0, QCC-13)
+
+Built from our own code: `rec.py` (recorder with automatic inverse), `sqrtdiv_stages.py` (even normalisation, in-place root,
+`R -> t`, table lookup, coefficient refinement, product, numerator window, consuming division rows),
+`sqrtdiv_circuit.py` (forward program, phase section by the existing barrel, mirror). Numbers: integer model in
+`sqrtdiv.py` (`fit_sd(40, 29)`: `D0` 15 bits at 2^-40, `E` 10 bits, `P` at 2^-29 in 17 bits, 27 quotient digits).
+
+| | value |
+|---|---|
+| exact integer model error (27 digits) | 2^-24.99 |
+| simulated phase error on 108 inputs (restored `x`, clean scratch) | 2^-25.52 relative |
+| qubits / static Toffolis | 134 / 2,618 |
+| official verifier, 1/20 of the shots, 1 salt | PASS, cost 397,977.6 (ratio 5.2) |
+
+Forward Toffolis by stage (the mirror costs the same again): normalise 84, root 102 plus 14 for `R -> t`, lookup 126, coefficient 100,
+product 397, numerator 42, division 364 = 1,229; phase barrel about 160. Peak live qubits by stage: normalise 41, root 46,
+lookup 58, coefficient 79, product 105, numerator and division 134 (everything alive: `P` 17, window 31, `D` 15, `E` 10, `t` 14,
+`Q` 13, flags 4, digits 26 and carries).
+
+Roadmap to the reference's profile (in order of expected effect on cost = qubits x charge): (1) consume `P` into the division
+window and `t`, `D`, `E` out of the live set (measure `D`, `E` away after the product, reload for the undo): peak 134 to about 75;
+(2) consuming odd-`D` multiplier in place of the 397-Toffoli product; (3) deferred-phase adders everywhere (`defadd.py`): carries
+19 to 2; (4) one-wire endpoint instead of the barrel; (5) tighter table and digit count.
