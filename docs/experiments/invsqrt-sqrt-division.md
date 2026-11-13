@@ -79,3 +79,29 @@ reloading the table, retiring history digits and releasing carries early is wort
 
 Model and tests in the repo (`sqrtdiv.py`, `tests/unit/test_invsqrt_sqrtdiv.py`). Circuit stages are next: normalise and
 root first, each verified against the model in the kickmix simulator before the next is added.
+
+## Follow-up: what the reference's lifecycle looks like, and why a plain build does not pay (QCC-13)
+
+Measured by running the 46-qubit circuit (kickmix simulator, 1,500 inputs, stage boundaries from the walkthrough):
+
+* **Live width over the stages** (qubits holding a non-zero value for some input): 26 after the root, 42 after the first
+  table load, 44 during the product, 31 right after the coefficient wires are measured away (op 6,720), 40 at the end of the
+  divider (op 9,877), 42 at 10,668, 31 at 17,306 (after the divider clean-up), 45 at 26,132.
+* **The phase endpoint rotates plain binary bits of `Y`.** For inputs with k = 5, the working wire at each of the 38
+  `Z_POW` equals bit `e + k - 10` of `Y = 1/sqrt(n/2^20)` (or its recomputation for the low bits) for the bits that can be
+  compared exactly (bits 1 to 16); the rotations come in two interleaved streams (angles 2^-4 up to 2^-17 and 2^-18 down to
+  2^-31), so the quotient is a binary word of about 28 positions, not a signed-digit history. The wires carrying those bits
+  include the former `h` wires q0 to q9 and the former root wires.
+* **`h` is consumed in place.** During the product stage the wires q0 to q9 stop holding `h` (0.1% agreement at op 6,707)
+  and part of the root wires change too (48% agreement): the product accumulates into rewritten `h` and root wires,
+  and only 6 extra wires remain after the coefficient is measured away. So the reference never holds `v`, `h`, `P`, a
+  remainder and 24 quotient wires side by side.
+* **What a plain build costs.** With `h`, `P`, the remainder (15), 26 quotient bits, `v` (13), flags (4) and carries alive
+  at once, our first-cut layout peaks near 86 qubits (the root stage alone is 42). At about 2,000 Toffolis plus 250 for
+  rotations that is 86 x 2,250 = 193k, worse than E023 (168,237). The saving of the reference is therefore the in-place
+  lifecycle of the product and divider (which wires are reused for what, and when), not the arithmetic count.
+
+Consequence for the plan: the stages after the root should be built in the reference's lifecycle order, so the
+next step is to decode that lifecycle (which registers the product, coefficient and divider rows read and write, by
+tracking dependence of each wire on `v`, `h` and the table words across op ranges), not to build a wide first version. The
+root stage (done, 102 Toffolis, 42 qubits) is common to both.
