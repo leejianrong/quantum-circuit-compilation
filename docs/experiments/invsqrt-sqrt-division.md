@@ -26,7 +26,7 @@ input qubits plus 4 shift flags) is about 20 qubits instead of 70.
    low 10, exactly, on all 1,500 inputs. Write `t = 16 n - R^2 - R - 1`; `t` lies in `[-R-1, R)`, its low four bits are a function of
    `R mod 16`, so `(v, h)` is a bijective image of `n` (22 bits in, 22 bits out: the root consumes the radicand
    digit pair by digit pair, so the register never grows). A non-restoring digit recurrence costs about
-   `sum_j (j + 2)` for 12 digits, 96 Toffolis forward, the same again to undo (*measured*: 96 and 96).
+   `sum_j (j + 2)` for 12 digits, 96 Toffolis forward, the same again to undo (stage Toffolis reported by the walkthrough: 96 and 96).
 3. **First-order correction.** With the centred root `s = (2R + 1) / 2^13` we have `N = s^2 + (t + 3/4) / 2^24`, so
    `1 / sqrt(N) = (1 - eta/2 + 3 eta^2 / 8 - ...) / s` with `eta = (t + 3/4) / (2^24 s^2)`, `|eta| <= 2^-12`. Keeping only
    `P = D (t + 3/4)` with `D = 1 / (2 s^2 2^24)` leaves a relative error of 2^-25.42 over all 2,350,089 reachable
@@ -36,10 +36,10 @@ input qubits plus 4 shift flags) is about 20 qubits instead of 70.
    rows) and `u` the low 5 bits (a five-row add, the "coefficient" stage). With `D0` at `2^-38` and `D1` at `2^-44`
    the end-to-end error (exact product and division) is 2^-25.0 (centred 2^-25.4); `D0` at `2^-36` already fails
    (2^-23.9). An 8-bit address does not help (2^-25.0). The product `P = D (t + 3/4)` is a 17 x 15 bit multiplier but only
-   the top 14 bits of `P` (`P < 2^-12`, resolution `2^-26`) matter, which is why the measured product costs 103
+   the top 14 bits of `P` (`P < 2^-12`, resolution `2^-26`) matter, which is why the reference product is reported at 103
    Toffolis, not 250. The four low bits of `t` are a tiny table of `R mod 16` (the "metadata" wires).
 5. **Division.** `Y = (1 - P) 2^13 / (2R + 1)`, quotient in `(1/2, 1]`. A non-restoring division, 24 rows, one
-   add-or-subtract of the 14-bit divisor per row (about 11 Toffolis per row, *measured* 270 forward), gives signed
+   add-or-subtract of the 14-bit divisor per row (about 11 Toffolis per row; the walkthrough reports 270 forward), gives signed
    quotient digits `d_j = +-1`; the digit is the sign of the running remainder, so it costs nothing to produce.
 6. **Phase.** `Y = sum_j d_j 2^-j` plus constants; the rotations act on the digit qubits (angle `2^(k-10-j)` for
    digit `j`). `k` changes which digit meets which angle: the circuit routes digits to one working qubit with
@@ -49,7 +49,7 @@ input qubits plus 4 shift flags) is about 20 qubits instead of 70.
    table clean-up by measurement with a Clifford phase repair (about 6 Toffolis in the repaired block), root back
    (96), normalisation back (43). The table is loaded twice (first load 56 Toffolis, second 70) instead of held.
 
-## Where the 46 qubits come from (measured)
+## Where the 46 qubits come from (walkthrough, widths checked by our own liveness count)
 
 Body 26 (`v` 12, `h` 10, flags 4). The first table load peaks at 46 with 20 working wires (13 coefficient and 3
 metadata bits are alive at its end). The coefficient wires are measured away (width 45 to 33) before the divider,
@@ -70,8 +70,8 @@ largest used `2^(k-11)` down to the 2^-35 turn level.
 ## Cost expectation for a first build
 
 Forward Toffolis: normalise 51, root 96, table 126 (unary iteration over 128 rows, our existing lookup),
-coefficient 40, product 100 plus the `R mod 16` term 40, division 270, phase 100. Mirror about the same (measured
-reference 775 undo against 736 forward). Estimated 1,700 to 1,900 Toffolis plus 230 for rotations, at 65 to 75 qubits
+coefficient 40, product 100 plus the `R mod 16` term 40, division 270, phase 100. Mirror about the same (reference, as reported:
+775 undo against 736 forward). Estimated 1,700 to 1,900 Toffolis plus 230 for rotations, at 65 to 75 qubits
 (table held, not reloaded; all digits kept): 65 x 2,100 = 137k (ratio 15) against 168k today. Each qubit shaved by
 reloading the table, retiring history digits and releasing carries early is worth about 38 Toffolis at the end state.
 
