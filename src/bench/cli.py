@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import experiments, ledger, outside, pack, plots, promote, remote, stats, sweep
+from bench import engine, experiments, ledger, outside, pack, plots, promote, remote, stats, sweep
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -81,6 +81,7 @@ def run(
     parent_sha: str | None = None,
     kind: str | None = None,
     salt_start: int = 0,
+    engine: str | None = None,
 ) -> ledger.Row:
     """Verify under `salts` salts. Any exception (e.g. a corrupted circuit) is a FAIL row."""
     start = time.monotonic()
@@ -120,6 +121,7 @@ def run(
         parent_sha=parent_sha,
         kind=kind or ("screen" if divisor > 1 else "full"),
         salt_costs=list(costs),
+        engine=engine,
         **structure,
     )
 
@@ -160,6 +162,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=pathlib.Path(os.environ.get("QCC_DATA", "data")),
         help="competition data dir holding kickmix/ and verifiers/ (default $QCC_DATA or ./data)",
     )
+    v.add_argument(
+        "--engine",
+        choices=(engine.NAME,),
+        help="screening only: run the third-party engine, not the official verifier (docs/MEASUREMENT.md)",
+    )
     v.add_argument("--experiment", help="experiment id this run belongs to")
     v.add_argument("--parent", help="sha256 of the circuit this one was derived from")
     v.add_argument("--kind", choices=("screen", "full"), help="default: screen if reduced shots, else full")
@@ -193,17 +200,30 @@ def main(argv: Sequence[str] | None = None) -> int:
     if a.experiment and a.experiment not in experiments.read(a.experiments):
         print(f"error: unknown experiment {a.experiment} (create it with `bench exp new`)")
         return 2
+    engine_tag = None
+    if a.engine:
+        if a.shots_divisor != 1 or a.kind == "full":
+            print("error: --engine runs full shots and is screening only; it cannot be kind=full")
+            return 2
+        try:
+            engine_tag = engine.tag(engine.settings()[1])
+        except RuntimeError as err:
+            print(f"error: {err}")
+            return 2
     row = run(
         a.bench,
         a.circuit,
         a.salts,
         a.shots_divisor,
-        lambda: make_runner(a.bench, a.circuit, a.data, a.shots_divisor),
+        (lambda: engine.make_runner(a.bench, a.circuit, a.data, threads=os.cpu_count()))
+        if engine_tag
+        else (lambda: make_runner(a.bench, a.circuit, a.data, a.shots_divisor)),
         stats_fn=lambda: stats.path_stats(a.circuit),
         experiment=a.experiment,
         parent_sha=a.parent,
-        kind=a.kind,
+        kind="screen" if engine_tag else a.kind,
         salt_start=a.salt_start,
+        engine=engine_tag,
     )
     ledger.append(row, a.ledger)
     print(

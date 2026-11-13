@@ -47,6 +47,38 @@ other heavy runs. One ledger row per point (screen rows when `--shots-divisor` >
 Rank by the worst salt and confirm the winner at full shots before promoting. Background:
 [research/workflows.md](research/workflows.md).
 
+## Screening with kickmix-engine (opt-in, never a gate)
+
+`bench verify <bench> <circuit> --engine kickmix-engine` runs the third-party Rust engine
+([audit](research/kickmix-engine-audit.md), [parity record](research/kickmix-engine-parity.md)) in place of the
+official verifier. It is for screening only: the official verifier stays the oracle and the only gate (ADR-0001).
+The row is always `kind=screen` with `engine=kickmix-engine@<commit>`; `bench promote` ignores any row with an
+`engine` tag, and `--kind full` or `--shots-divisor` with `--engine` is refused. It runs at full shot counts.
+
+Build it yourself from the audited commit (never a prebuilt wheel), outside this repository:
+
+```
+git clone https://github.com/manwithacat/kickmix-engine ~/qcc-tools/kickmix-engine-src
+git -C ~/qcc-tools/kickmix-engine-src checkout 166b61d2e0a7404ace8acf62a6f269105e6b97f1
+cd ~/qcc-tools/kickmix-engine-src && CARGO_TARGET_DIR=~/qcc-tools/build-target cargo build --release --locked
+mkdir -p ~/qcc-tools/stage && cp -r python/kickmix_engine ~/qcc-tools/stage/
+cp ~/qcc-tools/build-target/release/lib_engine.so ~/qcc-tools/stage/kickmix_engine/_engine.abi3.so
+```
+
+The engine is a Python package with a compiled core, so `QCC_KICKMIX_ENGINE` points at a small launcher you write
+(`<launcher> verify <bench> <circuit> --salt S --threads N`), for example:
+
+```
+#!/bin/bash
+exec /path/to/repo/.venv/bin/python -I -c "import sys; sys.path.insert(0, '$HOME/qcc-tools/stage'); \
+from kickmix_engine.cli import main; sys.exit(main())" "$@"
+```
+
+Then `export QCC_KICKMIX_ENGINE=<launcher> QCC_KICKMIX_ENGINE_SHA=166b61d2e0a7...`. The child process gets an
+allowlisted environment (no tokens) and `KICKMIX_ENGINE_VERIFIERS=$QCC_DATA/verifiers`. Use the pip kickmix from
+`uv sync`, never `data/kickmix`. Run it under `flock /tmp/qcc-heavy.lock` like any heavy verify. Before trusting a new
+engine commit, re-run the cross-check in the parity record on it.
+
 ## Ledger v2
 
 Append-only JSONL. Old rows stay valid. Fields added to schema 1:
@@ -62,6 +94,7 @@ Append-only JSONL. Old rows stay valid. Fields added to schema 1:
 | `stage_shares` | cost share per `mark` block, where the circuit has marks |
 | `salt_costs` | cost per salt, in salt order (schema 1 already has `costs`) |
 | `leaderboard_score` | set on `kind=leaderboard` rows |
+| `engine` | `kickmix-engine@<commit>` on rows made with `--engine`; such rows are never evidence |
 
 `ledger/experiments.jsonl` holds the experiment records (id, hypothesis, benchmark, parent, outcome).
 
