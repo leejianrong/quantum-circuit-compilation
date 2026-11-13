@@ -60,6 +60,17 @@ def test_pm1_rows_equal_model(p: Params) -> None:
     assert c.num_qubits < build_centered(CENTERED, fit_tables(CENTERED, passes=1, stride=211)).num_qubits
 
 
+def test_free_savings_keep_the_model_and_shrink_the_circuit() -> None:
+    """Lent leading-one qubit, trimmed registers and windows cut qubits and Toffolis, not correctness."""
+    t = fit_tables(PM1R, passes=1, stride=211)
+    lean = build_centered(PM1R, t)
+    plain = build_centered(PM1R, t, spare_leading_one=False, trim_windows=False)
+    _check(PM1R, t, lean)
+    _check(PM1R, t, plain)
+    assert lean.num_qubits < plain.num_qubits
+    assert lean.operation_statistics().num_toffoli_like < plain.operation_statistics().num_toffoli_like
+
+
 def test_centered_remainder_saves_a_row() -> None:
     plain = Params(a=3, frac=(22, 15, 9), guard=2)
     from invsqrt_gen.model import digit_plan

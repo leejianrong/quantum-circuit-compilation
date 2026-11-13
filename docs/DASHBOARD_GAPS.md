@@ -11,6 +11,12 @@ Paths are in that repo. `components.py` means `src/indah/components.py`, and `Ch
 `frontend/src/Chart.svelte`. Line numbers were read on 2026-11-12. Indah's `AGENTS.md` says to trust
 the code over its docs, so every row below comes from the code, not the website pages.
 
+**Status, 2026-11-13.** indah PR 328 and 329 closed G1 (step series), G2 (log axes), G3 (vertical
+rules, bands, markers), G8 (`chart_rows`) and G13 (slider readout, marks, log scale, commit on
+release); the dashboard now uses them and pins indah to a commit (`[tool.uv.sources]` in
+`pyproject.toml`). Still open: G4 (time and category x axes), G5 (hover and click events), G6 (stacked
+bars), G7 (box plots), G9 (flame chart), G10 (graph arrows), G11 (sparklines), G12 (delta colour).
+
 ## What indah already does well
 
 This is a long list, and it is why the gap list is short.

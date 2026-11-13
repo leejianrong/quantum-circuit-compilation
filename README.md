@@ -37,7 +37,17 @@ experiment log and where each circuit came from.
 
 ![Dashboard: scoreboard](docs/img/dashboard-scoreboard.png)
 
+![Dashboard: cost explorer for the dfthcsos cost model](docs/img/dashboard-cost.png)
+
+![Dashboard: circuit anatomy](docs/img/dashboard-anatomy.png)
+
+![Dashboard: verifier theatre, one tick per salt](docs/img/dashboard-theatre.png)
+
 ![Dashboard: lineage of public circuits and our generators](docs/img/dashboard-lineage.png)
+
+To refresh every image above from the current ledger, run `make plots-readme` (needs
+`uv sync --extra plots --extra dashboard --extra shots` and once `uv run playwright install chromium`; it
+verifies nothing and takes a few seconds), then commit `docs/img/`.
 
 ## Quick start
 

@@ -16,6 +16,7 @@ bench = "bench.cli:main"
 
 [project.optional-dependencies]
 plots = ["matplotlib>=3.8"]
+shots = ["playwright==1.62.0"]  # dashboard screenshots for `make plots-readme`; needs `playwright install chromium`
 dashboard = ["indah[plot]>=0.13.0"]
 
 # Where indah comes from. Chart step series, log scales, rules/bands/markers and Slider readout/marks

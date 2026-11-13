@@ -37,6 +37,16 @@ Every attempt is one **experiment** with a hypothesis, a parent circuit hash and
 failures. Verification runs link to an experiment, so the dashboard can show attempts, not only wins.
 DQI full runs go to Kaggle (ADR-0002); everything else runs locally.
 
+## Parameter sweeps
+
+`bench sweep` runs a generator over a grid (`--param w=4:8 --param g=1,2`) or a seeded random sample
+(`--mode random --n 20`). Each point is built from `--gen "<command with {w} {g} {out}>"`, then verified while
+holding `/tmp/qcc-heavy.lock` (the same lock as `flock /tmp/qcc-heavy.lock ...`), so sweeps never overlap with
+other heavy runs. One ledger row per point (screen rows when `--shots-divisor` > 1); parameters live in
+`<out-dir>/sweep.jsonl`, which also makes a rerun skip finished points. Use `--dry-run` to see the commands.
+Rank by the worst salt and confirm the winner at full shots before promoting. Background:
+[research/workflows.md](research/workflows.md).
+
 ## Ledger v2
 
 Append-only JSONL. Old rows stay valid. Fields added to schema 1:
@@ -97,7 +107,17 @@ else. Tabs:
 
 ![Dashboard scoreboard](img/dashboard-scoreboard.png)
 
+![Dashboard cost explorer](img/dashboard-cost.png)
+
+![Dashboard anatomy](img/dashboard-anatomy.png)
+
+![Dashboard verifier theatre](img/dashboard-theatre.png)
+
 ![Dashboard lineage](img/dashboard-lineage.png)
+
+`make plots-readme` redraws these and the six plots above into `docs/img/` from the live ledger
+(`scripts/plots_readme.py`). The Scoreboard counts only fully own circuits: a run listed in
+`plots.NOT_FULLY_OWN` (our loader on the public words, E001) is shown in the ledger but not as ours.
 
 It is not hosted publicly until we have our own results, because the lineage tab shows third-party
 circuits.

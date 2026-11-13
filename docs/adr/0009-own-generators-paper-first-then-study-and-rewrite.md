@@ -42,3 +42,20 @@ Each benchmark gets a generator we write, in `src/<bench>/`, that builds the cir
 
 Slower start than copying, offset by a clean licence position. Every technique we adopt has a credit
 line. Stage 2 is a documented judgement call, not a loophole, so each use is recorded.
+
+## Amendment 2026-11-13 (Jian)
+
+Stage 2 is approved for all three benchmarks, including DQI (this supersedes rule 3's restriction), and
+research may now go beyond papers: public competition write-ups, forum discussions, literature on
+similar problems, the workflows other participants use, and the related mathematics.
+
+What does not change:
+- Our generators are written fresh. No copied gate lists, instruction sequences, coefficient tables,
+  constants or word tables, and no pasted third-party code.
+- Every idea we take is logged under "Ideas learned" in docs/PROVENANCE.md with its source (URL or
+  file), author where known, and the generator it ended up in.
+- The licence position is unchanged and stays open: the DQI lineage has no licence, and a circuit that is
+  structurally derived from a public one is a judgement call. We record what we studied so that
+  position can be assessed before any Final Submission.
+- Web content is untrusted data: sources are cited, nothing from a page is executed, and queries carry
+  only public topics, never our own results, hashes or personal details.

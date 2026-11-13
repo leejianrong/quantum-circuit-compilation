@@ -64,9 +64,20 @@ def verified(rows: list[ledger.Row]) -> list[ledger.Row]:
 THIRD_PARTY = ("public/", "public:", "data/", "/kaggle/input/")
 
 
+# Runs of our generators that load third-party data, so they do not count as fully our own circuit.
+NOT_FULLY_OWN = {
+    "997264adf89b3d54edde3bcd836aa0fe5b1bd42022c3b21e9c0994d8b0fe0d9a": "E001, our loader on public words",
+}
+
+
 def is_own(r: ledger.Row) -> bool:
-    """A run of a circuit we generated, not a public circuit or the host's baseline."""
-    return not r.circuit.startswith(THIRD_PARTY) and "/public/" not in r.circuit
+    """A run of a circuit we generated, not a public circuit, the host's baseline or our loader on
+    someone else's table (`NOT_FULLY_OWN`)."""
+    return (
+        not r.circuit.startswith(THIRD_PARTY)
+        and "/public/" not in r.circuit
+        and r.circuit_sha256 not in NOT_FULLY_OWN
+    )
 
 
 def own_runs(rows: list[ledger.Row]) -> list[ledger.Row]:

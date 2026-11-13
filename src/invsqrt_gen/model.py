@@ -92,7 +92,13 @@ def horner(p: Params, coef: list[Int], r: Int, check: bool = True) -> Int:
 
 
 def _horner_pm1(p: Params, coef: list[Int], r: Int, check: bool) -> Int:
+    return horner_pm1_levels(p, coef, r, check)[0]
+
+
+def horner_pm1_levels(p: Params, coef: list[Int], r: Int, check: bool = True) -> list[Int]:
+    """`[V_0, V_1, .. V_d]` of the signed-digit Horner chain (`V_d` is the table value)."""
     v = coef[p.degree]
+    out = [v]
     for j in range(p.degree - 1, -1, -1):
         acc = np.zeros_like(r)
         for i, sh in pm1_rows(p, j):
@@ -105,7 +111,8 @@ def _horner_pm1(p: Params, coef: list[Int], r: Int, check: bool) -> Int:
         v = coef[j] - acc
         if check and ((v < 0).any() or (v >= (1 << p.frac[j])).any()):
             raise OverflowError(f"V_{j} leaves [0, 2^{p.frac[j]})")
-    return v
+        out.insert(0, v)
+    return out
 
 
 def normalised_inputs() -> tuple[Int, Int]:
@@ -168,7 +175,12 @@ def rel_error(p: Params, t: Tables) -> tuple[float, NDArray[np.float64]]:
 
 
 def fit_tables(
-    p: Params, passes: int = 3, stride: int = 1, polish: bool = False, reachable: bool = False
+    p: Params,
+    passes: int = 3,
+    stride: int = 1,
+    polish: bool = False,
+    reachable: bool = False,
+    radius: int = 1,
 ) -> Tables:
     """Quantised coefficients per segment, refined against the exact truncated model.
 
@@ -217,7 +229,7 @@ def fit_tables(
                 best = np.where(better, e, best)
         _recentre(p, coef, r_all, exact, valid=valid_s)
     if polish:
-        _polish(p, coef, exact_full(p), valid)
+        _polish(p, coef, exact_full(p), valid, radius)
     return Tables(p, coef)
 
 
@@ -230,18 +242,22 @@ def exact_full(p: Params) -> NDArray[np.float64]:
 
 
 def _polish(
-    p: Params, coef: list[Int], exact: NDArray[np.float64], valid: NDArray[np.bool_] | None = None
+    p: Params,
+    coef: list[Int],
+    exact: NDArray[np.float64],
+    valid: NDArray[np.bool_] | None = None,
+    radius: int = 1,
 ) -> None:
-    """Joint +-1 search on c_1 .. c_d for every segment against all remainders, then recentre c_0."""
+    """Joint +-`radius` search on c_1 .. c_d for every segment against all remainders, then recentre c_0."""
     r = np.arange(1 << p.rwidth, dtype=np.int64)
     d = p.degree
     best = _seg_err(p, coef, r, exact, valid)
-    combos = [c for c in np.ndindex(*([3] * d)) if any(c)]
+    combos = [c for c in np.ndindex(*([2 * radius + 1] * d)) if any(c)]
     for _ in range(2):
         for combo in combos:
             trial = [c.copy() for c in coef]
             for j, v in enumerate(combo, start=1):
-                trial[j] += v - 1
+                trial[j] += v - radius
             _recentre(p, trial, r, exact, rounds=1, valid=valid)
             e = _seg_err(p, trial, r, exact, valid)
             better = e < best
