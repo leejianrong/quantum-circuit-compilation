@@ -548,13 +548,19 @@
      "from": "Gu, Kemeny, Yelin, Lukin, arXiv:2610.22367 SI I.1",
      "generator": "`src/dqi_gen/bm.py`, `src/dqi_gen/bmref.py` (E036, ratio 7.76 at full size)",
      "technique": "DQI (stage 2): Berlekamp-Massey history reconstructed instead of stored: invariant `sigma_0 delta = 1` so a replace step's discrepancy and quotient are read from the state, ties replace (no retain steps on generic input), a one-entry history stack for the rare retain step, coefficient ranges from the DQI weight law. Read in the paper text only (no circuit, no repository file); our construction is derived for our own divstep rows (`g[0] b = 1`, `f[0] = 0` after the shift, quotient `c = 1 / (f[0] b)`). The public DQI lineage has no licence; this source states Apache-2.0 and its licence status for our use is with the owner."
+    },
+    {
+     "date": "2026-11-13",
+     "from": "Gu, Kemeny, Yelin, Lukin, arXiv:2610.22367 SI I.1",
+     "generator": "`src/dqi_gen/bezout.py` (classical only), `docs/experiments/dqi-psi.md`",
+     "technique": "DQI (stage 2): reciprocal-polynomial scan: in characteristic 2, sigma = E^2 + z O^2, sigma' = O^2, so 1/sigma' at the roots follows from a Bezout identity of the half-degree pair (E, O), evaluated by CNOT networks; phase-only recovery with a classical mask; 23 Toffolis per scan position. Read in the paper text only. Our own derivation of the constant-time version (divsteps on the reversed pair, 36 steps, monomial index 36, cofactor windows [2,18] and [2,19]), verified classically; the in-place circuit is not built. The public DQI lineage has no licence; the source repository states Apache-2.0 (licence use pending with the owner)."
     }
    ],
    "kind": "ours",
    "label": "our dqi generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "7 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "8 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {
