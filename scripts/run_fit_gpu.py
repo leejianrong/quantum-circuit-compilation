@@ -4,7 +4,7 @@
         --out fit/gpu_8x143x44 --max-secs 40000
 
 The objective is ``error_2^2 = |T|^2 - 2 sum_{rho c} w_rc^T (Z_rho T Z_rho^T) w_rc + |V^T H V|_F^2`` of
-``src/dfthcsos_gen/fit.py`` written with torch float64 tensors (float32 loses the 3e-6 relative signal), so the
+``src/dfthcsos_gen/fit.py`` written with torch float64 tensors (float32 loses the signal), so the
 two matrix products with ``T`` (``RB x M @ M x M``) run on the GPU. The test in
 ``tests/unit/test_dfthcsos_fit_torch.py`` pins it to the numpy objective. Checkpoints (``v.npy``, ``w.npy``,
 ``log.jsonl``) have the same layout as ``run_fit.py`` so either script can resume the other's run.
