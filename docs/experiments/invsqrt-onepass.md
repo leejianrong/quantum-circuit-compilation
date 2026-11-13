@@ -158,3 +158,48 @@ simulate in chunks of 50 instructions outside condition blocks with `km.Simulato
 `write_across_shots(km.q(k), bits)`, `do(km.Circuit(text))`, `read_across_shots`; the rotation value trace by running up
 to each `Z_POW` and reading the working qubit; classes by constancy within groups of equal address, address and
 leading-zero count, or remainder; GF(2) spans of the 256-address truth tables for the linear-form tests.
+
+## Follow-up: the four levers, costed and tried (all negative)
+
+Order of the coordinator's list. Reference: E023, 93 qubits, 1,487 executed Toffolis, 168,237.4. Our peak is
+`22 x + 5 flags + 47 table/Horner (V_0 21, V_1 18 plus the lent leading-one qubit, V_2 8) + 19 carries` at step 0,
+whose rows use windows up to 21 bits (`ripple_add` keeps `m - 2` carries live).
+
+**1. Short-carry adder: no gain at equal Toffolis, about -2% net at best.** Derivation (ours, checked on paper, not
+built). A carry `c_i` can only be erased by measurement while the primed data qubits `(a_i + c_i, b_i + c_i)` of the bit
+below and `c_{i-1}` are alive, and once the sum bit is written `c_i` is not a function of the live qubits (`a = 0, s = 1`
+fits both `c = 0` and `c = 1`). So in-place adders keep all carries until the down-sweep. Splitting the window at bit `B`,
+the low carries can be erased inside the forward add if the boundary carry `c_B` stays alive; `c_B` can be measured with a
+pending phase `(-1)^(m c_B(a, b))` that the mirror add discharges for free (it recomputes the same carry on a fresh qubit and
+applies `Z^m`), but the mirror's own boundary carry leaves a pending phase on the restored `(a, b)`, which costs one
+comparator of `B - 1` Toffolis run with probability 1/2. Keeping `c_B` alive instead costs one qubit per row until its
+mirror, 14 rows deep. With `B = 10`: peak carries 19 to about 12 (93 to 86 qubits, -7.5%), extra executed Toffolis about
+`B / 2` per row pair over 28 row pairs (about +100, +5.5%): net about -2% (ratio about 12.6). The frontier's adder is this
+pattern (runs of 3 to 4 carries with the run-boundary carry measured at the end of the row and its classical outcome carried
+into the unwind), which is why its unwind has 440 `CCX` against 329 forward.
+
+**2. Recycling idle qubits as adder scratch: not usable as clean ancillas.** Our address qubits (7), flags (5) and
+the lent qubit hold information needed by `del_lookup` and the un-normalisation; the frontier frees its address qubits because
+the table is chosen so that a quadratic fix-up in the table qubits clears them (M7), which our unary-iteration table
+does not provide. Dirty-qubit adders cost about twice the Toffolis. Dead end without a lookup of the frontier's kind.
+
+**3. Lookup synthesis: not built.** The counting bound (about 3 ANDs per output on a live set of 45) does not give a
+search procedure: finding `A_i, B_i` in a 45-dimensional space of random-looking functions with `T + L = sum A_i B_i` is a
+quadratic system over GF(2) with no structure to exploit. A greedy on Hamming distance has no reason to beat unary
+iteration (254) at 6 to 8 ANDs per output. A real attempt needs a SAT or annealing tool and days, so it is left as the
+open research item; the payoff is at most 7% (-100 Toffolis).
+
+**4. Tuned fine-word angles in our own error model: negative.** `angles.py` (scratch, not committed) builds, for every
+reachable `(x_norm, parity, s)` (2.35 million rows), the phase error with per-position angle scales `A[pos] (1 + d[pos])` and
+solves the linear program "maximise the smallest slack `f 2^-24 - |error|`" by cutting planes (HiGHS). It reproduces the
+E023 slack exactly (2^-37.77 turns before tuning, matching `predict.py`'s margin) and raises it to 2^-37.36 (x1.33): worth
+about 3 Toffoli-equivalents of rotation cost. For the narrower table 28,19,8 (error 2^-23.96, infeasible: slack
+-1.8e-12) it makes the slack positive (+5.3e-13 turns = 2^-40.8), so 92 qubits become legal, but the margin is 3.4 bits below
+E023's and the rotations cost 76 T more, so the predicted cost is 168,320 against 168,237: no gain (the earlier estimate of
+166.5k assumed the old margin). Scales found are about -5%, +1%, -2% on the lowest three positions and below 0.1% above.
+The tuned angles of the frontier are therefore a margin trick of this size, not a source of a qubit.
+
+**Where this leaves invsqrt.** None of the levers reaches ratio 14 alone. The measured gap decomposes into the table width
+and address/flag recycling (needs the frontier-style lookup, lever 3), the deferred-phase adder (worth 2%), and the lookup
+ANDs (7%). Ratio 14 needs levers 1 and 3 together or a different table (narrower coefficients through a co-designed
+quantisation), which the frontier's generic table rules out as the explanation of its width.
