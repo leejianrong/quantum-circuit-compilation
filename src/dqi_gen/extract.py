@@ -18,7 +18,13 @@ import sys
 from typing import Any
 
 _ROOT = pathlib.Path(__file__).resolve().parents[2] / "third_party" / "syed_dqi" / "controller_work"
-for _d in ("night_c27/arithmetic", "night_c27/controller", "night_schedule"):
+for _d in (
+    "night_c27/arithmetic",
+    "night_c27/controller",
+    "night_c27/synthesis",
+    "night_schedule",
+    "night_root",
+):
     _p = str(_ROOT / _d)
     if _p not in sys.path:
         sys.path.insert(0, _p)
