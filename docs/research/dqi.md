@@ -59,13 +59,13 @@ combination with the stack) halves the BM cost: 140k per direction. Ours already
 ### 5. Continued-fraction Schur extraction in place (frontier, studied in `docs/experiments/dqi-stage2.md`)
 State holds the 70 symbols of `S` as quotients plus remainder, so only about 52 qubits beyond the 840 syndromes; 595 node-pair
 operations; reversed synthesis; amplitude polynomial `C = A / B' mod B` for 11 Toffolis per point; zero failures. This is where
-the 2.5x in `Q^2` and the 1.7x in `R` live. We do not have the mechanism; the Kaggle structure scan is the way to learn it.
+the 2.5x in `Q^2` and the 1.7x in `R` live. The structure scan is done (`docs/experiments/dqi-stage2.md`): stages extract 55k, synthesis 32k, convert 54k, scan 44k, then the mirror (unconvert 56k, unsynthesis 38k, unextract 97k); 52 constant scratch qubits; `inverse24` pivots in extract. The mathematics of the in-place extraction is still ours to derive.
 - Gain: up to the frontier (about 9x). Effort: very high. Risk: high.
 
 ### 6. Failures: why the frontier has none
 Our Lanczos form fails at `2^-12` per step (0.75% of shots) because `h_k = 0` or `p_k(0) = 0`. The frontier is at zero failures
-with a similar 35-step structure, so its parametrisation avoids these degeneracies (the notes say "quadratic-extension" Schur,
-which would put the degeneracy at a norm in the extension). R 2.07 to 1.19 is 1.74x on its own.
+with a similar 35-step structure, so its parametrisation avoids these degeneracies (the notes say "quadratic-extension" Schur and the
+scan shows 23 `inverse24` pivots in extract, which would put the degeneracy at a norm in GF(2^24), about 2^-24 per step; a hypothesis, untested). R 2.07 to 1.19 is 1.74x on its own.
 - Effort: depends on idea 5. Risk: high.
 
 ### 7. GF(2^12) multiplier below rank 42
