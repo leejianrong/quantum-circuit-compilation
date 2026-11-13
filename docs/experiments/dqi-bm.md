@@ -60,3 +60,18 @@ The small levers were measured and found to be worth about 1 to 3% each, so only
 needs the Euclid in place in the 35 zero syndrome words (Omega in place leaves `S_35 .. S_69` zero) with a fixed schedule
 and the quotients parked in cleared words; a second BM run on the series `O / E` was costed and loses (about +430 qubits for the rows).
 That in-place Euclid is not built.
+
+## Ten full-strength salts for the 1,855-qubit circuit (promotion readiness, ADR-0001)
+
+Circuit: sha256 `d25804a5a5c60e20764cf38d2c59799ce0e4be8c3d1b8dd2d37b4106cefcd117`, 501 MB `.kmb`, built from commit `9d9d652` (PR 124;
+the build is deterministic: the second kernel run rebuilt the same sha). Stored durably at
+`~/qcc-circuits/dqi/dqi-bm-1855q-d25804a5a5c6.kmb` (outside the repository, not committed).
+
+| salts (indices) | worst-salt cost | failures |
+|---|---:|---:|
+| 0 to 4 | 3.1087e12 | 0 |
+| 5 to 9 (`--salt-start 5`, kernel `qcc-dqi-gen` version 17) | 3.1003e12 | 0 |
+
+Per-salt costs of salts 5 to 9: 3.1003e12, 3.0617e12, 3.0822e12, 3.1003e12, 3.0617e12. Ten salts, zero failures, worst 3.1087e12 (ratio 7.86).
+`uv run bench promote dqi <file> --best <best/> --dry-run` answers `BLOCKED: cost 3.10871e+12 is not below the current best 3.77872e+11`: the
+salt count is satisfied, the cost gate is not (the public frontier is 8.2x cheaper). Not promoted.
