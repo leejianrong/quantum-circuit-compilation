@@ -242,3 +242,23 @@ Words and accuracy (`research/scripts`, 54 files, not rerunnable without their i
   (torch float64, autograd, parity-tested against the numpy objective) and two kernels
   (`notebooks/dfthcsos_fit_gpu_a`, `_b`, continuing fit-b and fit) are ready, but the weekly Kaggle GPU quota
   (30 h) is exhausted, so neither is pushed yet.
+
+## Matroid-parity pair planner (built; the cut search is the open problem)
+
+`src/dfthcsos_gen/parity.py` (randomized alternating matrix over GF(2^8), perfect-pairing extraction by contraction;
+our rewrite of the method read in syed3000's `extract_matching.py`, THIRD_PARTY_NOTICES.md) and
+`src/dfthcsos_gen/matroid.py` (cross tensor `M_S` per hi monomial, candidate pairs `(l1, l2, out)` over blocks of three
+low monomials, coordinates `h1, h2` of each `M_S` on the chosen rank-one columns, loader with `(l1 + h1)(l2 + h2)`
+products fanned out to an output mask, CNOT-only `F, G` leftover, exactness checked by construction). Tests:
+`test_dfthcsos_parity.py` (planted perfect matchings; rank certificate; no matching when all pairs share a vector) and
+`test_dfthcsos_matroid.py` (a planned paired loader loads a table exactly in kickmix).
+
+At scale (circuit 1 of an 8-bit half-circle table of ours, 1,408 addresses, 35 planes, `lb = 4`): the cross tensor has
+rank 87; with no cuts the pairing has `ceil(525 / 2)` = 262 products against 280 for the per-plane planner (371 against
+353 Toffolis per circuit with the 91 ANDs; 5%). The 212 products of the public plan need about 100 "cuts" (functionals
+on blocks of three low monomials that vanish on every `M_S`; the span `W` of the rank-one columns is their kernel,
+`dim W / 2` products). My random greedy cut search (120 tries, two cuts per try because `dim W` must stay even, 10 s per
+rank test) accepted none: random annihilating functionals break the candidate structure. Their plan seems to start
+from a feasible plan and take cuts as the annihilator of its columns, then refine; that bootstrap (and a candidate
+set with all pairwise sums of `out` vectors, which I sampled) is the missing step. Expected gain if solved: about 25%
+of the angle part, 8% of `T_total`.
