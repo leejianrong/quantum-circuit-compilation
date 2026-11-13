@@ -105,3 +105,50 @@ Consequence for the plan: the stages after the root should be built in the refer
 next step is to decode that lifecycle (which registers the product, coefficient and divider rows read and write, by
 tracking dependence of each wire on `v`, `h` and the table words across op ranges), not to build a wide first version. The
 root stage (done, 102 Toffolis, 42 qubits) is common to both.
+
+## Lifecycle decode of the reference, up to the product (QCC-13, study)
+
+Method: 1,440 inputs with `k = 0` (60 root values `v`, 24 residuals `h` each), the circuit simulated to op 10,750 with a
+snapshot every 50 ops; every wire at every snapshot is classified as an affine GF(2) function of the 22 bits of `(v, h)`
+(a "frame"), or by constancy inside groups: `A` function of `v >> 5` only (table word), `V` function of `v` only, `N` also
+depends on `h`, `0` zero. Plus gate statistics per stage (which wires are only controls, which are targets). Timeline
+(ops; `.` zero):
+
+```text
+op        1.7k      2.4k        5.2k   5.6k    5.75k    6.0k     6.7k 6.75k      9.9k    10.7k
+q0-q9    h ................................ h^h chain  N N N N N N N N N .  N N N N N  (in place: LSB first)
+q10-q21  v .................... v (low bits u briefly A/V) ........ v ........ v / quotient bits
+q26-q45  . A A A A A A A A A A V V V V V V V (13 wires D) N N N N N | 13 wires 0 | N N (6 wires) .. 18 wires N
+         |load words, 1 wire at a time|  coefficient |  product    | measured away
+temp     q42,q43 (and q7,q8): AND carries, zero between rows
+```
+
+What it shows (our reading):
+
+* **Table words load onto 20 wires one by one** (class `A` appears wire by wire from op 1,750 to 2,650: 56 Toffolis and about
+  6,500 CNOTs, the same in-place AND network as in `invsqrt-onepass.md` M5, here on 7 address bits).
+* **The coefficient is refined in place** (`A` to `V` at 5,300 to 5,600): 13 of the loaded wires turn into `D(v)` using
+  the low root bits, 44 Toffolis. While it runs, root wires `v0` to `v5` change frame (`v0 + v1`, `v1 + v2`, ...) and return
+  to plain `v_j` by op 5,750: the low root bits are borrowed and given back, no wire is added.
+* **The product is a consuming multiplier.** During 5,704 to 6,707 the only Toffoli targets other than the two AND
+  carries (q42, q43, measured away after each use) are `q0` to `q7`, one each; the controls are the `D` wires and the `h`
+  wires, with `h` control counts falling `9, 8, 7, 6, 5, 4, 3, 1`. The `h` wires turn `N` one after another from the
+  least significant end (`q0` at 5,950 ... `q8` at 6,850) and stop being `h`. So the product accumulates into the wires that
+  held its multiplier: a triangular in-place multiply, 103 Toffolis, giving the 16-wire word `P` (the 10 `h` wires plus 6).
+* **Why that is reversible (our derivation).** Horner order, `acc <- 2 acc + h_i D`: if `D` is odd, `h_i` is the lsb of
+  the new accumulator, so the old accumulator is `(acc - h_i D) / 2` and the multiplier bit needs no wire of its own. The
+  dropped low columns of a truncated product are the only information that is lost; the reference measures them and repays
+  the phase later (the 6,700 `CZ` of the clean-up). We have not built this.
+* **Then `D` is measured away** (13 `HMR`, ops 6,707 to 6,720): width 44 to 31, `P` (16 wires), `v` (12) and the flags (4)
+  remain, plus 0 to 3 wires of work. The table is loaded again for the undo (a different table, 70 Toffolis).
+* **The divider's state is the same 16 wires plus a few** (31 live at 6,720 and 40 at 9,877): the quotient bits are not
+  accumulated one wire per row. At the endpoint the wires holding the bits that are rotated include `q0` to `q9` (the former
+  `h` wires) and `q26` to `q45`; the dividend wires are consumed as quotient bits appear, as the root consumes its radicand.
+
+Redesign order that follows (register reuse first): (1) consuming root: done (102 Toffolis, peak 42 with its own temporaries);
+(2) table load onto 16 wires and in-place coefficient refinement (peak 46: body 26 + 16 + 4 carries); (3) consuming multiplier with an
+odd `D` (we must force `D` odd: one table bit); (4) measure `D` away; (5) consuming division of the 16-wire `P` by `2R + 1`
+(open: what exactly produces 26 quotient bits in about 16 wires; the next dynamic experiment is the same classification
+with `k` varied through the endpoint, 9,900 to 10,700); (6) rotations on the quotient wires through one working wire;
+(7) undo in reverse with the table reloaded. A peak of 46 to 50 is plausible only if (5) works as in the reference;
+until it is understood, no stage after the root is worth building.
