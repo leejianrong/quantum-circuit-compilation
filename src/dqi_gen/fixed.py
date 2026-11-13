@@ -30,7 +30,43 @@ for _d in (
         sys.path.insert(0, _p)
 
 
-def build_decoder(builder: Any, syndromes: list[Any], masks: list[Any]) -> dict[str, Any]:
+def _seeded_forward(builder: Any, words: list[list[Any]], carry: list[Any], rec: Any) -> tuple[Any, ...]:
+    """Seed the synthesis from the carry word (no extra word): chart bit, scalar seed, rolling-tail seam."""
+    import fused_crt_synthesis as fs  # type: ignore[import-not-found]
+    import rolling_tail as tail  # type: ignore[import-not-found]
+    import scalar_seed as seed  # type: ignore[import-not-found]
+
+    rec.tail.release_spare()
+    gauge = tail.gauge_prefix(builder, carry)
+    sd = seed.emit_prefix(builder, carry[:12], words[34])
+    rec.tail.seed_prefix(carry[:12], words[34][12:])
+    n_list: list[list[Any]] = [carry[:12]]
+    d_list: list[list[Any]] = [words[34][:12], words[34][12:]]
+    records = []
+    for i in range(33, -1, -1):
+        p = [words[i][:12], words[i][12:]]
+        records.append((n_list, d_list, p, fs.emit_prefix(builder, n_list, d_list, p, i)))
+        n_list, d_list = d_list, n_list + p
+    return n_list, d_list, (gauge, sd, records)
+
+
+def _seeded_backward(builder: Any, words: list[list[Any]], carry: list[Any], rec: Any, state: Any) -> None:
+    import fused_crt_synthesis as fs
+    import rolling_tail as tail
+    import scalar_seed as seed
+
+    gauge, sd, records = state
+    for n_list, d_list, p, r in reversed(records):
+        fs.emit_closing(builder, n_list, d_list, p, r)
+    rec.tail.seed_return(carry[:12], words[34][12:])
+    seed.emit_closing(builder, carry[:12], words[34], sd)
+    tail.gauge_return(builder, carry, gauge)
+    rec.tail.resume_return()
+
+
+def build_decoder(
+    builder: Any, syndromes: list[Any], masks: list[Any], seeded: bool = True
+) -> dict[str, Any]:
     """Append the decoder to `builder`; returns static numbers of the scan."""
     import additive_fft_phase_scan as scan  # type: ignore[import-not-found]
     import night_outer as outer  # type: ignore[import-not-found]
@@ -46,16 +82,25 @@ def build_decoder(builder: Any, syndromes: list[Any], masks: list[Any]) -> dict[
     carry = list(builder.alloc_qubits(24))
     builder.x(carry[0])
     rec = extract.forward(builder, words, carry)
-    flag = rec.tail.current
-    n_list, d_list, records, one = synth.forward(builder, words, flag)
+    if seeded:
+        n_list, d_list, state = _seeded_forward(builder, words, carry, rec)
+    else:
+        flag = rec.tail.current
+        n_list, d_list, records, one = synth.forward(builder, words, flag)
     out = outer.emit_prefix(builder, d_list, n_list, fused=False)
     fin = finish.emit_prefix(builder, d_list, n_list)
     padded = list(masks) + [None] * (4095 - len(masks))
     info = scan.emit(builder, d_list, n_list, padded, positions=len(masks))
     finish.emit_closing(builder, d_list, n_list, fin)
     outer.emit_closing(builder, d_list, n_list, (), out)
-    synth.backward(builder, flag, words, records, one)
-    extract.backward(builder, words, carry, rec)
+    if seeded:
+        _seeded_backward(builder, words, carry, rec, state)
+        import raw_query_extractor as rq  # type: ignore[import-not-found]
+
+        rq.emit_closing(builder, words, carry, rec)
+    else:
+        synth.backward(builder, flag, words, records, one)
+        extract.backward(builder, words, carry, rec)
     builder.x(carry[0])
     builder.free(km.array(carry))
     apply_matrix_inplace(builder, flat, inv)
