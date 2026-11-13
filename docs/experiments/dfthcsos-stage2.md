@@ -88,3 +88,28 @@ against 4,151 in the public circuits, in line with the 8,302-Toffoli frontier. I
 be rounded into the rank-220 code, which first needs a continuous fit at or below about 0.014.
 
 No milestone (fully-own ratio 3 or 6.85) reached; best fully-own verified remains ratio 1.98.
+
+## Shared-product loader (built) and a correction to the reading above
+
+`src/dfthcsos_gen/shared.py` builds a circuit for any table of the form `F(h) + G(l) + sum_t v_t alpha_t(h) beta_t(l)`
+(one Toffoli per term however many output bits it feeds: CX fan-out `p -> o` before and after the CCX). Test
+`tests/unit/test_dfthcsos_shared.py`: a random plan on 100 addresses loads exactly on all addresses and shots, clean
+work register, no phase flip, and the static Toffoli count equals kickmix's.
+
+Capacity argument (why I no longer think the public table is rounded into a low-rank code). A code of 214 terms
+(without the two-products-per-Toffoli trick of `bilinear.py`) has about 32,000 free bits against 49,000 table bits,
+so about a third of all bits would be constrained, which would force rounding errors of several LSB at 8 bits (our
+naive 8-bit rounding is already 14x over the gate). The public rounding noise is far smaller, so the more likely
+reading is that the table is an essentially arbitrary 8-bit table and the loader is a good GF(2) tensor
+decomposition of it: a random 40 x 76 x 15 GF(2) tensor has rank about 350, and with two rank-one terms per
+Toffoli about 175 to 215 Toffolis serve 40 output bits, matching the observed 214 products. That makes the loader
+cost a decomposition-search problem on any table, with no rank constraint on the fit, and the 8-bit gate a pure
+fit-quality problem (the continuous error must be near 0.012 before 8-bit rounding can pass). Not verified by
+decomposing a table.
+
+Cost at the widths we can reach. Per-plane `bilinear.py` on a 1,484-address table (8,176,56) has lines
+`H + L = 79` qubits, plane rank 31 and so 16 Toffolis per plane: about 25 circuits x (79 + 33 x 16) = 15,000 per pass
+at 11 bits (3 words per circuit), against about 13,300 for the unary loader with 9 words. So at 11 bits a
+loader change does not help; the gain is bound to 8 bits and to a shared decomposition (the 8-bit table is
+the blocker). Next levers in order: the continuation fit, then a decomposition search over GF(2) for an 8-bit
+table (kernel search), then 8-bit rounding.
