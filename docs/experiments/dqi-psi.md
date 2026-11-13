@@ -45,3 +45,28 @@ the synthesis of `(u, v)` from the quotients). Counting words is fine (`f` plus 
 * Find the fixed-slot formulation (top-degree Euclid with padding, or divsteps with the freed word chosen by the swap flag and a controlled
   relabelling) and prototype it classically, counting the words written at every step and proving the reverse recovers `c` and the swap.
 * Only then the quantum generator: Euclid in place, synthesis into `S_35 .. S_69`, scan, and the undoing; small instances first.
+
+## Time-boxed session on the fixed-slot Euclid history: dead end (2026-11-13)
+
+What was tried on paper and classically, and why each route stops:
+
+* **Recover the swap bit from the after-state.** In the BM decoder this works because the shifted template has `f[0] = 0` and a swap
+  leaves `f[0] = g_old[0] != 0`. In the polynomial divsteps on `(E*, O*)` both branches leave a nonzero constant term and `delta` after
+  the step is `<= 0` for a swap and for many no-swap steps, so the bit is ambiguous. The generic run alternates swap and no-swap steps,
+  so the ambiguity is the common case. The bit is cheap to store (36 qubits); it is not the problem.
+* **Recover the quotient `c = g(0) / f(0)`.** Information argument: after a swap `f' = g_old` and `g' = (f_old + c g_old) / z`, so
+  `f_old(0) = c f'(0)`; `f_old(0)` is what the step destroys. The 12 bits of `c` per step (432 bits over 36 steps) are exactly the 36
+  words that the arrays shed, so they must be parked in the freed words or stored out of place.
+* **Park in freed words.** The word freed by a step is the low (relabelled) or top word of the *shrinking* array. After content swaps
+  the lengths of `f` and `g` depend on `delta` and `k`, so the slot is a function of `(k, delta)`, and the updates `g += c f` need the
+  two windows aligned by a `delta`-dependent offset (a barrel shift over 18 words). Estimated extra cost, parking by a select over about 36
+  slots (about 470 Toffolis per step) plus the alignment shifts: over 40k Toffolis, taking the whole reciprocal path from about 218k to
+  more than 300k against the 386k it replaces, for a gain under 10% of `T` and a very intricate circuit.
+* **Out of place.** 36 x 12 + 36 = 468 extra qubits: `Q` +25%, `Q^2` +57% against `T` -23%: a net loss of about 20%.
+* **A second BM run on `O / E`** (series with `E(0) = 1`, rows `(sigma, tau)` of at most 18 words, Wronskian `E w_tau + O tau = c z^m` giving
+  compact cofactors): the series, the two rows and the read-only `(E, O)` need 108 words against 71 available (36 locator + 35 zero words).
+* **Reuse the main BM's template `tau`** (Wronskian `omega tau - omega_tau sigma = c z^m` gives `1 / tau` at the roots): the weight
+  `c beta^m / (tau sigma')` needs the inverse of a product of two evaluations, the Lanczos-style 138 per position, worse than 96.
+
+Verdict: no invariant was found that makes the history recomputable, and the in-place version does not pay without a published fixed-slot
+construction. This thread is closed; the classical Bezout identity (above) stays in `src/dqi_gen/bezout.py` for a future attempt.

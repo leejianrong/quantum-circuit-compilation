@@ -111,6 +111,53 @@ class BMDecoder(DivstepDecoder):
     def _tower_ops(self, builder: Any, fast: bool = True) -> Any:
         return super()._tower_ops(builder, fast)
 
+    def _tower_forney(self, builder: Any, om_src: Any) -> Any:
+        """The tower division of `decoder._tower_ops`, with `om` built from `om_src` only for the phase."""
+        deg = self.deg
+        h = deg // 2
+        gf_h = km.GF2Field(h)
+        tw = Tower.build(self.gf, gf_h)
+        norm_b = [gf_h.mul(tw.b, gf_h.square(1 << i)) for i in range(h)]
+        inv_compute, inv_uncompute = self._subfield_inverse(builder, gf_h, True)
+        mul = self._mul
+        t = len(om_src) // deg
+
+        def run(od: Any, z: Any, mask: Any) -> None:
+            apply_matrix_inplace(builder, list(od), tw.to_tower)
+            a_, b_ = od[:h], od[h:]
+            norm = mul(builder, a_, b_, gf_h, fast=True)
+            xor_linear(builder, a_, norm, tw.square)
+            xor_linear(builder, b_, norm, norm_b)
+            ninv, inv_state = inv_compute(norm)
+            gated = builder.alloc_qubits(h)
+            builder.init_and(z, ninv, gated)
+            builder.cx(b_, a_)
+            e_ = a_
+            rhs = builder.alloc_qubits(deg)
+            mul(builder, e_, gated, gf_h, rhs[:h], True)
+            mul(builder, b_, gated, gf_h, rhs[h:], True)
+            apply_matrix_inplace(builder, list(rhs), tw.from_tower)
+            om = builder.alloc_qubits(deg)
+            builder.cx(om_src, _cat([om for _ in range(t)]))
+            builder.gf2_phase_by_product(om, rhs, mask=mask, field=self.gf)
+            builder.cx(om_src, _cat([om for _ in range(t)]))
+            builder.free(om)
+            apply_matrix_inplace(builder, list(rhs), tw.to_tower)
+            builder.del_gf2_mul(b_, gated, target=rhs[h:], field=gf_h)
+            builder.del_gf2_mul(e_, gated, target=rhs[:h], field=gf_h)
+            builder.free(rhs)
+            builder.cx(b_, a_)
+            builder.del_and(z, ninv, gated)
+            builder.free(gated)
+            inv_uncompute(norm, ninv, inv_state)
+            xor_linear(builder, b_, norm, norm_b)
+            xor_linear(builder, a_, norm, tw.square)
+            builder.del_gf2_mul(a_, b_, target=norm, field=gf_h)
+            builder.free(norm)
+            apply_matrix_inplace(builder, list(od), tw.from_tower)
+
+        return run
+
     def _chien_forney(self, builder: Any, gv: list[Any], gu: list[Any], error_mbuc: Any) -> None:
         """The Forney scan with the `sigma(beta)` accumulator released while the tower division runs.
 
@@ -127,14 +174,13 @@ class BMDecoder(DivstepDecoder):
         steps = [(gv[k], gf.pow(alpha, (-k) % order)) for k in range(1, t + 1)]
         steps += [(gu[k], gf.pow(alpha, (-(k + 1)) % order)) for k in range(t)]
         steps = [(reg, c) for reg, c in steps if c != 1]
-        od, om = (builder.alloc_qubits(deg) for _ in range(2))
+        od = builder.alloc_qubits(deg)
         od_src = _cat([gv[k] for k in range(1, t + 1, 2)])
         od_dst = _cat([od for _ in range(1, t + 1, 2)])
         om_src = _cat([gu[k] for k in range(t)])
-        om_dst = _cat([om for _ in range(t)])
         sg_src = _cat([gv[k] for k in range(1, t + 1)])
         position = builder.mark("forney_position")
-        tower = self._tower_ops(builder)
+        tower = self._tower_forney(builder, om_src)
 
         def fill_sg() -> Any:
             sg = builder.alloc_qubits(deg)
@@ -150,27 +196,24 @@ class BMDecoder(DivstepDecoder):
         for j in range(m):
             with position:
                 builder.cx(od_src, od_dst)
-                builder.cx(om_src, om_dst)
                 sg = fill_sg()
                 ladder = self._zero_test(builder, sg)
                 z = ladder[-1]
                 builder.x(sg)  # undo the zero test's complement, then release sg during the division
                 clear_sg(sg)
-                tower(od, om, z, error_mbuc[j])
+                tower(od, z, error_mbuc[j])
                 sg = fill_sg()
                 builder.x(sg)
                 self._zero_untest(builder, sg, ladder)
                 clear_sg(sg)
                 builder.cx(od_src, od_dst)
-                builder.cx(om_src, om_dst)
                 if j + 1 < m:
                     for reg, c in steps:
                         builder.gf2_imul(c, target=reg, field=gf)
         if m > 1:
             for reg, c in steps:
                 builder.gf2_idiv(gf.pow(c, m - 1), target=reg, field=gf)
-        for reg in (od, om):
-            builder.free(reg)
+        builder.free(od)
 
     # delta >= 0 (ties replace): stored value delta + OFFSET > OFFSET - 1
     def _sw_flags(self, builder: Any, delta: Any, d_reg: Any) -> tuple[Any, Any]:
