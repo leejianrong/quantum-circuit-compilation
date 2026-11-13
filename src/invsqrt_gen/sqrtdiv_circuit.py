@@ -18,6 +18,7 @@ from invsqrt_gen.sqrtdiv_stages import (
     numerator_inplace,
     numerator_window,
     product,
+    product_pm1,
     refine_d,
     sqrt_root,
 )
@@ -38,7 +39,8 @@ def forward_program(
     digits: int = 27,
     release_table: bool = True,
     inplace: bool = True,
-    trace: list[tuple[str, int, int]] | None = None,
+    pm1: bool = True,
+    trace: list[tuple[str, int, int, int]] | None = None,
 ) -> Program:
     _, _, widths = nr_model(reachable_n())
     r = Rec(22)
@@ -46,7 +48,7 @@ def forward_program(
 
     def mark(name: str) -> None:
         if trace is not None:
-            trace.append((name, r.live, r.peak))
+            trace.append((name, r.live, r.peak, len(r.ops)))
 
     flags = normalise_even(r, x)
     mark("normalise")
@@ -63,7 +65,7 @@ def forward_program(
     refine_d(r, q, dw, ew)
     a1 = len(r.ops)
     mark("refine")
-    p = product(r, t, dw, 17, tab.fd - tab.fp, init_minus_one=inplace)
+    p = product_pm1(r, t, dw, 17) if pm1 else product(r, t, dw, 17, tab.fd - tab.fp, init_minus_one=inplace)
     if (
         release_table
     ):  # D and E are not needed while dividing: undo the refinement, clear the lookup by measurement
@@ -79,9 +81,9 @@ def forward_program(
 
 
 def build_circuit(
-    tab: SdTables, digits: int = 27, release_table: bool = True, inplace: bool = True
+    tab: SdTables, digits: int = 27, release_table: bool = True, inplace: bool = True, pm1: bool = True
 ) -> km.Circuit:
-    prog = forward_program(tab, digits, release_table, inplace)
+    prog = forward_program(tab, digits, release_table, inplace, pm1)
     b = km.CircuitBuilder()
     xr = b.create_quantum_register(22, name="x")
     bind = Binding({i: xr[i] for i in range(22)})
@@ -109,3 +111,19 @@ def build_circuit(
 def expected_half_turns(x: np.ndarray) -> np.ndarray:
     k = np.array([(22 - int(v).bit_length()) // 2 for v in x])
     return np.asarray(2.0 * (2.0 ** (k - 10)) / np.sqrt((x << (2 * k)) / 2.0**20), dtype=np.float64)
+
+
+def executed_toffolis(c: km.Circuit) -> float:
+    """Expected executed Toffoli-like gates (under `d` nested conditions a gate runs on `2^-d` of shots)."""
+    total = 0.0
+    depth = 0
+    for line in repr(c).splitlines():
+        parts = line.split()
+        op = parts[0] if parts else ""
+        if op == "PUSH_CONDITION":
+            depth += 1
+        elif op == "POP_CONDITION":
+            depth -= 1
+        elif op in ("CCX", "CCZ", "CSWAP"):
+            total += 0.5**depth
+    return total

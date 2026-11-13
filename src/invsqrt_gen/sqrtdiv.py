@@ -159,3 +159,21 @@ def divide(tab: SdTables, r: Int, p: Int, digits: int) -> tuple[NDArray[np.float
         qs.append(q)
         rem = 2 * rem - q * s
     return total, qs
+
+
+def p_int_pm1(tab: SdTables, t: Int, dd: Int, offset: int = -3) -> Int:
+    """Signed-digit product: `2 t + 1 = sum_{i<13} e_i 2^i - e_13 2^13`, `e_i = 2 b_i - 1` (`b` the bits of
+    `t`), `P = D (t + 3/4)` as `sum e_i R(D >> k_i)` plus `R(D >> 13)` for `D/4`, `R` rounding half up,
+    `k_i = 12 - i` (units `2^-fp`, `fp = fd - 11`), plus a constant `offset` that centres the error."""
+    assert tab.fd - tab.fp == 11
+    tu = t & ((1 << 14) - 1)
+    e = [2 * ((tu >> i) & 1) - 1 for i in range(14)]
+
+    def rnd(k: int) -> Int:
+        return (dd >> k) + ((dd >> (k - 1)) & 1) if k >= 1 else (dd >> k if k == 0 else dd << -k)
+
+    p = np.zeros_like(t)
+    for i in range(13):
+        p += e[i] * rnd(12 - i)
+    p -= e[13] * (dd << 1)
+    return p + rnd(13) + offset

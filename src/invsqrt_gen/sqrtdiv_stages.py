@@ -14,7 +14,7 @@ from invsqrt_gen.build import ripple_add as _ripple_add
 from invsqrt_gen.defadd import fd_add, md_add
 from invsqrt_gen.rec import Rec
 
-DEFER = {"on": False, "split_over": 12}
+DEFER = {"on": True, "split_over": 12}
 _KEYS = itertools.count()
 
 
@@ -276,3 +276,33 @@ def numerator_inplace(r: Rec, q: list[int], p: list[int], fp: int) -> list[int]:
     r.x(w[sh])
     r.x(q)
     return w
+
+
+def product_pm1(r: Rec, t: list[int], dw: list[int], p_bits: int, offset: int = -3) -> list[int]:
+    """Signed-digit product, rows are plain adds (no AND temporaries): see `sqrtdiv.p_int_pm1`.
+
+    Row `i` adds `e_i R(D >> (12 - i))`, `e_i = 2 t_i - 1`, as `x(t_i); cx(t_i, P); P += addend + round; cx(t_i, P); x(t_i)`
+    (complemented around the add when `t_i = 0`). The register starts at `offset - 1` so that `numerator_inplace`
+    sees `P' - 1` with `P' = P + offset`.
+    """
+    p = r.alloc_qubits(p_bits)
+    init = (offset - 1) % (1 << p_bits)
+    r.x([q for i, q in enumerate(p) if (init >> i) & 1])
+    for i in range(13):
+        k = 12 - i
+        if k >= 1:
+            addend, cin = dw[k:], dw[k - 1]
+        else:
+            addend, cin = dw, None
+        r.x(t[i])
+        r.cx(t[i], p)
+        ripple_add(r, addend, p, cin=cin)
+        r.cx(t[i], p)
+        r.x(t[i])
+    # i = 13 enters with weight -2^13: subtract e_13 * (D << 1)  (control polarity reversed)
+    r.cx(t[13], p)
+    ripple_add(r, dw, p[1:])
+    r.cx(t[13], p)
+    # + R(D >> 13)
+    ripple_add(r, dw[13:], p, cin=dw[12])
+    return p
