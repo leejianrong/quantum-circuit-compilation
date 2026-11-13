@@ -89,6 +89,35 @@ be rounded into the rank-220 code, which first needs a continuous fit at or belo
 
 No milestone (fully-own ratio 3 or 6.85) reached; best fully-own verified remains ratio 1.98.
 
+## GF(2) decomposition search (built, little gain) and the qubit finding
+
+`src/dfthcsos_gen/gf2tensor.py`: flip-graph random walk (Kauers and Moosbauer, arXiv 2212.01175; plus
+transitions after Arai et al., arXiv 2312.08793; both ideas, our code) on the centered tensor, from two starts
+(slice-by-slice, rank 534-600; per-plane, unit `v`), with a pair-aware annealer whose cost is `sum_v ceil(m_v / 2)`
+(two rank-one terms with the same output vector share one Toffoli). Journal-based undo, exactness tested.
+Results on an 8-bit table made from our 11-bit QAT words (40 outputs, `lb = 4`, 88 x 16):
+
+| method | terms | Toffolis with pairing |
+|---|---:|---:|
+| slice start, flips only, 2M steps | 476 | about 470 (pairs rarely form) |
+| per-plane start (`bilinear.py` equivalent) | 479 | 255 |
+| per-plane start, annealed 4M steps (temp 0.08) | 479 | 253 |
+
+The shared search gains under 1% over per-plane planning: the flip walk stalls, and rank is the wrong objective
+once pairing is available (the per-plane start has rank 479 yet costs 255). The planted-rank test (rank 120 in
+a 40 x 80 x 16 tensor) is not recovered (stays 600): this heuristic does not find hidden structure. Not tried: SAT/ILP on
+small blocks, a pair-aware move set, a start that exploits smooth high bits (high bit planes have lower
+centered rank than low ones: 255 here against 320 for a random table).
+
+The qubit finding is the real obstacle: one-hot lines (`H + L = 104` qubits at `lb = 4`) leave room for J = 1
+word at 8 bits (11 + 8 J + 104 <= 128). The public loader gets J = 5 with about 77 work qubits because its lines
+are ANF monomials of the selection bits, not one-hot lines: the selection bits themselves are the degree-1
+lines and only the `H - 1 - 7` and `L - 1 - 4` products of degree >= 2 take a qubit (one AND each). A line basis
+`{x^S : S < H}` works (the matrix `[S subset of h]` is triangular), a form `alpha(h)` converts by a Moebius transform
+(`c_S = sum over h subset of S of alpha(h)`), and the constant line is an X on the pivot. The generator needs that
+line basis before any 8-bit candidate fits in 128 qubits; not yet built. Per-plane cost at lb = 5 would be 58 work
+qubits (J = 7) but plane rank 31, so 16 Toffolis per plane.
+
 ## Shared-product loader (built) and a correction to the reading above
 
 `src/dfthcsos_gen/shared.py` builds a circuit for any table of the form `F(h) + G(l) + sum_t v_t alpha_t(h) beta_t(l)`
