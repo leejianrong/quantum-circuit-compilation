@@ -20,6 +20,7 @@ SOURCES=(
   "d|pramitdas/qcc-public-frontier-submission"
   "d|daifanhao/qcc-2494096-c44-dqi-reproduction"
   "d|dmitriigluzdov/vqcc-femoco-public-factorization"
+  "d|syed3000/vqcc-own-circuit-portfolio"
   "k|heliosli/the-dataset-is-public-now-enjoy"
   "k|maoxin123/lb-25-218-combined-invsqrt-refit-chem"
   "k|ozertuu/25-218-starter-notebook"

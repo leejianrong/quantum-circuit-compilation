@@ -710,6 +710,13 @@
    "licence": "unstated",
    "text": "unstated in metadata",
    "url": "kaggle.com/code/ozertuu/25-218-starter-notebook"
+  },
+  {
+   "author": "syed3000 (Syed Asad Ali)",
+   "id": "S14",
+   "licence": "apache-2.0 (dataset metadata)",
+   "text": "metadata apache-2.0; `LICENSE` in the dataset",
+   "url": "kaggle.com/datasets/syed3000/vqcc-own-circuit-portfolio"
   }
  ]
 }
