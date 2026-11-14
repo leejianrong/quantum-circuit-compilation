@@ -5,7 +5,11 @@ Statuses: `DECIDED` (user answered) · `ASSUMED` (default taken, correct it if w
 
 ## Open forks
 
-None. Round 1 closed.
+Round 1 closed. Open with the owner (2026-11-14, details in [HANDOFF.md](HANDOFF.md)):
+
+- Run syed3000's builders in a sandbox to regenerate their circuits? (the permission classifier blocks it)
+- A GPU run of the dfthcsos fit with a `Lambda` penalty from the start?
+- Which licensed portfolio is submitted, and when `fixed.kmb` (own DQI, 65.77) is promoted into `best/`?
 
 ## Register
 
