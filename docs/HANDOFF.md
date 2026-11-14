@@ -64,6 +64,12 @@ bash scripts/fetch_public.sh                        # public/ (about 2 GB) + pub
 QCC_DATA=$PWD/data uv run bench verify dfthcsos data/sample_submission/dfthcsos --salts 1   # smoke test, appends a ledger row
 ```
 
+Gotchas seen on the second machine (2026-11-14): the `kaggle` CLI is not a project dependency (`uv tool install kaggle`);
+`make fetch-data` needs `unzip` (`sudo apt install unzip`, or extract the zip with Python's `zipfile`); `uv sync` picks the
+newest CPython (3.14 there, `requires-python` is `>=3.12`) and `make check` still passed; `bench kaggle fetch` of
+`qcc-dqi-gen` is 346 MB and holds `fixed.kmb` only, not `rs.kmb` or `thiele.kmb`. That machine has a GPU (RTX 3080 Ti, 16 GB),
+20 cores and 31 GB RAM, so the old 7 GB limit does not apply there.
+
 Then pandan: install the CLI (see the `pandan` skill), `pandan login --token-stdin` with a PAT minted on the board's Tokens tab,
 `pandan board use 46`. The agent config (`.mcp.json`, holds a token) is never committed: recreate it.
 
