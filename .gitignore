@@ -16,3 +16,6 @@ public/
 
 # Third-party circuits staged for submission (licences unresolved, see docs/PROVENANCE.md)
 best/
+
+# Agent worktrees and local agent settings
+.claude/

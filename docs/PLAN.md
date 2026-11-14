@@ -1,6 +1,6 @@
 # Verifiable Quantum Circuit Compilation: Plan
 
-Status: agreed (round 1 closed) · Milestone: full competition, deadline 2027-01-20 23:59 UTC
+Status: agreed (round 1 closed); current state and backlog are in [HANDOFF.md](HANDOFF.md) · Milestone: full competition, deadline 2027-01-20 23:59 UTC
 
 ## Problem
 
