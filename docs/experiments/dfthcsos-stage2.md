@@ -325,3 +325,24 @@ Kaggle fits fetched 2026-11-13: `fit-e` (`exact_8x176x56`, continuous `error_2` 
 rounding, not the continuous fit: a 22% better fit leaves it unchanged. fit-e at 11 bits through `dfthcsos_post.py --half --loader anf`:
 `error_2` 0.01743, `Lambda` 518.7, `lambda_eff` 64.96 (E040: 63.14), best `lb = 6`, J = 3, 10,875 Toffolis, predicted cost 1,381,521,485
 (ratio 2.43, below E040's 2.50), so not verified. Lower `error_2` bought a larger `lambda_eff`; the lever is `lambda_eff`, not error.
+
+## `Lambda` across our fits: the basin, not the iteration count (2026-11-14)
+
+`dfthcsos_post.py --brot 16` (near-continuous words; `E_gap` is 4.083 to 4.084 for every fit, so `lambda_eff` follows `Lambda`):
+
+| fit | `error_2` | `Lambda` | `lambda_eff` |
+|---|---:|---:|---:|
+| fit-b (8,143,44) | 0.02275 | 557.3 | 67.34 |
+| cen (centered start) | 0.02377 | 545.2 | 66.60 |
+| sparse1 | 0.02623 | 540.8 | 66.34 |
+| fit (8,176,56) | 0.01682 | 504.9 | 64.09 |
+| fit-c | 0.01471 | 488.0 | 63.00 |
+| fit-e fast | 0.01208 | 517.7 | 64.90 |
+| fit-e exact | 0.01159 | 520.2 | 65.05 |
+
+Public refit: `Lambda` 282.8, `lambda_eff` 46.9, at `error_2` 0.020. Over 0.023 to 0.0116 `Lambda` stays between 488 and 557 and
+turns up again below 0.0147 (fit-e buys error with `Lambda`). `S` and `beta_1` are fixed by the verifier, so there is no shift to tune;
+`E_gap` (4.083 against the floor 3.9149) is worth 2% of `lambda_eff`, `Lambda` is worth 35%. So at 11 bits the gap to the public
+11.31 is mostly a different basin (about 1.7x lower `Lambda`), which neither longer dense fits, the structured starts nor an L1 term
+(7% of `Lambda` for 7% of `error_2`) have reached, and 8 bits needs the rounding polish on top. Open: a GPU run with a `Lambda`
+penalty from the start (not an L1 term at the end), which is the compute question for the owner.
