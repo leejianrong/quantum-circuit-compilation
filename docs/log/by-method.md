@@ -80,6 +80,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
 
+## housekeeping
+
+- 2026-11-16: [HANDOFF said our DQI was not promoted; the promotion ledger and best/ say it was, on 2026-11-14](entries/2026-11-16-handoff-dqi-promoted.md) (n/a)
+
 ## knowledge
 
 - 2026-11-16: [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) (positive)
