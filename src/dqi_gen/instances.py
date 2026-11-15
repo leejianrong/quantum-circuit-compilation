@@ -61,8 +61,9 @@ def min_shots(log2_delta: float = LOG2_DELTA) -> int:
     return math.ceil(need / BATCH) * BATCH
 
 
-def build(generator: str, inst: Instance) -> Any:
-    """The decoder circuit for `inst` from the named generator (`reference` or `divstep`)."""
+def build(generator: str, inst: Instance, stage_log: str | None = None) -> Any:
+    """The decoder circuit for `inst` from the named generator. `stage_log` (generator `fixed` only) tags the
+    circuit per stage and writes the allocated qubits at each stage mark to that JSON file."""
     builders: dict[str, Callable[[int, int, int], Any]] = {}
     builders["reference"] = lambda m, n, b: host.reference().build_reference_circuit(m, n, b)
 
@@ -92,7 +93,7 @@ def build(generator: str, inst: Instance) -> Any:
     builders["thiele"] = thiele
 
     def fixed(m: int, n: int, b: int) -> Any:
-        return importlib.import_module("dqi_gen.fixed").build_circuit(m, n, b)
+        return importlib.import_module("dqi_gen.fixed").build_circuit(m, n, b, stage_log=stage_log)
 
     builders["fixed"] = fixed
     if generator not in builders:
@@ -127,10 +128,16 @@ def main() -> None:
     p.add_argument("--shots", type=int, default=None)
     p.add_argument("--salts", type=int, default=1, help="verify under this many salts (build once)")
     p.add_argument("--save", help="also write the circuit here as .kmb (binary)")
+    p.add_argument(
+        "--stage-log",
+        help="generator fixed: tag the circuit per stage and write allocated qubits per stage here (JSON)",
+    )
     p.add_argument("--sha", action="store_true", help="print the sha256 of the .kmb file")
     a = p.parse_args()
     inst = INSTANCES[a.instance]
-    circuit = build(a.gen, inst)
+    if a.stage_log and a.gen != "fixed":
+        raise SystemExit("--stage-log needs --gen fixed")
+    circuit = build(a.gen, inst, stage_log=a.stage_log)
     digest = None
     if a.sha or a.save:
         with tempfile.TemporaryDirectory() as tmp:

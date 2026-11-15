@@ -19,3 +19,17 @@ def test_scan_counts_toffolis_and_blocks() -> None:
     assert sum(w["toffoli"] for w in r["windows"]) == 2
     assert r["blocks"]["0"]["toffoli_touches"] == 4  # q0 q1 q2 (CCX) and q3 (CSWAP)
     assert r["tags"] == [(0, "@enter:a")]
+
+
+def test_tag_cum_counts_toffolis_between_tags() -> None:
+    lines = [
+        'INFO_TAG "stage:a"\n',
+        "CCX q0 q1 q2\n",
+        "CX q0 q1\n",
+        'INFO_TAG "stage:b"\n',
+        "CCZ q0 q1 q2\n",
+        "CSWAP q0 q1 q2\n",
+    ]
+    r = scan(lines)
+    assert [(n, c) for n, _, c in r["tag_cum"]] == [("stage:a", 0), ("stage:b", 1)]
+    assert r["total_toffoli"] == 3
