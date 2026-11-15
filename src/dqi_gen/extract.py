@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import pathlib
 import sys
+from collections.abc import Callable
 from typing import Any
 
 _ROOT = pathlib.Path(__file__).resolve().parents[2] / "third_party" / "syed_dqi" / "controller_work"
@@ -33,17 +34,27 @@ J_MIN = 15
 NODES = 35
 
 
-def forward(builder: Any, words: list[list[Any]], carry: list[Any]) -> Any:
+def forward(
+    builder: Any, words: list[list[Any]], carry: list[Any], stage: Callable[[str], None] | None = None
+) -> Any:
     """Run the extraction prefix in place; returns the record needed by `backward`."""
     import raw_query_extractor as rq  # type: ignore[import-not-found]
 
-    return rq.emit_prefix(builder, words, carry, j_min=J_MIN, stop_index=NODES)
+    return rq.emit_prefix(
+        builder, words, carry, j_min=J_MIN, stop_index=NODES, stage=stage or (lambda _: None)
+    )
 
 
-def backward(builder: Any, words: list[list[Any]], carry: list[Any], record: Any) -> None:
+def backward(
+    builder: Any,
+    words: list[list[Any]],
+    carry: list[Any],
+    record: Any,
+    stage: Callable[[str], None] | None = None,
+) -> None:
     """Undo `forward` exactly (the tail controller's spare flag is released and re-allocated first)."""
     import raw_query_extractor as rq
 
     record.tail.release_spare()
     record.tail.resume_return()
-    rq.emit_closing(builder, words, carry, record)
+    rq.emit_closing(builder, words, carry, record, stage=stage or (lambda _: None))

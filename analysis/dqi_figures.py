@@ -63,6 +63,24 @@ def ours_stages(d: dict) -> plt.Figure:  # type: ignore[type-arg]
     return fig
 
 
+def extractor_nodes(d: dict) -> plt.Figure:  # type: ignore[type-arg]
+    n = d["extractor_nodes"]
+    fwd = [o - h for o, h in zip(n["ours_fwd"], n["theirs_fwd"], strict=True)]
+    ret = [o - h for o, h in zip(n["ours_ret"], n["theirs_ret"], strict=True)]
+    xs = range(len(fwd))
+    fig, (a, b) = plt.subplots(2, 1, figsize=(9, 5.6), sharex=True)
+    a.bar(xs, fwd, color=OURS)
+    a.set_ylabel("forward: ours minus his (T)")
+    a.set_title(f"Extractor, per node: forward gap {sum(fwd):+,} T, return gap {sum(ret):+,} T")
+    b.bar(xs, ret, color=GOOD)
+    b.set_ylabel("return: ours minus his (T)")
+    b.set_xlabel("node index (0 to 34); steady return gap is +114 T per node from node 3")
+    for ax in (a, b):
+        ax.axhline(0, color="k", lw=0.5)
+    fig.tight_layout()
+    return fig
+
+
 def qubit_timeline(d: dict) -> plt.Figure:  # type: ignore[type-arg]
     q = d["qubit_timeline_theirs"]
     ys = q["allocated_Q"]
@@ -176,6 +194,7 @@ def j_min_sweep(d: dict) -> plt.Figure:  # type: ignore[type-arg]
 FIGURES = {
     "dqi-stage-ledger": stage_ledger,
     "dqi-ours-stages": ours_stages,
+    "dqi-extractor-nodes": extractor_nodes,
     "dqi-qubit-timeline": qubit_timeline,
     "dqi-v7-waterfall": patch_waterfall,
     "dqi-profile-diff": profile_diff,
