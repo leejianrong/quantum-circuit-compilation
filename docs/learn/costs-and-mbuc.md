@@ -47,6 +47,16 @@ so `C = 7,988` and `Q * C = 2.08e6`. The leaderboard then takes each benchmark's
 `baseline_cost / cost` and combines the three by geometric mean (see
 [COMPETITION.md](../COMPETITION.md)).
 
+For invsqrt the cost is just `Q * C`, so equal-score circuits lie on a hyperbola. On log axes those are straight
+dashed lines, labelled with the score ratio against the paper's reference circuit. Every point on a line scores
+the same; moving down or left is better. The circuits plotted are real ledger rows (a test checks them).
+
+![invsqrt: qubits against Toffoli-equivalents with lines of equal score](../img/learn/iso-cost-invsqrt.svg)
+
+With the square on `Q` in dqi the lines are steeper in the qubit direction, so qubits are worth more there.
+
+![dqi: qubits against Toffolis with lines of equal score](../img/learn/iso-cost-dqi.svg)
+
 ## Why the AND gate is the unit of work
 
 Arithmetic in these circuits is mostly bitwise AND. To compute `a AND b` reversibly you take a fresh
@@ -103,6 +113,11 @@ bit is 1, apply CZ to `a` and `b`. CZ is Clifford, so it is cheap, and no Toffol
 Compute plus uncompute therefore costs 1 Toffoli instead of 2. That is the sense in which MBUC
 halves the AND cost. The same idea scales to whole registers: the reference circuits compute a row of
 ANDs, add it into a target, and clear the ANDs by measurement.
+
+As a circuit: one Toffoli to compute, then `HMR` measures the ancilla into the classical bit `m` and resets it,
+and a CZ on `a` and `b` runs only if `m` is 1.
+
+![MBUC as a circuit](../img/learn/circuit-mbuc.svg)
 
 ## Bit-plus-phase bookkeeping
 

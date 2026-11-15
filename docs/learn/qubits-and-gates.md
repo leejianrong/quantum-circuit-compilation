@@ -44,6 +44,43 @@ print(round(np.sum(np.abs(psi) ** 2), 6))
 Here a 50/50 coin. Notice that the factor `1j` did not change the probabilities. We come back to why
 that still matters.
 
+### Amplitudes on the complex plane
+
+A complex number is a point on a plane: the real part runs along the horizontal axis and the imaginary part
+along the vertical one (the **Argand plane**). Its magnitude is the distance from the origin and its
+**phase** is the angle. Multiplying by `i` turns a point a quarter turn about the origin and leaves its
+distance alone, which is why the `1j` in `psi` above changed no probabilities.
+
+![The Argand plane: z, its magnitude and angle, and i times z](../img/learn/argand-plane.svg)
+
+```python
+z = 1.2 + 0.9j
+print(round(abs(z), 3), round(float(np.degrees(np.angle(z))), 1))
+print(z * 1j)
+print(round(abs(z * 1j), 3))  # same distance, turned 90 degrees
+```
+
+```text
+1.5 36.9
+(-0.9+1.2j)
+1.5
+```
+
+??? note "How the figure is made"
+    Every figure in the learning track is drawn by a function in `analysis/learn_figures.py` and committed
+    as an SVG; `make learn-figures` redraws them all. The call below builds this one without saving it.
+
+    ```python
+    from analysis.learn_figures import FIGURES
+
+    fig = FIGURES["argand-plane"]()
+    print(type(fig).__name__)
+    ```
+
+    ```text
+    Figure
+    ```
+
 ## Gates are unitary matrices
 
 A **gate** changes a state. Every gate is a matrix, and applying it is a matrix-vector product. The
@@ -110,6 +147,12 @@ show(H @ (Z @ plus))
 called a **phase**. A phase is invisible if you measure immediately, and decisive if you let the
 amplitudes interfere again afterwards. Circuits in this competition use phases heavily, and
 [the next page](reversible-logic.md) returns to them.
+
+The same three experiments as bars of signed amplitude. Blue is a positive amplitude, orange a negative one.
+After the first `H` both outcomes are equally likely; the second `H` either sends all of it back to `|0>` or,
+with a `Z` in between, all of it to `|1>`.
+
+![Amplitudes after H H and after H Z H](../img/learn/interference-bars.svg)
 
 ## Measurement
 
