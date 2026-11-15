@@ -4,4 +4,4 @@
 
 Earlier claims that turned out to be wrong. The original entry is never rewritten; it gets a pointer to the entry that corrects it.
 
-No entries yet.
+- 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) corrects [2026-11-13-invsqrt-sqrt-division](2026-11-13-invsqrt-sqrt-division.md)
