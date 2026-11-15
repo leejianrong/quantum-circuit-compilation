@@ -29,6 +29,18 @@ nav = [
   { "Competition" = "COMPETITION.md" },
   { "Plan" = "PLAN.md" },
   { "Measurement and dashboard" = "MEASUREMENT.md" },
+  { "Log book" = [
+    { "Timeline" = "log/index.md" },
+    { "Entry template" = "log/template.md" },
+    { "By benchmark" = "log/by-benchmark.md" },
+    { "By method" = "log/by-method.md" },
+    { "Negative results" = "log/negative-results.md" },
+    { "Corrections" = "log/corrections.md" },
+  ] },
+  { "Results" = [
+    { "Scoreboard" = "results/scoreboard.md" },
+    { "Experiments" = "results/experiments.md" },
+  ] },
   { "Studies: invsqrt" = [
     { "split phase, serial phasing and a centered remainder" = "experiments/invsqrt-bitserial.md" },
     { "where the cost goes" = "experiments/invsqrt-cost-drivers.md" },

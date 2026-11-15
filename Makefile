@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report learn-figures
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report learn-figures log log-check
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -23,6 +23,12 @@ hooks: ## Install the pre-push hook
 
 learn-figures: ## Redraw docs/img/learn/*.svg (learning-track figures) from code and analysis/numbers/learn.json; needs the plots extra
 	uv run --extra plots python -m analysis.learn_figures docs/img/learn
+
+log: ## Lint docs/log/entries and rewrite the generated log and results pages
+	uv run python -m bench.logbook
+
+log-check: ## Lint the log entries and fail if a generated page is stale (also run by the tests)
+	uv run python -m bench.logbook --check
 
 docs: ## Build the learning site into site/ (snippets are run by `make test`)
 	uv run zensical build --clean
