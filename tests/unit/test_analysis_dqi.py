@@ -23,6 +23,11 @@ def test_data_is_internally_consistent() -> None:
     comps = d["stage_ledger"]["components"]
     assert abs(sum(c["ours"] for c in comps) - d["stage_ledger"]["ours_total"]) < 600
     assert sum(c["theirs_v2"] for c in comps) == d["stage_ledger"]["theirs_v2_total"]
+    assert sum(c["theirs_final"] for c in comps) == d["stage_ledger"]["theirs_final_total"]
+    assert d["stage_ledger"]["theirs_final_total"] == d["totals"]["theirs"]["toffoli_like"]
+    q = d["qubit_timeline_theirs"]
+    assert len(q["allocated_Q"]) == q["groups"][-1][2] + 1
+    assert max(q["allocated_Q"]) == q["peak_at_marks"] <= q["circuit_peak"]
 
 
 def test_figures_and_pdf_are_written(tmp_path) -> None:  # type: ignore[no-untyped-def]

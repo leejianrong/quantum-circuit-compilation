@@ -28,18 +28,44 @@ def stage_ledger(d: dict) -> plt.Figure:  # type: ignore[type-arg]
     comps = d["stage_ledger"]["components"]
     names = [c["name"] for c in comps]
     ours = [c["ours"] / 1000 for c in comps]
-    theirs = [c["theirs_v2"] / 1000 for c in comps]
+    theirs = [c["theirs_final"] / 1000 for c in comps]
     fig, ax = plt.subplots(figsize=(8, 4.4))
     x = range(len(names))
     w = 0.38
     ax.bar([i - w / 2 for i in x], ours, w, label="ours (measured, boundaries +-3k)", color=OURS)
-    ax.bar([i + w / 2 for i in x], theirs, w, label="his v2 ledger", color=THEIRS)
+    ax.bar([i + w / 2 for i in x], theirs, w, label="his final (native build ledger)", color=THEIRS)
     for i, (o, t) in enumerate(zip(ours, theirs, strict=True)):
         ax.text(i, max(o, t) + 2, f"{o - t:+.1f}k", ha="center", fontsize=9, color=BAD if o > t else GOOD)
     ax.set_xticks(list(x), names, fontsize=8)
     ax.set_ylabel("static Toffolis (thousands)")
     ax.set_title("DQI cost by component: ours minus his above each pair")
     ax.legend(fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def qubit_timeline(d: dict) -> plt.Figure:  # type: ignore[type-arg]
+    q = d["qubit_timeline_theirs"]
+    ys = q["allocated_Q"]
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    ax.step(range(len(ys)), ys, where="post", color=THEIRS, lw=1.4)
+    palette = ["#edf2f7", "#e2e8f0"]
+    for i, (name, lo, hi) in enumerate(q["groups"]):
+        ax.axvspan(lo - 0.5, hi + 0.5, color=palette[i % 2], zorder=0)
+        ax.text((lo + hi) / 2, 892, name, rotation=90, ha="center", va="bottom", fontsize=7)
+    ax.axhline(q["circuit_peak"], color=BAD, lw=1, ls="--")
+    ax.text(
+        len(ys) - 1,
+        q["circuit_peak"] + 1,
+        f"circuit peak {q['circuit_peak']} (inside a stage)",
+        ha="right",
+        fontsize=8,
+        color=BAD,
+    )
+    ax.set_ylim(830, 940)
+    ax.set_xlabel("stage mark index in his build")
+    ax.set_ylabel("allocated qubits at the end of each mark")
+    ax.set_title("His qubit width over the build: 840 to 877 at the marks, peak 889 within a stage")
     fig.tight_layout()
     return fig
 
@@ -130,6 +156,7 @@ def j_min_sweep(d: dict) -> plt.Figure:  # type: ignore[type-arg]
 
 FIGURES = {
     "dqi-stage-ledger": stage_ledger,
+    "dqi-qubit-timeline": qubit_timeline,
     "dqi-v7-waterfall": patch_waterfall,
     "dqi-profile-diff": profile_diff,
     "dqi-instruction-mix": instruction_mix,

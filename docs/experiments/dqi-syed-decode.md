@@ -13,8 +13,8 @@ Paths below are inside its `dqi_source/src/controller_work/`. Numbers behind eve
   the newer `after_v3` / `after_c5` lineage (`after_v3/integration_v7/v7_pipeline.py:28-80`).
 * [V] Three configuration choices we worried about are **not** the lever: `fused=False` (`v7_pipeline.py:288-289`), `j_min == 15`
   (`:278`), full-length scan with an adaptive 64-candidate gauge (`:281,294`).
-* [M][V] By component our extractor+synthesis is +4.0k T above its version-2 ledger, convert +0.7k, scan +0.8k; the rest is its v2-to-final
-  patches (-1.65k).
+* [M][V] Against its final native ledger (our own container run, section 7): extractor+synthesis +4.8k T, convert +1.6k, scan +0.8k, which is
+  +7.1k of the 7.3k; the remainder is the error of our stage-boundary estimate.
 
 ## 1. Entry and structure [V]
 
@@ -41,20 +41,22 @@ Build cost [V]: its README says peak about 1 GB, about 3 minutes on an Apple M5,
 
 ## 3. Per-component static Toffolis
 
-Its component ledger comes from a recorded build of version 2 (`after_c5/integration_v2/runs/a/build/build.json`,
-`/contract/source_ledger/components_static_T`, total 385,653), not the final one. Ours is the measured profile of `fixed.kmb` with
-stage boundaries estimated to about +-3k T, so only sums of adjacent components are robust.
+His component ledger is the one his own build prints (`build.json`, `/contract/source_ledger/components_static_T`) from our container run
+(section 7), total 384,003. Ours is the measured profile of `fixed.kmb` with stage boundaries estimated to about +-3k T, so only sums of
+adjacent components are robust.
 
-| component | ours [M] | his v2 [V] | ours minus his |
+| component | ours [M] | his final [V] | ours minus his |
 |---|---:|---:|---:|
-| extractor, forward + return | 148,500 | 152,591 | -4,091 |
+| extractor, forward + return | 148,500 | 151,852 | -3,352 |
 | synthesis, forward + return | 73,200 | 65,076 | +8,124 |
-| convert (outer + finish) | 124,400 | 123,711 | +689 |
-| scan | 45,045 | 44,275 | +770 |
-| total | 391,326 | 385,653 | +5,673 |
+| convert (outer + finish) | 124,400 | 122,789 | +1,611 |
+| scan | 45,045 | 44,286 | +759 |
+| total | 391,326 | 384,003 | +7,323 |
 
-Extractor and synthesis together: ours 221,700, his 217,667, so **+4.0k**, which is the robust part. His v2 to final is -1,650, giving
-384,003. The four terms (+4.0k +0.7k +0.8k +1.65k) add to 7.15k against the 7,323 total, the rest being the estimate error.
+Extractor and synthesis together: ours 221,700, his 216,928, so **+4.8k**, which is the robust part (the two rows disagree in sign because
+our extract/synthesis boundary is an estimate). Convert is +1.6k and the scan +0.76k (the 69 positions his gauge skips). The three add to
+7.14k against the 7.32k total. Between his version-2 build (385,653) and the final one the extractor fell 739, the outer stage 922 and the
+scan rose 11, together the -1,650 of section 4.
 
 ![Stage ledger](../img/analysis/dqi-stage-ledger.png)
 
@@ -72,8 +74,9 @@ a predicate or phase is held, so they are good candidates for the "mechanical" m
 Both circuits were streamed once with `dqi_gen.study`. His has 11.2M instructions before the first Toffoli and 4.6M after the last; ours
 0.4M and 0.25M. The interior lines up (instructions per 10% of T are 5.4/5.4, 4.8/4.8, 3.8/3.8 and 3.2/3.2 million in the middle
 segments). His extra classical instruction mass (15.4M `BIT_INVERT` against 4.6M, 1.5M `BIT_STORE0` against 0.36M, twice the
-`PUSH_CONDITION` blocks) therefore sits in the wrapper, not in the Toffoli region. [I] That wrapper is the classical part of the
-adaptive gauge (it only moves classical mask bits); the 4,095 - 4,026 = 69 skipped positions explain the 759 T in the scan row.
+`PUSH_CONDITION` blocks) therefore sits in the wrapper, not in the Toffoli region. [V] That wrapper is the gauge: his build marks show
+70 `blocked_mask_shear` and 15 `adaptive64_histogram` stages before the extractor and 70 `blocked_mask_shear` after the return (section 8);
+the 4,095 - 4,026 = 69 skipped positions explain the 759 T in the scan row.
 
 Aligned at the first Toffoli, about 2.7k of the 7.3k gap falls in the first 28M instructions and about 4.6k later. The alignment drifts
 along the axis, so this is a hint only.
@@ -91,16 +94,43 @@ along the axis, so this is a hint only.
 
 ![J_MIN sweep](../img/analysis/dqi-jmin-sweep.png)
 
-## 7. Plan from here
+## 7. Reproducing his build here [M]
 
-1. **Match (path A).** Bring the closure of `v7_pipeline.py` into `third_party/` unchanged (its 200+ modules and the hash-pinned
-   records its gates check; the licence headers stay on those files), wire our verification around it, and confirm 384,003 / 889 at
-   the official verifier over at least 10 salts. Open details: it asserts CPython 3.13 and our venv is 3.14, it takes a lock file under
-   `/tmp` and refuses to start under 4 GB free, and its gates read pinned paths relative to a copied tree.
+His builder rebuilds `dqi.kmb` byte for byte on this machine: `BUILT dqi.kmb 7cbe8ecf6f6e9743...`, 455,590,024 bytes, 78 to 87 s, well under
+2 GB. It does not run on the host: the competition `kickmix.so` needs `GLIBCXX_3.4.32` and the host has glibc 2.35, so it runs inside a
+rootless container (no network, inputs read-only, only the work and output directories writable) on a local image with glibc 2.39, using
+CPython 3.13.13 and numpy 2.2.4 as his `build.sh` requires. `scripts/dqi_reference_build.sh` does this; the extracted source stays outside git
+(52 MB, fetched with `scripts/fetch_public.sh`, extracted with `zipfile`).
+
+Deviation, one line: `chmod -R u+w` on the copied tree is refused inside this container (reproduced with a plain `cp` and `chmod`, cause
+unknown), so the script runs a copy of `build.sh` with `|| true` after it. The copy is already writable, the circuit hash is unchanged, and his
+`build.sh` is not edited. Before running anything we read the launchers and grepped all 258 Python files for network, deletion and dynamic
+execution (only `ast.literal_eval`, a method named `eval`, and one `exec` that compiles a function from the official verifier file).
+
+## 8. His stage map and qubit width [V]
+
+The build record keeps 432 stage marks with the builder's allocated-qubit count after each (`build.json`, `stages`). Order: gauge open (70
+`blocked_mask_shear`, 15 `adaptive64_histogram`, one weight-gauge mark; width 840), extract forward (35 `raw_query_prefix`, width 865),
+synthesis forward (34 marks), outer and finish (4 marks, 865 to 877), the scan (128 marks, 875), finish return and seam (3 marks, 877 to 865),
+synthesis return (34), extract return (35, falling to 864), gauge close (70 `blocked_mask_shear`, width 840). The marks reach 877; his circuit
+peak of 889 is reached inside a stage and is not recorded. The marks carry no Toffoli counts, so his per-stage T still has to come from the
+ledger above or from a profile.
+
+Consequence [I]: his width is 865 for most of the circuit and 889 only transiently, while our `fixed.kmb` showed ids 840 to 889 live through the
+run. Whether ours could also drop below 890 for most stages is the next measurement (the same `num_allocated_qubits` read at each of our stage
+marks).
+
+![His qubit timeline](../img/analysis/dqi-qubit-timeline.png)
+
+## 9. Plan from here
+
+1. **Match (path A), mostly done.** His pipeline is reproduced byte for byte in a container (section 7) and used as the oracle. We keep it
+   out of git (its closure is 52 MB with hash-pinned records) and run it through `scripts/dqi_reference_build.sh`; the 58 modules already
+   vendored stay as they are. Still to do: our own stage marks (below), then moving our generator onto his newer lineage.
 2. **Own the parts we change (path B).** For each module we modify, rewrite it from scratch in `src/dqi_gen`, keep the vendored copy as
    the reference oracle, and require identical Toffoli count and a passing official verify before swapping it in.
 3. **Exceed.** After the match, candidates (all estimates [G]): a lower-rank GF(2^24) product (about 1.3k T per unit of rank), a
    qubit-for-Toffoli trade in the extractor scratch (1 qubit is 879 T), and the open synthesis gap that his v3 base hides. Every step is
    measured as delta T, delta Q and delta cost at 10 salts, and added to `analysis/numbers/dqi.json`.
 
-Not yet done: per-stage marks on our own build (needs the `stage=` hook), and provenance rows for the ideas above.
+Not yet done: per-stage marks and allocated-qubit reads on our own build (needs the `stage=` hook), and provenance rows for the ideas above.
