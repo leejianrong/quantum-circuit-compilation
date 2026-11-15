@@ -7,3 +7,6 @@ Ideas that were tried and did not work, with the reason. They are as useful as t
 - 2026-11-13, invsqrt: [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md)
 - 2026-11-13, invsqrt: [invsqrt one-pass study: the frontier has a Horner unwind after all, and none of four levers moves ratio 12.34](entries/2026-11-13-invsqrt-onepass.md)
 - 2026-11-13, dqi: [The reciprocal-polynomial scan works classically (23 Toffolis per position) but no in-place Euclid history was found, so it was not built](entries/2026-11-13-dqi-psi.md)
+- 2026-11-13, dfthcsos: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md)
+- 2026-11-12, dfthcsos: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md)
+- 2026-11-12, dfthcsos: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md)

@@ -4,6 +4,10 @@
 
 Entries grouped by the `methods` tags in their front matter.
 
+## co-design
+
+- 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
+
 ## cost-breakdown
 
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
@@ -12,6 +16,15 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [invsqrt: our own generator takes the reference from ratio 1.0 to 7.00 (136 qubits), then 8.40 (121 qubits)](entries/2026-11-12-invsqrt-generator.md) (positive)
 - 2026-11-12: [invsqrt: the host reference is 88% schoolbook multiplications, and qubits and Toffolis weigh equally in the score](entries/2026-11-12-invsqrt-cost-drivers.md) (positive)
 - 2026-11-12: [DQI reference: 73% of its 5,725,461 Toffolis are two Euclid passes, and every qubit counts twice](entries/2026-11-12-dqi-cost-drivers.md) (positive)
+
+## cost-model
+
+- 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
+- 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
+- 2026-11-12: [A fully own dfthcsos circuit passes the verifier (ratio 1.98 at 11 bits); the gap to 6.85 is bit width and lambda_eff](entries/2026-11-12-dfthcsos-structured.md) (positive)
+- 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
+- 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
+- 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
 
 ## decoder
 
@@ -30,6 +43,14 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
 
+## fit
+
+- 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
+- 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
+- 2026-11-12: [A fully own dfthcsos circuit passes the verifier (ratio 1.98 at 11 bits); the gap to 6.85 is bit width and lambda_eff](entries/2026-11-12-dfthcsos-structured.md) (positive)
+- 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
+- 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
+
 ## generator
 
 - 2026-11-13: [invsqrt ratio 12.34 (93 qubits, 168,237.5): lean qubits and exhaustive windows pay, the Horner mirror cannot be removed](entries/2026-11-13-invsqrt-uncompute.md) (positive)
@@ -45,6 +66,23 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [A dialog-free Lanczos decoder halves the qubits (2,764 to 1,472) and verifies, but 0.75% of shots fail and R doubles](entries/2026-11-12-dqi-inplace.md) (positive)
 - 2026-11-12: [Lanczos failures (0.75% of shots) cannot be fixed locally; a rank-42 multiplier and tower inversions cut Toffolis to 905k instead](entries/2026-11-12-dqi-failures.md) (positive)
 - 2026-11-12: [Our first DQI decoder (divsteps plus a GF(2^6) tower) has 4.8x fewer Toffolis than the reference but only 18% lower Q^2 T](entries/2026-11-12-dqi-divstep-v0.md) (positive)
+- 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
+- 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
+
+## loader
+
+- 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
+- 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
+- 2026-11-12: [A fully own dfthcsos circuit passes the verifier (ratio 1.98 at 11 bits); the gap to 6.85 is bit width and lambda_eff](entries/2026-11-12-dfthcsos-structured.md) (positive)
+- 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
+- 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
+- 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
+
+## low-bit
+
+- 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
+- 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
+- 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
 
 ## phase-adder
 
@@ -58,6 +96,13 @@ Entries grouped by the `methods` tags in their front matter.
 ## public-reference
 
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
+
+## qat
+
+- 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
+- 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
+- 2026-11-12: [A fully own dfthcsos circuit passes the verifier (ratio 1.98 at 11 bits); the gap to 6.85 is bit width and lambda_eff](entries/2026-11-12-dfthcsos-structured.md) (positive)
+- 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
 
 ## qubit-reduction
 
@@ -85,11 +130,13 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (correction)
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
+- 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
 - 2026-11-13: [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md) (negative)
 - 2026-11-13: [invsqrt by square root and division: a 46-qubit design re-derived, our own builds reach 90 qubits (281,802 at 1/20 shots), consuming multiplier not closed](entries/2026-11-13-invsqrt-sqrt-division.md) (inconclusive)
 - 2026-11-13: [invsqrt one-pass study: the frontier has a Horner unwind after all, and none of four levers moves ratio 12.34](entries/2026-11-13-invsqrt-onepass.md) (negative)
 - 2026-11-13: [The 889-qubit DQI architecture re-derived: a Thiele-type in-place extraction over GF(2^24), and our own decoder reaches ratio 36.4 then about 66 on a narrow build](entries/2026-11-13-dqi-syed.md) (positive)
 - 2026-11-13: [The 892-qubit public DQI circuit works in place on the 840 syndrome qubits plus 52, and a quadratic-extension pivot removes the failures](entries/2026-11-13-dqi-stage2.md) (positive)
+- 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
 - 2026-11-12: [invsqrt: the host reference is 88% schoolbook multiplications, and qubits and Toffolis weigh equally in the score](entries/2026-11-12-invsqrt-cost-drivers.md) (positive)
 
 ## sqrt-division

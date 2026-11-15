@@ -32,6 +32,17 @@ Entries grouped by the benchmark they concern.
 - 2026-11-12: [Our first DQI decoder (divsteps plus a GF(2^6) tower) has 4.8x fewer Toffolis than the reference but only 18% lower Q^2 T](entries/2026-11-12-dqi-divstep-v0.md) (positive)
 - 2026-11-12: [DQI reference: 73% of its 5,725,461 Toffolis are two Euclid passes, and every qubit counts twice](entries/2026-11-12-dqi-cost-drivers.md) (positive)
 
+## dfthcsos
+
+- 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
+- 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
+- 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
+- 2026-11-12: [A fully own dfthcsos circuit passes the verifier (ratio 1.98 at 11 bits); the gap to 6.85 is bit width and lambda_eff](entries/2026-11-12-dfthcsos-structured.md) (positive)
+- 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
+- 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
+- 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
+- 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
+
 ## infra
 
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
