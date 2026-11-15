@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -35,3 +35,7 @@ dashboard: ## Run the local dashboard (needs `uv sync --extra dashboard`); print
 
 plots-readme: ## Redraw docs/img/*.png (plots and dashboard screenshots) from the live ledger; light, verifies nothing
 	uv run --extra plots --extra dashboard --extra shots python scripts/plots_readme.py
+
+report: ## Analysis figures (docs/img/analysis) and the PDF report (out/reports) from analysis/data/*.json; needs the plots extra
+	uv run --extra plots python -m analysis.dqi_figures docs/img/analysis
+	uv run --extra plots python -m analysis.report out/reports/qcc-analysis.pdf

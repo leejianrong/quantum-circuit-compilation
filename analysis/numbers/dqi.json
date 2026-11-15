@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "benchmark": "dqi",
+    "generated": "2026-11-15",
+    "tags": "M = measured by us, V = read from the other builder's source or recorded build data, I = inferred",
+    "notes": "Our stage boundaries are estimated from the Toffoli-rate profile of fixed.kmb, good to about +-3k T per stage; only sums over adjacent stages are robust."
+  },
+  "totals": {
+    "ours": {"qubits": 890, "toffoli_like": 391326, "ccx": 372241, "ccz": 7661, "cswap": 11424, "worst_salt_cost": 371563918246.0, "source": "M"},
+    "theirs": {"qubits": 889, "toffoli_like": 384003, "ccx": 364619, "ccz": 7000, "cswap": 12384, "worst_salt_cost": 362389950382.7, "source": "M"},
+    "baseline_cost": 24439463583672.9
+  },
+  "stage_ledger": {
+    "unit": "static Toffolis",
+    "note": "ours = measured profile of fixed.kmb (forward + return summed); theirs = recorded integration_v2 build, contract/source_ledger/components_static_T (385,653 total), a version slightly before the final 384,003.",
+    "components": [
+      {"name": "extractor (fwd + return)", "ours": 148500, "theirs_v2": 152591, "ours_parts": {"extract fwd": 74900, "unextract": 73600}},
+      {"name": "synthesis (fwd + return)", "ours": 73200, "theirs_v2": 65076, "ours_parts": {"synthesis fwd": 29700, "unsynthesis": 43500}},
+      {"name": "convert: outer + finish", "ours": 124400, "theirs_v2": 123711, "ours_parts": {"convert fwd": 56200, "unconvert": 68200}, "theirs_parts": {"preimage_gauge_parking_shared_windows": 115947, "projective_finish": 7856, "finish_outer_seam_delta": -92}},
+      {"name": "scan", "ours": 45045, "theirs_v2": 44275}
+    ],
+    "theirs_v2_total": 385653,
+    "theirs_final_total": 384003,
+    "ours_total": 391326
+  },
+  "v7_patch_waterfall": {
+    "unit": "static Toffolis",
+    "source": "V: v7_pipeline.py source_ledger changes_static_T and accepted_v3_static_T",
+    "start_label": "accepted v3",
+    "start": 384915,
+    "steps": [
+      ["quotient_phase84", -12], ["last_return", -8], ["borrowed_forward", -56],
+      ["retained_forward_predicate", -88], ["parked_scale_phase", -24],
+      ["retained_transpose_predicates", -176], ["transpose_predicate_handoff", -22],
+      ["rare_paired_branch", -144], ["joint_norm_phase", -36],
+      ["first_two_retained_norm_stack", -243], ["first_two_matched_prefix_debt", -3],
+      ["third_zero_repaired_public_chart", -55], ["cubic_inner_trace_phase", -18],
+      ["transpose14", -38], ["adaptive64_scan_static", 11]
+    ],
+    "final": 384003
+  },
+  "profile_diff": {
+    "unit": "Toffolis per 2M instructions after aligning both circuits at their first Toffoli window",
+    "bucket_start_M": [0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40],
+    "theirs": [33028,32051,20636,9576,15794,37999,17488,16819,16544,17050,27708,23997,9570,12101,18219,23126,22752,19357,10188,0,0],
+    "ours":   [32867,32119,21064,10038,14994,37315,18430,16896,16896,15627,28742,26601,9478,12003,19013,19925,19896,18122,15163,6137,0],
+    "toffoli_free_prefix_instructions": {"theirs": 11200000, "ours": 400000},
+    "toffoli_free_suffix_instructions": {"theirs": 4585000, "ours": 248342},
+    "source": "M"
+  },
+  "instruction_mix": {
+    "ours":   {"CX": 31566842, "BIT_INVERT": 4602286, "BIT_STORE0": 355739, "PUSH_CONDITION": 784217, "POP_CONDITION": 784217, "CZ": 487278, "SWAP": 529315, "CCX": 372241, "X": 112370, "HMR": 75185, "Z": 53592, "R": 49892, "CSWAP": 11424, "CCZ": 7661, "BIT_STORE1": 1938},
+    "theirs": {"CX": 31293155, "BIT_INVERT": 15439990, "BIT_STORE0": 1527327, "PUSH_CONDITION": 1519774, "POP_CONDITION": 1519774, "CZ": 538932, "SWAP": 378664, "CCX": 364619, "X": 108090, "HMR": 71531, "Z": 46469, "R": 48210, "CSWAP": 12384, "CCZ": 7000, "BIT_STORE1": 54936},
+    "source": "M"
+  },
+  "j_min_sweep": {
+    "instance": "narrow (71 positions; its weight law differs from the full instance)",
+    "unit": "Toffolis at 1 salt, official verifier",
+    "points": [
+      {"j_min": 15, "toffolis": 346192.06, "value_errors": 0, "shots": 3072, "score_over_q2t": 3.907},
+      {"j_min": 17, "toffolis": 345915.01, "value_errors": 0, "shots": 3072, "score_over_q2t": 3.907},
+      {"j_min": 19, "toffolis": 345640.57, "value_errors": 2, "shots": 3072, "score_over_q2t": 4.360}
+    ],
+    "source": "M"
+  }
+}
