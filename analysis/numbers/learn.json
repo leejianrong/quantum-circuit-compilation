@@ -147,5 +147,94 @@
         "note": "measured with our model; the verifier agrees to every digit (see the log entry)"
       }
     ]
+  },
+  "primers": {
+    "invsqrt_reference_toffolis_per_direction": [
+      [
+        "Normalise",
+        120,
+        false
+      ],
+      [
+        "Horner, three steps",
+        1071,
+        true
+      ],
+      [
+        "Square y0^2",
+        442,
+        true
+      ],
+      [
+        "Multiply by x_norm",
+        1043,
+        true
+      ],
+      [
+        "3 - z",
+        28,
+        false
+      ],
+      [
+        "Final multiply y0 (3 - z)",
+        867,
+        true
+      ],
+      [
+        "Denormalise (CSWAPs)",
+        300,
+        false
+      ]
+    ],
+    "invsqrt_sum_per_direction": 3871,
+    "dqi_reference": {
+      "total": 5725461,
+      "stages": [
+        [
+          "forward Euclid pass",
+          2109450
+        ],
+        [
+          "reverse Euclid pass",
+          2109450
+        ],
+        [
+          "Chien search, Forney, phase",
+          1444737
+        ],
+        [
+          "initial shift and its inverse",
+          61824
+        ]
+      ]
+    },
+    "dfthcsos_baseline": {
+      "t_total": 93237,
+      "t_parts": [
+        [
+          "angle circuits",
+          79480
+        ],
+        [
+          "state preparation and Givens (formulas)",
+          13757
+        ]
+      ],
+      "q_total": 730,
+      "q_parts": [
+        [
+          "state-preparation qubits",
+          90
+        ],
+        [
+          "angle words (J x brot)",
+          96
+        ],
+        [
+          "shared temporaries",
+          544
+        ]
+      ]
+    }
   }
 }

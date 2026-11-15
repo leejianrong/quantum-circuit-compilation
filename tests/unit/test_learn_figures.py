@@ -108,3 +108,55 @@ def test_pages_only_use_registered_widgets() -> None:
         used |= set(re.findall(r'data-widget="([a-z-]+)"', page.read_text()))
     assert registry == {"interference", "iso-cost", "mbuc", "dfthcsos"}
     assert used == registry
+
+
+def test_primer_figure_numbers_add_up_and_appear_in_the_pages() -> None:
+    d = learn_figures.load()["primers"]
+    inv = d["invsqrt_reference_toffolis_per_direction"]
+    assert sum(r[1] for r in inv) == d["invsqrt_sum_per_direction"]
+    assert sum(r[1] for r in inv if r[2]) == 3423  # Horner plus the three Newton multiplications
+    dqi = d["dqi_reference"]
+    assert sum(v for _, v in dqi["stages"]) == dqi["total"]
+    df = d["dfthcsos_baseline"]
+    assert sum(v for _, v in df["t_parts"]) == df["t_total"]
+    assert sum(v for _, v in df["q_parts"]) == df["q_total"]
+    pages = {p.name: p.read_text() for p in LEARN.rglob("*.md")}
+    for page, needles in (
+        ("primer-invsqrt.md", ["3,871", "3,423", "1,071", "867"]),
+        ("primer-dqi.md", ["5,725,461"]),
+        ("primer-dfthcsos.md", ["93,237", "79,480", "13,757", "730", "544"]),
+    ):
+        for n in needles:
+            assert n in pages[page], f"{page} no longer mentions {n}: update analysis/numbers/learn.json"
+
+
+def test_adder_diagram_matches_the_real_circuit() -> None:
+    km = pytest.importorskip("kickmix")
+    gates, wires = learn_figures.adder_gates(4)
+    bd = km.CircuitBuilder()  # the page's adder, built the same way
+    a = bd.create_quantum_register(4, "a")
+    b = bd.create_quantum_register(4, "b")
+    c = bd.alloc_qubits(3)
+    for i in range(3):
+        if i:
+            bd.cx(c[i - 1], a[i])
+            bd.cx(c[i - 1], b[i])
+        bd.init_and(a[i], b[i], c[i])
+        if i:
+            bd.cx(c[i - 1], c[i])
+    bd.cx(a[3], b[3])
+    bd.cx(c[2], b[3])
+    for i in reversed(range(3)):
+        if i:
+            bd.cx(c[i - 1], c[i])
+        bd.del_and(a[i], b[i], c[i])
+        if i:
+            bd.cx(c[i - 1], a[i])
+        bd.cx(a[i], b[i])
+    circuit = bd.finish_circuit()
+    kinds = [g[0] for g in gates]
+    assert kinds.count("CCX") == circuit.operation_statistics().num_toffoli_like == 3
+    assert len(wires) == circuit.num_qubits == 11
+    # kickmix counts init_and and del_and as two instructions each (allocate and AND; measure and fix)
+    drawn = kinds.count("CX") + 2 * kinds.count("CCX") + kinds.count("HMR") + kinds.count("CZ")
+    assert drawn == circuit.operation_statistics().num_instructions == 27

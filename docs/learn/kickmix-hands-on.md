@@ -303,6 +303,11 @@ Run `print(circuit.text_diagram())` and read it left to right. The three `|0>` r
 the carry qubits. Each is set by a Toffoli on the way out, and each ends in an `HMR=b0` box with a
 `Z**b0` (a controlled phase fix) on the way back.
 
+The same circuit drawn out. The Toffolis are the three `init_and` calls (each puts an AND into a fresh carry qubit),
+and each `del_and` is an `HMR` on the carry followed by a CZ on `a` and `b` that runs only if the measured bit is 1.
+
+![The 4-bit adder: 3 Toffolis, 11 qubits](../img/learn/circuit-adder.svg)
+
 Eleven qubits is the two registers plus three carries. The library `iadd` above uses 10 for the same
 Toffoli count. That one-qubit gap is the shape of a real optimisation in this competition, and
 exercise 2 closes it.

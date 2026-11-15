@@ -217,7 +217,12 @@ def render_log(entries: list[Entry]) -> dict[Path, str]:
         "what we learned, what we decided. Newest first. How to write one: [entry template](template.md). "
         "Also by [benchmark](by-benchmark.md), by [method](by-method.md), the "
         "[negative results](negative-results.md) and the [corrections](corrections.md); numbers live under "
-        "[results](../results/scoreboard.md).\n\n" + (("\n".join(rows) + "\n") if es else "No entries yet.\n")
+        "[results](../results/scoreboard.md).\n\n"
+        "Project and infrastructure work (the harness, the dashboard, the Kaggle runners, the ADRs) sits "
+        "beside the studies and has no entries here; see "
+        "[ADR-0008](../adr/0008-measurement-ledger-v2-and-dashboard.md), "
+        "[measurement](../MEASUREMENT.md) and the git history.\n\n"
+        + (("\n".join(rows) + "\n") if es else "No entries yet.\n")
     )
 
     def grouped(title: str, intro: str, keyf: Any, order: list[str] | None = None) -> str:

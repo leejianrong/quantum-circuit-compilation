@@ -220,6 +220,11 @@ a state of its own any more: the pair has one, and you cannot write it as a `np.
 single-qubit vectors. This is **entanglement**. For this competition you can treat it as the reason
 multi-qubit states need the full vector, not one small vector per qubit.
 
+The same state as a circuit: time runs left to right, each line is a qubit, the box is `H`, the dot is the control and
+the circled plus is the target of the CNOT.
+
+![The Bell state as a circuit: H, then CNOT](../img/learn/circuit-bell.svg)
+
 ## Three qubits and the cost of the vector
 
 For `n` qubits the vector has `2**n` entries. A helper that applies a one-qubit gate to qubit `k`, and
@@ -269,6 +274,11 @@ computer could store. That blow-up is why quantum computers are interesting, and
 a general circuit classically is hopeless. The circuits in this competition are a restricted kind that
 a classical computer can still check cheaply, which is the subject of
 [classical verification](classical-verification.md). First we need the restricted gates.
+
+How fast the vector grows, in bytes of 16-byte complex numbers. The public invsqrt circuits have 46 and 62 qubits:
+nobody can write their state down, which is why [classical verification](classical-verification.md) matters.
+
+![Memory of a state vector against the number of qubits](../img/learn/state-vector-growth.svg)
 
 ## Exercises
 

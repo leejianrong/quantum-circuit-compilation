@@ -188,6 +188,10 @@ arithmetic, not a figure from the paper. The paper itself lists the explicit rem
 pointer-driven EEA steps, polynomial-basis multiplication and per-position inversion as parts that
 "can be improved."
 
+Counted by stage with the verifier's own numbers, the reference's 5,725,461 Toffolis split like this ([log entry](../log/entries/2026-11-12-dqi-cost-drivers.md)):
+
+![Where the DQI reference decoder spends its Toffolis](../img/learn/dqi-reference-split.svg)
+
 ## Decoding failure versus repetition overhead
 
 A decoder need not be right on every input. A DQI candidate is checked classically, so a decoder
