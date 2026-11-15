@@ -8,8 +8,10 @@ Gates are tuples ``(kind, *wires)``, optionally followed by a dict of options. K
 * ``CX`` (control, target), ``CZ`` (a, b), ``CCX`` (control, control, target)
 
 Options: ``{"cond": "m"}`` marks a gate that runs only when classical bit ``m`` is 1 (drawn in the accent
-colour with an ``if m`` label); ``{"label": "text"}`` overrides a box label. Columns are laid out left to
-right, one gate per column, so the picture reads like the gate list.
+colour with an ``if m`` label); ``{"sets": "m"}`` says the gate writes classical bit ``m`` (so a later
+``cond`` gate is placed after it); ``{"label": "text"}`` overrides a box label. By default one gate per
+column, so the picture reads like the gate list; ``compact=True`` packs gates with disjoint wire spans into
+one column.
 """
 
 from __future__ import annotations
@@ -36,18 +38,39 @@ def _split(gate: Gate) -> tuple[str, list[int], dict[str, str]]:
     return items[0], items[1:], opts
 
 
-def draw(gates: list[Gate], wires: list[str], title: str | None = None) -> plt.Figure:
+def layout(gates: list[Gate], compact: bool) -> list[int]:
+    """Column (1-based) of each gate; compact places it as early as its wires and classical inputs allow."""
+    if not compact:
+        return list(range(1, len(gates) + 1))
+    last: dict[int, int] = {}
+    written: dict[str, int] = {}
+    cols = []
+    for gate in gates:
+        _, ws, opts = _split(gate)
+        span = range(min(ws), max(ws) + 1)
+        col = 1 + max([last.get(w, 0) for w in span] + [written.get(opts.get("cond", ""), 0)])
+        for w in span:
+            last[w] = col
+        if "sets" in opts:
+            written[opts["sets"]] = col
+        cols.append(col)
+    return cols
+
+
+def draw(gates: list[Gate], wires: list[str], title: str | None = None, compact: bool = False) -> plt.Figure:
     n = len(wires)
-    width = 0.9 * len(gates) + 1.8
+    cols = layout(gates, compact)
+    ncols = max(cols, default=0)
+    width = 0.9 * ncols + 1.8
     fig, ax = plt.subplots(figsize=(max(3.2, width), 0.75 * n + (0.5 if title else 0.2)))
     fig.patch.set_alpha(0)
     ax.set_facecolor("none")
-    x_end = len(gates) + 0.5
+    x_end = ncols + 0.5
     for i, name in enumerate(wires):
         y = -i
         ax.plot([0, x_end], [y, y], color=INK, lw=1, zorder=1)
         ax.text(-0.15, y, name, ha="right", va="center", color=INK, fontsize=10)
-    for col, gate in enumerate(gates, start=1):
+    for col, gate in zip(cols, gates, strict=True):
         kind, ws, opts = _split(gate)
         colour = ACCENT if "cond" in opts else BOX
         ys = [-w for w in ws]

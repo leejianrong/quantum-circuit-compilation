@@ -176,6 +176,8 @@ The paper's figures for the reference circuit at `n_p = 10`: `Q = 260` qubits, 7
 | Denormalise (CSWAPs, `30 n_p`) | 300 |
 | Sum | about 3,870 |
 
+![Toffolis per direction of the reference circuit, by stage](../img/learn/invsqrt-reference-stages.svg)
+
 The reference source says "about 3.9k Toffolis per direction", which matches. The three Horner steps and the three Newton
 multiplications account for about 88% of that sum (3,423 of 3,871). The `Z_POW` rotations are about 3% of the total: each costs
 `0.56 log2(1/eps) + 5.3` T gates and `eps` is the margin left after the arithmetic error. From the

@@ -231,6 +231,8 @@ The README's formula says the same thing: the shared workspace is
 `max(outer_temp, inner_temp, angles_temp)`. `lambda_eff` is 49.3
 and moves with the factorization.
 
+![The baseline's T_total and Q_total by part](../img/learn/dfthcsos-baseline-split.svg)
+
 Levers that follow from the formula, without going beyond it:
 
 - Fewer addresses (`R * B`) shrink every `ANGLE_k` and the state preparations, but change `Lambda`

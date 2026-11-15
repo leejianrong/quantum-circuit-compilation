@@ -4,8 +4,11 @@
 
 One dated entry per piece of work: what we tried, the setup, the numbers, what we learned, what we decided. Newest first. How to write one: [entry template](template.md). Also by [benchmark](by-benchmark.md), by [method](by-method.md), the [negative results](negative-results.md) and the [corrections](corrections.md); numbers live under [results](../results/scoreboard.md).
 
+Project and infrastructure work (the harness, the dashboard, the Kaggle runners, the ADRs) sits beside the studies and has no entries here; see [ADR-0008](../adr/0008-measurement-ledger-v2-and-dashboard.md), [measurement](../MEASUREMENT.md) and the git history.
+
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-16 | decision | docs | positive | [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) | #200 |
 | 2026-11-16 | decision | docs | positive | [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) | #190, #191, #198 |
 | 2026-11-16 | decision | docs | positive | [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) | #199 |
 | 2026-11-15 | reading | invsqrt | correction | [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (backfilled) | #184 |
