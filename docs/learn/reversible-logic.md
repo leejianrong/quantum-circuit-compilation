@@ -110,6 +110,11 @@ borrow for that: it starts at 0, holds an intermediate result, and has to be at 
 it back. To compute `a AND b AND c` you need the AND of `a` and `b` stored somewhere before you can
 combine it with `c`.
 
+The first and last Toffoli in `and3` below, drawn as a circuit. Time runs left to right, each line is a
+qubit, a dot is a control and the circled plus is the target that gets flipped.
+
+![A Toffoli computes a AND b into a fresh qubit, a second one undoes it](../img/learn/circuit-toffoli-and.svg)
+
 ```python
 def and3(a, b, c):
     anc = 0
@@ -214,6 +219,11 @@ show(T_gate @ ket1)  # e^(i*pi/4) = 0.707 + 0.707i
 [ 0.+0.j -1.+0.j]
 [0.   +0.j    0.707+0.707j]
 ```
+
+Each of these gates is a point on the unit circle in the complex plane, and applying two in a row adds
+their angles.
+
+![S, T and Z as points on the unit circle](../img/learn/phase-wheel.svg)
 
 Phase gates change no probabilities. They matter once the amplitudes interfere afterwards, as with the
 `H Z H` example on the previous page. A phase gate also acts on a state that is just a classical bit

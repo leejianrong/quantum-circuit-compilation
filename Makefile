@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report learn-figures
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -20,6 +20,9 @@ check: lint typecheck test ## What the pre-push hook and CI run
 
 hooks: ## Install the pre-push hook
 	git config core.hooksPath .githooks
+
+learn-figures: ## Redraw docs/img/learn/*.svg (learning-track figures) from code and analysis/numbers/learn.json; needs the plots extra
+	uv run --extra plots python -m analysis.learn_figures docs/img/learn
 
 docs: ## Build the learning site into site/ (snippets are run by `make test`)
 	uv run zensical build --clean
