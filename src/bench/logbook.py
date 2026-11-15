@@ -256,7 +256,7 @@ def render_log(entries: list[Entry]) -> dict[Path, str]:
         "rewritten; it gets a pointer to the entry that corrects it.\n",
     ]
     for e in cor:
-        tgt = ", ".join(f"[{t}]({t}.md)" for t in e.meta.get("corrects", []))
+        tgt = ", ".join(f"[{t}](entries/{t}.md)" for t in e.meta.get("corrects", []))
         body.append(f"- {e.meta['date']}: {_link(e)}" + (f" corrects {tgt}" if tgt else ""))
     if not cor:
         body.append("No entries yet.")

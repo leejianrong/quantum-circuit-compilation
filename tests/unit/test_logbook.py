@@ -127,3 +127,18 @@ def test_template_example_passes_the_lint() -> None:
     assert not problems
     for k in logbook.REQUIRED:
         assert k in meta
+
+
+def test_relative_links_in_log_and_results_pages_resolve() -> None:
+    import re
+
+    pages = [
+        *logbook.DOCS.glob("log/*.md"),
+        *logbook.DOCS.glob("log/entries/*.md"),
+        *logbook.DOCS.glob("results/*.md"),
+    ]
+    for page in pages:
+        for target in re.findall(r"\]\((?!https?:|#)([^)#\s]+)", page.read_text()):
+            assert (page.parent / target).resolve().exists(), (
+                f"{page.relative_to(logbook.DOCS)}: broken link {target}"
+            )

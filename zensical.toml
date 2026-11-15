@@ -37,6 +37,13 @@ nav = [
     { "Negative results" = "log/negative-results.md" },
     { "Corrections" = "log/corrections.md" },
   ] },
+  { "Knowledge" = [
+    { "Overview" = "knowledge/index.md" },
+    { "Claims register" = "knowledge/claims.md" },
+    { "Assumptions" = "knowledge/assumptions.md" },
+    { "Open questions" = "knowledge/open-questions.md" },
+    { "Environment" = "knowledge/environment.md" },
+  ] },
   { "Results" = [
     { "Scoreboard" = "results/scoreboard.md" },
     { "Experiments" = "results/experiments.md" },
