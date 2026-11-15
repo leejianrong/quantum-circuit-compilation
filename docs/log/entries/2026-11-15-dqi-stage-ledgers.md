@@ -11,6 +11,7 @@ commit: 5e17635
 prs: [186, 187, 188, 189]
 rows: [37d8047d, 7cbe8ecf]
 studies: [docs/experiments/dqi-syed-decode.md]
+corrects: [2026-11-14-dqi-gap-survey]
 backfilled: false
 licence_touched: true
 ---
@@ -47,7 +48,9 @@ in `analysis/numbers/dqi.json` (`make report`).
 
 * Not one trick: 6,411 T sit between our vendored base and the base of his final pipeline, and 912 T in 15
   small patches.
-* An earlier estimate that put the gap in synthesis was wrong; its stage boundaries were estimated from an
+* CORRECTION of `2026-11-14-dqi-gap-survey`, which put the 7.3k T gap in convert plus unconvert (its tag-based comparison).
+  With native marks on both builds convert is only +897 T; the extractor is +5,225 T, synthesis +442 and the scan +759.
+* The estimate that put the gap in synthesis was wrong; its stage boundaries were estimated from an
   instruction profile. Native marks replaced it.
 * Three configuration choices we worried about (`fused`, `j_min`, the adaptive gauge) are not the lever.
 

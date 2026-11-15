@@ -19,6 +19,18 @@ Entries grouped by the benchmark they concern.
 ## dqi
 
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
+- 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
+- 2026-11-13: [The 889-qubit DQI architecture re-derived: a Thiele-type in-place extraction over GF(2^24), and our own decoder reaches ratio 36.4 then about 66 on a narrow build](entries/2026-11-13-dqi-syed.md) (positive)
+- 2026-11-13: [The 892-qubit public DQI circuit works in place on the 840 syndrome qubits plus 52, and a quadratic-extension pivot removes the failures](entries/2026-11-13-dqi-stage2.md) (positive)
+- 2026-11-13: [The reciprocal-polynomial scan works classically (23 Toffolis per position) but no in-place Euclid history was found, so it was not built](entries/2026-11-13-dqi-psi.md) (negative)
+- 2026-11-13: [Exact look-ahead is not worth building (a perfect fix is worth at most 1.74x); five Lanczos qubit trims lift the ratio from 6.08 to 6.81](entries/2026-11-13-dqi-lookahead.md) (positive)
+- 2026-11-13: [A dialog-free Berlekamp-Massey decoder verifies at full size, ten salts, ratio 7.86 (1,855 qubits, 740,602 Toffolis)](entries/2026-11-13-dqi-bm.md) (positive)
+- 2026-11-12: [Smaller DQI fields run through the official verifier in seconds, once the shot floor of about 1,400 is respected](entries/2026-11-12-dqi-small-instances.md) (positive)
+- 2026-11-12: [Cutting the divstep decoder from 4,013 to 2,764 qubits doubles the ratio to 2.64, and its dialog is at its information minimum](entries/2026-11-12-dqi-qubits.md) (positive)
+- 2026-11-12: [A dialog-free Lanczos decoder halves the qubits (2,764 to 1,472) and verifies, but 0.75% of shots fail and R doubles](entries/2026-11-12-dqi-inplace.md) (positive)
+- 2026-11-12: [Lanczos failures (0.75% of shots) cannot be fixed locally; a rank-42 multiplier and tower inversions cut Toffolis to 905k instead](entries/2026-11-12-dqi-failures.md) (positive)
+- 2026-11-12: [Our first DQI decoder (divsteps plus a GF(2^6) tower) has 4.8x fewer Toffolis than the reference but only 18% lower Q^2 T](entries/2026-11-12-dqi-divstep-v0.md) (positive)
+- 2026-11-12: [DQI reference: 73% of its 5,725,461 Toffolis are two Euclid passes, and every qubit counts twice](entries/2026-11-12-dqi-cost-drivers.md) (positive)
 
 ## infra
 

@@ -6,3 +6,4 @@ Ideas that were tried and did not work, with the reason. They are as useful as t
 
 - 2026-11-13, invsqrt: [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md)
 - 2026-11-13, invsqrt: [invsqrt one-pass study: the frontier has a Horner unwind after all, and none of four levers moves ratio 12.34](entries/2026-11-13-invsqrt-onepass.md)
+- 2026-11-13, dqi: [The reciprocal-polynomial scan works classically (23 Toffolis per position) but no in-place Euclid history was found, so it was not built](entries/2026-11-13-dqi-psi.md)
