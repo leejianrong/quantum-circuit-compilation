@@ -5,6 +5,8 @@ Statuses: `DECIDED` (user answered) · `ASSUMED` (default taken, correct it if w
 
 ## Open forks
 
+The live list of open questions, with the experiments behind them, is [knowledge/open-questions.md](knowledge/open-questions.md); assumptions are in [knowledge/assumptions.md](knowledge/assumptions.md).
+
 Round 1 closed. Open with the owner (2026-11-14, details in [HANDOFF.md](HANDOFF.md)):
 
 - Run syed3000's builders in a sandbox to regenerate their circuits? (the permission classifier blocks it)
