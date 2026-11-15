@@ -96,7 +96,7 @@ def build_decoder(
     words = [list(flat[24 * i : 24 * i + 24]) for i in range(35)]
     carry = list(builder.alloc_qubits(24))
     builder.x(carry[0])
-    rec = extract.forward(builder, words, carry)
+    rec = extract.forward(builder, words, carry, stage=stage)
     mark("extract_fwd")
     if seeded:
         n_list, d_list, state = _seeded_forward(builder, words, carry, rec)
@@ -120,11 +120,11 @@ def build_decoder(
         mark("synthesis_return")
         import raw_query_extractor as rq  # type: ignore[import-not-found]
 
-        rq.emit_closing(builder, words, carry, rec)
+        rq.emit_closing(builder, words, carry, rec, stage=stage or (lambda _: None))
     else:
         synth.backward(builder, flag, words, records, one)
         mark("synthesis_return")
-        extract.backward(builder, words, carry, rec)
+        extract.backward(builder, words, carry, rec, stage=stage)
     mark("extract_return")
     builder.x(carry[0])
     builder.free(km.array(carry))

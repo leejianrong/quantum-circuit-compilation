@@ -54,7 +54,7 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
                         rec["enter"] += 1
                 elif name.startswith("@exit:") and stack:
                     stack.pop()
-                if len(tags) < 400:
+                if len(tags) < 5000:
                     tags.append((i, name))
                     tag_cum.append((name, i, total_tof))
         elif op not in ("APPEND_TO_REGISTER", "REGISTER"):

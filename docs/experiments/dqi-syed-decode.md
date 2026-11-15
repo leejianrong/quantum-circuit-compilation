@@ -15,6 +15,8 @@ Paths below are inside its `dqi_source/src/controller_work/`. Numbers behind eve
   (`:278`), full-length scan with an adaptive 64-candidate gauge (`:281,294`).
 * [M][V] With native stage marks on our build (section 3) the gap is exact: extractor +5,225 T, synthesis +442, convert +897, scan +759, total
   +7,323. The extractor is 71% of it. (An earlier estimate from the instruction profile put it in synthesis; its boundaries were wrong.)
+* [M] Tagging his build the same way (section 3a) shows 62% of the whole gap is one stage, the extractor's return (+4,547 T), and that it is a
+  constant **+114 T per node** for nodes 3 to 33 (3,534 T), plus +1,029 T in the first three return charts and +475 T of forward tail-controller cost.
 
 ## 1. Entry and structure [V]
 
@@ -69,6 +71,43 @@ known; the extractor return is the largest single stage.
 ![Stage ledger](../img/analysis/dqi-stage-ledger.png)
 
 ![Our stages](../img/analysis/dqi-ours-stages.png)
+
+### 3a. Both ledgers by stage, and the node-level result [M]
+
+His build was run with our own tagging driver (outside his tree, against an unmodified copy of his source; his `build_v7.py` is hash-pinned and a
+patched copy is refused). Counting the Toffolis between its 432 stage tags gives his ledger in the same units as ours, and both sum exactly to
+their totals:
+
+| stage | ours | his | ours minus his |
+|---|---:|---:|---:|
+| extract fwd | 73,919 | 73,122 | +797 |
+| synthesis fwd | 27,965 | 27,965 | 0 |
+| outer fwd | 57,245 | 57,034 | +211 |
+| finish fwd | 1,725 | 1,752 | -27 |
+| scan | 45,045 | 44,286 | +759 |
+| finish + outer return | 64,716 | 64,003 | +713 |
+| synthesis return | 37,553 | 37,230 | +323 |
+| **extract return** | 83,158 | 78,611 | **+4,547** |
+| total | 391,326 | 384,003 | +7,323 |
+
+Synthesis forward is identical to the gate, so that code is the same. Per node (35 forward, 35 return marks on both sides) his cost grows by
+exactly 99 T per node, one GF(2^24) product, in both directions, and so does ours; the differences are:
+
+| part of the extractor gap | ours minus his |
+|---|---:|
+| return, nodes 3 to 33, constant per node (31 x 114) | +3,534 |
+| return, nodes 0 to 2 (the first three charts) | +1,029 |
+| forward, nodes 16 to 34 (+25 per node; the tail controller starts at `j_min` = 15) | +475 |
+| forward, nodes 0 to 3 | +286 |
+| forward, nodes 4 to 15 (+3 per node) | +36 |
+| return, node 34 | -16 |
+| total | +5,344 |
+
+In steady state our return costs 264 T more than our forward at each node and his costs 153 more. [I] The modules his lineage adds for this are
+named for exactly these items (retained and deferred norms and inverses, a three-pivot first chart, a deferred and an early tail controller);
+which one accounts for which row is not yet shown by an experiment.
+
+![Extractor per node](../img/analysis/dqi-extractor-nodes.png)
 
 ## 4. His final patches [V]
 
@@ -137,9 +176,12 @@ question is which stage holds each peak, which needs allocation read inside the 
 1. **Match (path A), mostly done.** His pipeline is reproduced byte for byte in a container (section 7) and used as the oracle. We keep it
    out of git (its closure is 52 MB with hash-pinned records) and run it through `scripts/dqi_reference_build.sh`; the 58 modules already
    vendored stay as they are. Still to do: our own stage marks (below), then moving our generator onto his newer lineage.
-2. **First module: the extractor.** It is 71% of the gap. His final extractor binds the newer first-three retained-norm adapter and deferred
-   inverses (section 2); ours is the older `raw_query_extractor`. Move that stage first, keep the old one as the oracle, and require the
-   per-stage count to fall and the official verify to pass at 10 salts.
+2. **First module: the extractor return path.** It is 62% of the gap (+4,547 T) and mostly one constant, +114 T at each of 31 nodes. His
+   extractor stack is our vendored modules plus 11 new ones (all 35 shared modules are byte-identical to ours), but it binds a different
+   family of neighbours (`rolling_tail_deferred`, `scalar_seed_padded`, `gauge_park_outer`, `local_flag_*`), so it is not a stand-alone swap.
+   Next experiment: plug his first-three adapter and deferred tail into our `fixed.py` front half and see whether the interface to our
+   synthesis holds; if not, adopt his front half. Keep the old stage as the oracle and require the per-stage count to fall and the official
+   verify to pass at 10 salts.
 3. **Own the parts we change (path B).** For each module we modify, rewrite it from scratch in `src/dqi_gen`, keep the vendored copy as
    the reference oracle, and require identical Toffoli count and a passing official verify before swapping it in.
 4. **Exceed.** After the match, candidates (all estimates [G]): a lower-rank GF(2^24) product (about 1.3k T per unit of rank), a
