@@ -47,6 +47,7 @@ nav = [
   { "Results" = [
     { "Scoreboard" = "results/scoreboard.md" },
     { "Experiments" = "results/experiments.md" },
+    { "Pull requests" = "results/prs.md" },
   ] },
   { "Studies: invsqrt" = [
     { "split phase, serial phasing and a centered remainder" = "experiments/invsqrt-bitserial.md" },
