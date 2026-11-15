@@ -4,7 +4,7 @@ Source: Kaggle dataset `syed3000/vqcc-own-circuit-portfolio`, file `dqi_source_z
 under Apache-2.0, see `LICENSE` and `NOTICE` here; credits named by the authors: Syed Asad Ali, working with a team of AI agents
 (GPT-6 Astra Pro, Gemini 4 Argon, Fable 5.2, Mythos 5.2 and Opus 5.5), with Claude Science supporting the research).
 
-Files: 58 Python modules under `controller_work/` (the import closure of `raw_query_extractor`, `gf24_arithmetic`, `night_outer`, `projective_finish`, `additive_fft_phase_scan`, `mask_gauge_blocked`,
+Files: 74 Python modules (58 first, 16 added 2026-11-16: the closure of the three-pivot extractor adapter `first3_retained_norm_adapter`, `direct_carry_*`, `rolling_tail_early`, `gf24_nested_norm`, `nested_norm_inverse`, `last_return_retained_norm`, `quotient_phase84_mask_guard`; `after_c5/release_v3/normalized/direct_carry_first2.py` is not vendored, its only difference from `after_c5/extractor_width/direct_carry_first2.py` is a docstring wording) under `controller_work/` (the import closure of `raw_query_extractor`, `gf24_arithmetic`, `night_outer`, `projective_finish`, `additive_fft_phase_scan`, `mask_gauge_blocked`,
 `rolling_tail`, `scalar_seed` and `fused_crt_synthesis`), copied byte for byte with their original path layout and their own
 copyright and licence headers. Nothing in this directory is modified.
 

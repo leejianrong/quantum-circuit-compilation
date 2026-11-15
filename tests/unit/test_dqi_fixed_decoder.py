@@ -1,4 +1,4 @@
-"""The fixed decoder (convert stage, 11-T scan) verifies on the narrow instance (n = 70)."""
+"""The fixed decoders (extractor v2 and v3) verify on the narrow instance (n = 70)."""
 
 import os
 import pathlib
@@ -16,7 +16,8 @@ pytestmark = [
 ]
 
 
-def test_fixed_decoder_verifies_on_narrow() -> None:
+@pytest.mark.parametrize("gen", ["fixed", "fixed3"])
+def test_fixed_decoder_verifies_on_narrow(gen: str) -> None:
     inst = instances.INSTANCES["narrow"]
-    out = instances.verify(instances.build("fixed", inst), inst, shots=2048)
+    out = instances.verify(instances.build(gen, inst), inst, shots=2048)
     assert out["status"] == "PASS" and out["value_errors"] == 0 and out["phase_errors"] == 0

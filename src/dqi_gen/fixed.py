@@ -19,7 +19,7 @@ from typing import Any
 
 import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 
-from dqi_gen import extract, synth, thiele_decoder
+from dqi_gen import extract, extract_v3, synth, thiele_decoder
 
 _ROOT = pathlib.Path(__file__).resolve().parents[2] / "third_party" / "syed_dqi" / "controller_work"
 for _d in (
@@ -72,8 +72,11 @@ def build_decoder(
     masks: list[Any],
     seeded: bool = True,
     stage: Callable[[str], None] | None = None,
+    extractor: str = "v2",
 ) -> dict[str, Any]:
     """Append the decoder to `builder`; returns static numbers of the scan.
+
+    `extractor` is `"v2"` (`raw_query_extractor`, the oracle) or `"v3"` (`extract_v3`, the newer lineage).
 
     `stage(name)` is called after each stage when given (it does not change the circuit unless it emits tags).
     """
@@ -96,7 +99,10 @@ def build_decoder(
     words = [list(flat[24 * i : 24 * i + 24]) for i in range(35)]
     carry = list(builder.alloc_qubits(24))
     builder.x(carry[0])
-    rec = extract.forward(builder, words, carry, stage=stage)
+    if extractor not in ("v2", "v3"):
+        raise ValueError(f"extractor must be 'v2' or 'v3', not {extractor!r}")
+    ext = extract_v3 if extractor == "v3" else extract
+    rec = ext.forward(builder, words, carry, stage=stage)
     mark("extract_fwd")
     if seeded:
         n_list, d_list, state = _seeded_forward(builder, words, carry, rec)
@@ -118,13 +124,16 @@ def build_decoder(
     if seeded:
         _seeded_backward(builder, words, carry, rec, state)
         mark("synthesis_return")
-        import raw_query_extractor as rq  # type: ignore[import-not-found]
+        if extractor == "v3":
+            extract_v3.closing(builder, words, carry, rec, stage=stage)
+        else:
+            import raw_query_extractor as rq  # type: ignore[import-not-found]
 
-        rq.emit_closing(builder, words, carry, rec, stage=stage or (lambda _: None))
+            rq.emit_closing(builder, words, carry, rec, stage=stage or (lambda _: None))
     else:
         synth.backward(builder, flag, words, records, one)
         mark("synthesis_return")
-        extract.backward(builder, words, carry, rec, stage=stage)
+        ext.backward(builder, words, carry, rec, stage=stage)
     mark("extract_return")
     builder.x(carry[0])
     builder.free(km.array(carry))
@@ -133,7 +142,7 @@ def build_decoder(
     return dict(info)
 
 
-def build_circuit(m: int, n: int, degree: int, stage_log: str | None = None) -> Any:
+def build_circuit(m: int, n: int, degree: int, stage_log: str | None = None, extractor: str = "v2") -> Any:
     """The decoder circuit. With `stage_log` (a JSON path) the build also emits one `stage:<name>` INFO_TAG
     per stage and writes the allocated-qubit count at each mark there; without it the circuit is unchanged."""
     if (n, degree) != (70, 12):
@@ -147,7 +156,7 @@ def build_circuit(m: int, n: int, degree: int, stage_log: str | None = None) -> 
         builder.info_tag(f"stage:{name}")
         marks.append({"stage": name, "allocated_Q": builder.num_allocated_qubits})
 
-    build_decoder(builder, syndromes, masks, stage=stage if stage_log else None)
+    build_decoder(builder, syndromes, masks, stage=stage if stage_log else None, extractor=extractor)
     if stage_log:
         with open(stage_log, "w") as f:
             json.dump(marks, f, indent=1)
