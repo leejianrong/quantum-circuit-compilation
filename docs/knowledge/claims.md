@@ -41,6 +41,7 @@ the numbers. `tests/unit/test_knowledge.py` checks that every evidence link exis
 | A GF(2^24) pivot (or Cayley map) removes the failures | holds classically; the quantum build was verified later | [stage 2](../log/entries/2026-11-13-dqi-stage2.md) |
 | Our `thiele` generator reaches ratio 36.4 at full size | holds | [syed](../log/entries/2026-11-13-dqi-syed.md) |
 | Our own `fixed` circuit scores 65.77x (890 qubits, 10 salts, 0 failures) | holds | [environment and promotion](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
+| The newer extractor in our front half cuts 5,148 T and scores 66.50x (890 qubits, 10 salts, 0 failures) | holds | [extractor v3](../log/entries/2026-11-16-dqi-extractor-v3.md) |
 | The gap to the best public circuit sits in convert and unconvert | refuted: 62% is the extractor return path | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | The extractor return gap is a constant +114 T at each of 31 nodes | holds (measured on both builds) | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 

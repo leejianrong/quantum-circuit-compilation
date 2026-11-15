@@ -1068,7 +1068,7 @@
     "id": "S1-first3-adapter-nested-norm",
     "what": "extractor of the newer lineage (first-three adapter, nested-norm arithmetic, retained-norm return) in our fixed.py front half; our tail, seed, synthesis and outer unchanged",
     "generator": "fixed3",
-    "commit": null,
+    "commit": "9fdf21f",
     "total_T": 386178,
     "dT": -5148,
     "qubits": 890,
@@ -1164,7 +1164,15 @@
      "phase_errors": 0,
      "shots": 3072
     },
-    "official_full": null,
+    "official_full": {
+     "salts": 10,
+     "failures": 0,
+     "worst_cost": 367525063038.0977,
+     "ratio": 66.497,
+     "dCost": -4038855207.9,
+     "sha256": "c9d53c1f9889f819d652347032bebd991ddfe19478d76db9c1476a7a9eafa743",
+     "kaggle_wall_s": 1160
+    },
     "source": "M"
    }
   ]
