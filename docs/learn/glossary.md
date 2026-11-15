@@ -39,3 +39,5 @@ alphabetical order. Each entry says what the term means here and points to where
 | Toffoli | Controlled-controlled-NOT: flips a target bit if both control bits are 1. With the target at 0 it computes AND. The main expensive gate. |
 | Unitary | A matrix with `U† U = I`. It preserves vector length, so probabilities keep summing to 1. |
 | Uncomputation | Running a computation backwards to return scratch qubits to 0. |
+
+Terms for how the project works (ledger, salt, promotion, screening) are in the [project glossary](../knowledge/glossary.md).
