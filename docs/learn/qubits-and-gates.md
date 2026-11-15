@@ -154,6 +154,10 @@ with a `Z` in between, all of it to `|1>`.
 
 ![Amplitudes after H H and after H Z H](../img/learn/interference-bars.svg)
 
+Try it: move the phase between the two `H` gates. At 0° nothing changes, at 180° (`Z`) the outcome flips, and in between the probabilities follow `cos²(θ/2)`.
+
+<div class="qcc-widget" data-widget="interference"><p>Phase and interference (this widget needs JavaScript).</p></div>
+
 ## Measurement
 
 **Measuring** a qubit gives you one ordinary bit. The probability of each bit is the squared

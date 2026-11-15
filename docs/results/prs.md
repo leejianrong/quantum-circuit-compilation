@@ -11,8 +11,8 @@ Every pull request of the repository, from a snapshot taken with `python -m benc
 | #194 | 2026-11-15 | merged | docs: backfill the DQI studies into the log book (QCC-58) |  |
 | #193 | 2026-11-15 | merged | docs: backfill the invsqrt studies into the log book (QCC-58) |  |
 | #192 | 2026-11-15 | merged | docs: log book with entry template, lint, generated indexes and results pages (QCC-58) |  |
-| #191 | 2026-11-15 | merged | docs: learning-track figures from code and a circuit drawer (QCC-57) |  |
-| #190 | 2026-11-15 | merged | docs: MathJax, full nav, nav test, docs CI with plots extra (QCC-57) |  |
+| #191 | 2026-11-15 | merged | docs: learning-track figures from code and a circuit drawer (QCC-57) | [2026-11-16-learning-track-figures-and-widgets](../log/entries/2026-11-16-learning-track-figures-and-widgets.md) |
+| #190 | 2026-11-15 | merged | docs: MathJax, full nav, nav test, docs CI with plots extra (QCC-57) | [2026-11-16-learning-track-figures-and-widgets](../log/entries/2026-11-16-learning-track-figures-and-widgets.md) |
 | #189 | 2026-11-15 | merged | DQI: per-node extractor ledgers, the gap is the return path (QCC-19) | [2026-11-15-dqi-stage-ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | #188 | 2026-11-15 | merged | DQI: native per-stage ledger, exact gap decomposition (QCC-19) | [2026-11-15-dqi-stage-ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | #187 | 2026-11-15 | merged | DQI: reference build reproduced in a container, final ledger, stage map (QCC-19) | [2026-11-15-dqi-stage-ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |

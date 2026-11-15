@@ -117,7 +117,8 @@ nav = [
 ]
 
 # MathJax 3 (SVG output, one file, no font downloads, so it works offline). Vendored from npm mathjax@3.2.2.
-extra_javascript = ["javascripts/mathjax.js", "javascripts/tex-svg.js"]
+extra_javascript = ["javascripts/mathjax.js", "javascripts/tex-svg.js", "javascripts/widgets.mjs"]
+extra_css = ["javascripts/widgets.css"]
 
 [project.theme]
 language = "en"

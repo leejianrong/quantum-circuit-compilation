@@ -57,6 +57,10 @@ With the square on `Q` in dqi the lines are steeper in the qubit direction, so q
 
 ![dqi: qubits against Toffolis with lines of equal score](../img/learn/iso-cost-dqi.svg)
 
+Try it: pick a benchmark, move the qubit and Toffoli sliders, and watch the cross cross the lines of equal score.
+
+<div class="qcc-widget" data-widget="iso-cost"><p>Cost explorer (this widget needs JavaScript).</p></div>
+
 ## Why the AND gate is the unit of work
 
 Arithmetic in these circuits is mostly bitwise AND. To compute `a AND b` reversibly you take a fresh
@@ -118,6 +122,10 @@ As a circuit: one Toffoli to compute, then `HMR` measures the ancilla into the c
 and a CZ on `a` and `b` runs only if `m` is 1.
 
 ![MBUC as a circuit](../img/learn/circuit-mbuc.svg)
+
+Step through it: choose `a`, `b` and the random measurement outcome `m`, and switch the repair on and off. The table lists all eight cases.
+
+<div class="qcc-widget" data-widget="mbuc"><p>MBUC stepper (this widget needs JavaScript).</p></div>
 
 ## Bit-plus-phase bookkeeping
 

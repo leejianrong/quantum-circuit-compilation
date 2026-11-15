@@ -216,6 +216,10 @@ print(f"score {lam_eff * t_total * q_total:.6e}   (README: 3355599588.3155365 wi
 print("lambda_eff at the thresholds:", math.sqrt(3.914898 * (2 * 49.0 - 3.914898)))
 ```
 
+Try it: the two presets are the README baseline and the public 11.31x table. Move `E_gap` across 3.914898 and watch the score barely change while the circuit is rejected.
+
+<div class="qcc-widget" data-widget="dfthcsos"><p>Score and gates (this widget needs JavaScript).</p></div>
+
 ## Where the cost goes
 
 For the baseline: `T_total = 93,237` is 79,480 Toffolis in the angle circuits (85%) plus 13,757 from

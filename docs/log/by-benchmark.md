@@ -47,3 +47,7 @@ Entries grouped by the benchmark they concern.
 
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
+
+## docs
+
+- 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
