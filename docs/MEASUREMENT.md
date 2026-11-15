@@ -155,6 +155,17 @@ else. Tabs:
 It is not hosted publicly until we have our own results, because the lineage tab shows third-party
 circuits.
 
+## Analysis layer (`analysis/`, `make report`)
+
+The ledger holds verification rows; the analyses that decide what to build next (per-stage ledgers, windowed profile
+diffs, Pareto tables, classical-model checks, searches) produce numbers that are not ledger rows. Each one keeps its
+numbers in `analysis/numbers/<benchmark>.json` (aggregates only, never circuits, every block tagged M measured, V read from
+a source, I inferred), draws its figures with matplotlib from that file alone (`analysis/<benchmark>_figures.py`), and has
+a note in `docs/experiments/` with fixed sections: question, method, setup (commit, instance, salts), measured numbers,
+what we learned, next. `make report` redraws `docs/img/analysis/*.png` and builds `out/reports/qcc-analysis.pdf`
+(matplotlib's PDF writer, plots extra only). `tests/unit/test_analysis_dqi.py` checks the data sums to the published totals
+and that every figure and the PDF are written.
+
 ## Build order
 
 QCC-39 ledger v2, then QCC-40 experiment log, QCC-41 backfill and leaderboard rows, QCC-42/43 plots,
