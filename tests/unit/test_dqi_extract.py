@@ -1,12 +1,13 @@
-"""The wired extractor matches `thiele.extract` and round-trips (weights 19 to 35)."""
+"""Both wired extractors match `thiele.extract` and round-trip (weights 19 to 35)."""
 
 import random
 from typing import Any
 
 import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 import numpy as np
+import pytest
 
-from dqi_gen import extract
+from dqi_gen import extract, extract_v3
 from dqi_gen import thiele as T
 
 
@@ -24,16 +25,21 @@ def _cases(weights: list[int]) -> list[tuple[list[int], list[tuple[int, int]], i
     return out
 
 
+# per extractor, the extractor alone: static Toffolis forward, forward + return, qubits
+COUNTS = {"v2": (73919, 157077, 890), "v3": (73540, 151929, 889)}
+MODULES = {"v2": extract, "v3": extract_v3}
+
+
 def _run(
-    round_trip: bool, cases: list[tuple[list[int], list[tuple[int, int]], int]]
+    which: str, round_trip: bool, cases: list[tuple[list[int], list[tuple[int, int]], int]]
 ) -> tuple[Any, Any, Any, Any]:
     b = km.CircuitBuilder()
     words = [list(b.create_quantum_register(24, name=f"W{i}")) for i in range(35)]
     carry = list(b.alloc_qubits(24))
     b.x(carry[0])
-    rec = extract.forward(b, words, carry)
+    rec = MODULES[which].forward(b, words, carry)
     if round_trip:
-        extract.backward(b, words, carry, rec)
+        MODULES[which].backward(b, words, carry, rec)
     circ = b.finish_circuit()
     shots = len(cases)
     sim = km.Simulator(batch_size=shots)
@@ -54,20 +60,22 @@ def _run(
     )
 
 
-def test_forward_matches_thiele_heads() -> None:
+@pytest.mark.parametrize("which", ["v2", "v3"])
+def test_forward_matches_thiele_heads(which: str) -> None:
     cases = _cases([35, 28, 19])
-    circ, got, _, _ = _run(False, cases)
-    assert circ.operation_statistics().num_toffoli_like == 73919
+    circ, got, _, _ = _run(which, False, cases)
+    assert circ.operation_statistics().num_toffoli_like == COUNTS[which][0]
     for s, (_, heads, w) in enumerate(cases):
         assert all(got[s][i] == (heads[i][0] | (heads[i][1] << 12)) for i in range(w))
         assert all(v == 0 for v in got[s][w:])
 
 
-def test_round_trip_restores_words_and_carry_without_phase_errors() -> None:
+@pytest.mark.parametrize("which", ["v2", "v3"])
+def test_round_trip_restores_words_and_carry_without_phase_errors(which: str) -> None:
     cases = _cases([35, 30, 22, 19])
-    circ, got, carries, sim = _run(True, cases)
-    assert circ.operation_statistics().num_toffoli_like == 157077
-    assert circ.num_qubits == 890
+    circ, got, carries, sim = _run(which, True, cases)
+    assert circ.operation_statistics().num_toffoli_like == COUNTS[which][1]
+    assert circ.num_qubits == COUNTS[which][2]
     for s, (ys, _, _) in enumerate(cases):
         assert got[s] == ys and carries[s] == 1
     assert not sim.read_phase_flipped_across_shots().any()

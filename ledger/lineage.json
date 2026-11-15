@@ -566,13 +566,19 @@
      "from": "syed3000, Apache-2.0 (kaggle.com/datasets/syed3000/vqcc-own-circuit-portfolio), credits Opus and Astra agents",
      "generator": "`src/dqi_gen/thiele.py` (classical), `docs/experiments/dqi-syed.md`",
      "technique": "DQI (stage 2): the 889-qubit architecture re-derived from the Apache-2.0 sources of syed3000's own-circuit portfolio (dataset vqcc-own-circuit-portfolio, dqi_source_zip; read as a reference, nothing copied): residue map to 35 GF(2^24) words (CRT modulus the product of 35 irreducible quadratics), Thiele-type in-place extraction of the partial quotients, polynomial synthesis, amplitude polynomial by a half-degree Euclid, 11-Toffoli root-test scan, GF(2^24) multiplier of bilinear rank 99 (degree 6 over GF(16), 11 points, rank 9 each). Our classical model is original."
+    },
+    {
+     "date": "2026-11-16",
+     "from": "`third_party/syed_dqi/` (dataset `vqcc-own-circuit-portfolio`, `dqi_source_zip`); `after_v3/integration_v7/v7_pipeline.py`, `after_c5/integration_v3/integrated_pipeline.py` read as reference",
+     "generator": "`src/dqi_gen/extract_v3.py`, `src/dqi_gen/fixed.py` (`extractor=\"v3\"`, generator `fixed3`), `src/dqi_gen/stages.py`; extractor return path -4,769 T, forward -379 T on the narrow instance (`docs/log/entries/2026-11-16-dqi-extractor-v3.md`)",
+     "technique": "DQI (stage 2, QCC-19, 2026-11-16): vendored (verbatim, Apache-2.0) 16 more modules of syed3000's builder from its newer `after_c5`/`after_v3` lineage (74 in all): the three-pivot extractor adapter `first3_retained_norm_adapter` and `third_pivot_chart`, `direct_carry_{arithmetic,extractor,first2}`, `rolling_tail_early`, nested-norm GF(2^24) arithmetic (`gf24_nested_norm`, `nested_norm_inverse`), the closed inverse with a retained norm (`quotient_phase84_mask_guard` and its two bases, `inverse_retained_norm_deferred`), the final-return retained child (`last_return_retained_norm`) and path helpers. Idea taken from reading `after_v3/integration_v7/v7_pipeline.py` `configure()` and `after_c5/integration_v3/integrated_pipeline.py` `configure()`: which module attributes are rebound to run the adapter (nested-norm arithmetic everywhere in the extractor, `quotient_phase84_mask_guard.inverse_closed` into the nested arithmetic, `last_return_retained_norm` as the extractors' arithmetic). Our wiring in `src/dqi_gen/extract_v3.py` makes the same assignments in the same order; the ledger of stage and node counts is `src/dqi_gen/stages.py`. Not taken: his accepted-runtime loader, hash pins, deferred tail, padded seed, gauge-park outer. Licence status as for the rest of the package (Apache-2.0 stated; upstream lineage question open)."
     }
    ],
    "kind": "ours",
    "label": "our dqi generator",
    "licence": "ours (Apache-2.0)",
    "no_licence": false,
-   "note": "9 technique(s) learned and rewritten; see docs/PROVENANCE.md",
+   "note": "10 technique(s) learned and rewritten; see docs/PROVENANCE.md",
    "sources": []
   },
   {

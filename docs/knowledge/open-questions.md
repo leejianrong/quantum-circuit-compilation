@@ -19,7 +19,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 |---|---|---|
 | Is the `Lambda` gap (283 against 490 to 560) the basin or the objective? Cheap test: a constrained refit on our own vectors | decides whether more fitting can close the dfthcsos gap | [dfthcsos syed decode](../log/entries/2026-11-15-dfthcsos-syed-decode.md) |
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
-| Which of his extractor modules accounts for the +114 T per node on the return path? It is named by inference, not shown by an experiment | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
+| Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |
 | Which stage holds the 890 and 889 qubit peaks? Needs allocation read inside stages | the 1-qubit difference is worth about 879 T | [dqi syed decode study](../experiments/dqi-syed-decode.md), section 8 |
 

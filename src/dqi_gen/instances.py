@@ -96,6 +96,13 @@ def build(generator: str, inst: Instance, stage_log: str | None = None) -> Any:
         return importlib.import_module("dqi_gen.fixed").build_circuit(m, n, b, stage_log=stage_log)
 
     builders["fixed"] = fixed
+
+    def fixed3(m: int, n: int, b: int) -> Any:
+        return importlib.import_module("dqi_gen.fixed").build_circuit(
+            m, n, b, stage_log=stage_log, extractor="v3"
+        )
+
+    builders["fixed3"] = fixed3
     if generator not in builders:
         raise ValueError(f"unknown generator {generator!r}; choose from {sorted(builders)}")
     host.verifier()  # puts kickmix on the path
@@ -122,7 +129,7 @@ def main() -> None:
     p.add_argument(
         "--gen",
         default="reference",
-        choices=("reference", "divstep", "lanczos", "bm", "rs", "thiele", "fixed"),
+        choices=("reference", "divstep", "lanczos", "bm", "rs", "thiele", "fixed", "fixed3"),
     )
     p.add_argument("--instance", default="small", choices=sorted(INSTANCES))
     p.add_argument("--shots", type=int, default=None)
@@ -135,8 +142,8 @@ def main() -> None:
     p.add_argument("--sha", action="store_true", help="print the sha256 of the .kmb file")
     a = p.parse_args()
     inst = INSTANCES[a.instance]
-    if a.stage_log and a.gen != "fixed":
-        raise SystemExit("--stage-log needs --gen fixed")
+    if a.stage_log and a.gen not in ("fixed", "fixed3"):
+        raise SystemExit("--stage-log needs --gen fixed or fixed3")
     circuit = build(a.gen, inst, stage_log=a.stage_log)
     digest = None
     if a.sha or a.save:
