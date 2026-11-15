@@ -28,35 +28,39 @@
  },
  "stage_ledger": {
   "unit": "static Toffolis",
-  "note": "ours = measured profile of fixed.kmb (forward + return summed, boundaries about +-3k); theirs_final = component ledger from our own container run of the other builder (build.json contract/source_ledger/components_static_T, total 384,003, V); theirs_v2 = the earlier recorded integration_v2 build (385,653).",
+  "note": "ours = native stage marks (INFO_TAGs from fixed.py --stage-log) on the narrow instance, whose stages other than the scan do not depend on the number of positions, plus the full-instance scan 4,095 x 11; they sum exactly to the full 391,326 (M). theirs_final = component ledger from our container run of the other builder (V). The two sides define the extractor/synthesis boundary differently (his extractor row includes the rolling gauge and padded seed), so only extractor + synthesis together is comparable. theirs_v2 = earlier recorded build (385,653). ours_estimated = our earlier profile-based estimate (boundaries +-3k, superseded).",
   "components": [
    {
     "name": "extractor (fwd + return)",
-    "ours": 148500,
+    "ours": 157077,
     "theirs_v2": 152591,
     "ours_parts": {
-     "extract fwd": 74900,
-     "unextract": 73600
+     "extract fwd": 73919,
+     "extract return": 83158
     },
-    "theirs_final": 151852
+    "theirs_final": 151852,
+    "ours_estimated": 148500
    },
    {
     "name": "synthesis (fwd + return)",
-    "ours": 73200,
+    "ours": 65518,
     "theirs_v2": 65076,
     "ours_parts": {
-     "synthesis fwd": 29700,
-     "unsynthesis": 43500
+     "synthesis fwd": 27965,
+     "synthesis return": 37553
     },
-    "theirs_final": 65076
+    "theirs_final": 65076,
+    "ours_estimated": 73200
    },
    {
     "name": "convert: outer + finish",
-    "ours": 124400,
+    "ours": 123686,
     "theirs_v2": 123711,
     "ours_parts": {
-     "convert fwd": 56200,
-     "unconvert": 68200
+     "outer fwd": 57245,
+     "finish fwd": 1725,
+     "finish return": 6305,
+     "outer return": 58411
     },
     "theirs_parts": {
      "preimage_gauge_parking_shared_windows": 115947,
@@ -68,13 +72,15 @@
      "preimage_gauge_parking_shared_windows": 115025,
      "projective_finish": 7856,
      "finish_outer_seam_delta": -92
-    }
+    },
+    "ours_estimated": 124400
    },
    {
     "name": "scan",
     "ours": 45045,
     "theirs_v2": 44275,
-    "theirs_final": 44286
+    "theirs_final": 44286,
+    "ours_estimated": 45045
    }
   ],
   "theirs_v2_total": 385653,
@@ -781,5 +787,75 @@
    840,
    840
   ]
+ },
+ "ours_native_stages": {
+  "instance": "narrow (71 positions); stages other than the scan are independent of the position count",
+  "unit": "static Toffoli-like gates between consecutive stage marks",
+  "scan_full_instance": 45045,
+  "scan_narrow": 781,
+  "stages": [
+   {
+    "stage": "start",
+    "toffoli": 0,
+    "allocated_Q": 840
+   },
+   {
+    "stage": "geometry_fwd",
+    "toffoli": 0,
+    "allocated_Q": 840
+   },
+   {
+    "stage": "extract_fwd",
+    "toffoli": 73919,
+    "allocated_Q": 866
+   },
+   {
+    "stage": "synthesis_fwd",
+    "toffoli": 27965,
+    "allocated_Q": 865
+   },
+   {
+    "stage": "outer_fwd",
+    "toffoli": 57245,
+    "allocated_Q": 865
+   },
+   {
+    "stage": "finish_fwd",
+    "toffoli": 1725,
+    "allocated_Q": 865
+   },
+   {
+    "stage": "scan",
+    "toffoli": 781,
+    "allocated_Q": 865
+   },
+   {
+    "stage": "finish_return",
+    "toffoli": 6305,
+    "allocated_Q": 865
+   },
+   {
+    "stage": "outer_return",
+    "toffoli": 58411,
+    "allocated_Q": 865
+   },
+   {
+    "stage": "synthesis_return",
+    "toffoli": 37553,
+    "allocated_Q": 866
+   },
+   {
+    "stage": "extract_return",
+    "toffoli": 83158,
+    "allocated_Q": 864
+   },
+   {
+    "stage": "geometry_return",
+    "toffoli": 0,
+    "allocated_Q": 840
+   }
+  ],
+  "total_narrow": 347062,
+  "source": "M"
  }
 }

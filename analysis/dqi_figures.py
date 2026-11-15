@@ -32,7 +32,7 @@ def stage_ledger(d: dict) -> plt.Figure:  # type: ignore[type-arg]
     fig, ax = plt.subplots(figsize=(8, 4.4))
     x = range(len(names))
     w = 0.38
-    ax.bar([i - w / 2 for i in x], ours, w, label="ours (measured, boundaries +-3k)", color=OURS)
+    ax.bar([i - w / 2 for i in x], ours, w, label="ours (native stage marks)", color=OURS)
     ax.bar([i + w / 2 for i in x], theirs, w, label="his final (native build ledger)", color=THEIRS)
     for i, (o, t) in enumerate(zip(ours, theirs, strict=True)):
         ax.text(i, max(o, t) + 2, f"{o - t:+.1f}k", ha="center", fontsize=9, color=BAD if o > t else GOOD)
@@ -40,6 +40,25 @@ def stage_ledger(d: dict) -> plt.Figure:  # type: ignore[type-arg]
     ax.set_ylabel("static Toffolis (thousands)")
     ax.set_title("DQI cost by component: ours minus his above each pair")
     ax.legend(fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def ours_stages(d: dict) -> plt.Figure:  # type: ignore[type-arg]
+    s = d["ours_native_stages"]["stages"]
+    s = [x for x in s if x["stage"] not in {"start", "geometry_fwd", "geometry_return"}]
+    names = [x["stage"].replace("_", " ") for x in s]
+    vals = [x["toffoli"] / 1000 for x in s]
+    colors = [GOOD if "return" in x["stage"] else OURS for x in s]
+    fig, ax = plt.subplots(figsize=(8, 4.6))
+    ax.barh(range(len(s)), vals, color=colors)
+    for i, (v, x) in enumerate(zip(vals, s, strict=True)):
+        ax.text(v + 0.8, i, f"{v:.1f}k  Q={x['allocated_Q']}", va="center", fontsize=8)
+    ax.set_yticks(range(len(s)), names, fontsize=8)
+    ax.invert_yaxis()
+    ax.set_xlim(0, max(vals) * 1.3)
+    ax.set_xlabel("static Toffolis per stage (narrow instance; scan here is 71 positions, full is 45.0k)")
+    ax.set_title("Our circuit by stage, native marks: forward (blue) and return (green)")
     fig.tight_layout()
     return fig
 
@@ -156,6 +175,7 @@ def j_min_sweep(d: dict) -> plt.Figure:  # type: ignore[type-arg]
 
 FIGURES = {
     "dqi-stage-ledger": stage_ledger,
+    "dqi-ours-stages": ours_stages,
     "dqi-qubit-timeline": qubit_timeline,
     "dqi-v7-waterfall": patch_waterfall,
     "dqi-profile-diff": profile_diff,

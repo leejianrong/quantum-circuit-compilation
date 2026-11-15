@@ -31,6 +31,8 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
     tof_touch: collections.Counter[int] = collections.Counter()
     wins: list[dict[str, Any]] = []
     tags: list[tuple[int, str]] = []
+    tag_cum: list[tuple[str, int, int]] = []  # (tag, instruction index, Toffoli-like gates so far)
+    total_tof = 0
     cur_tof = 0
     cur_ids: set[int] = set()
     stack: list[str] = []
@@ -54,6 +56,7 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
                     stack.pop()
                 if len(tags) < 400:
                     tags.append((i, name))
+                    tag_cum.append((name, i, total_tof))
         elif op not in ("APPEND_TO_REGISTER", "REGISTER"):
             ids = [int(x) for x in QRE.findall(line)]
             for q in ids:
@@ -67,6 +70,7 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
                     prec["toffoli"] += 1
             if op in TOFFOLI:
                 cur_tof += 1
+                total_tof += 1
                 for q in ids:
                     tof_touch[q] += 1
         if (i + 1) % window == 0:
@@ -87,6 +91,8 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
         "windows": wins,
         "blocks": {str(k): v for k, v in blocks.items()},
         "tags": tags,
+        "tag_cum": tag_cum,
+        "total_toffoli": total_tof,
         "paths": {
             k: {"enter": v["enter"], "toffoli": v["toffoli"], "first": v["first"], "qubits": len(v["ids"])}
             for k, v in paths.items()

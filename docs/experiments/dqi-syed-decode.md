@@ -13,8 +13,8 @@ Paths below are inside its `dqi_source/src/controller_work/`. Numbers behind eve
   the newer `after_v3` / `after_c5` lineage (`after_v3/integration_v7/v7_pipeline.py:28-80`).
 * [V] Three configuration choices we worried about are **not** the lever: `fused=False` (`v7_pipeline.py:288-289`), `j_min == 15`
   (`:278`), full-length scan with an adaptive 64-candidate gauge (`:281,294`).
-* [M][V] Against its final native ledger (our own container run, section 7): extractor+synthesis +4.8k T, convert +1.6k, scan +0.8k, which is
-  +7.1k of the 7.3k; the remainder is the error of our stage-boundary estimate.
+* [M][V] With native stage marks on our build (section 3) the gap is exact: extractor +5,225 T, synthesis +442, convert +897, scan +759, total
+  +7,323. The extractor is 71% of it. (An earlier estimate from the instruction profile put it in synthesis; its boundaries were wrong.)
 
 ## 1. Entry and structure [V]
 
@@ -39,26 +39,36 @@ Build cost [V]: its README says peak about 1 GB, about 3 minutes on an Apple M5,
 | extractor | first-3 retained-norm adapter, special charts, deferred inverses (`:56-63`, `:119-130`) | `raw_query_extractor` from the older lineage |
 | outer / convert | `transpose14` windows, handoff outer, paired and joint norm phases (`:34-41,64-69`) | `night_outer`, `projective_finish` |
 
-## 3. Per-component static Toffolis
+## 3. Per-component static Toffolis, native on both sides
 
-His component ledger is the one his own build prints (`build.json`, `/contract/source_ledger/components_static_T`) from our container run
-(section 7), total 384,003. Ours is the measured profile of `fixed.kmb` with stage boundaries estimated to about +-3k T, so only sums of
-adjacent components are robust.
+Ours comes from `fixed.py --stage-log` (section 7): the build emits one `stage:<name>` INFO_TAG after each stage, and `dqi_gen.study` counts the
+Toffoli-like gates between tags. Stages other than the scan do not depend on the number of positions, so the 71-position `narrow` instance gives
+them exactly; the full scan is 4,095 x 11 = 45,045. They sum to **391,326**, the known full total. His column is the ledger his own build prints
+(`build.json`, `/contract/source_ledger/components_static_T`, total 384,003, from our container run).
 
-| component | ours [M] | his final [V] | ours minus his |
+Reproduce ours: `QCC_DATA=data uv run python -m dqi_gen.instances --gen fixed --instance narrow --salts 0 --save X.kmb --stage-log marks.json`,
+then `uv run python -m dqi_gen.study X.kmb --out study.json` (`tag_cum` holds the cumulative count at each tag). Without `--stage-log` the build is
+unchanged (checked: the `narrow` circuit is byte-identical to `main`'s; the tagged one verifies with the same 890 qubits and no errors).
+
+| component | ours [M] | his [V] | ours minus his |
 |---|---:|---:|---:|
-| extractor, forward + return | 148,500 | 151,852 | -3,352 |
-| synthesis, forward + return | 73,200 | 65,076 | +8,124 |
-| convert (outer + finish) | 124,400 | 122,789 | +1,611 |
+| extractor, forward + return | 157,077 (73,919 + 83,158) | 151,852 | **+5,225** |
+| synthesis, forward + return | 65,518 (27,965 + 37,553) | 65,076 | +442 |
+| convert (outer + finish) | 123,686 (57,245 + 1,725 + 6,305 + 58,411) | 122,789 | +897 |
 | scan | 45,045 | 44,286 | +759 |
 | total | 391,326 | 384,003 | +7,323 |
 
-Extractor and synthesis together: ours 221,700, his 216,928, so **+4.8k**, which is the robust part (the two rows disagree in sign because
-our extract/synthesis boundary is an estimate). Convert is +1.6k and the scan +0.76k (the 69 positions his gauge skips). The three add to
-7.14k against the 7.32k total. Between his version-2 build (385,653) and the final one the extractor fell 739, the outer stage 922 and the
-scan rose 11, together the -1,650 of section 4.
+The two sides draw the extractor/synthesis boundary differently (his extractor row says "rolling gauge, padded seed"), so only
+extractor + synthesis together is strictly comparable: **+5,667 T, 77% of the gap**. Convert is +897 and the scan +759 (the 69 positions his gauge
+skips). Between his version-2 build (385,653) and the final one the extractor fell 739, the outer stage 922 and the scan rose 11 (section 4).
+
+Forward against return [M]: in our build the returns cost 24.6k more than the forwards (extract 83.2k against 73.9k, synthesis 37.6k against
+28.0k, finish 6.3k against 1.7k, outer 58.4k against 57.2k). His ledger does not split forward from return, so where his saving sits is not yet
+known; the extractor return is the largest single stage.
 
 ![Stage ledger](../img/analysis/dqi-stage-ledger.png)
+
+![Our stages](../img/analysis/dqi-ours-stages.png)
 
 ## 4. His final patches [V]
 
@@ -69,7 +79,7 @@ a predicate or phase is held, so they are good candidates for the "mechanical" m
 
 ![His v7 patches](../img/analysis/dqi-v7-waterfall.png)
 
-## 5. The Toffoli-free wrapper [M], and what it is [I]
+## 5. The Toffoli-free wrapper [M], and what it is [V]
 
 Both circuits were streamed once with `dqi_gen.study`. His has 11.2M instructions before the first Toffoli and 4.6M after the last; ours
 0.4M and 0.25M. The interior lines up (instructions per 10% of T are 5.4/5.4, 4.8/4.8, 3.8/3.8 and 3.2/3.2 million in the middle
@@ -107,7 +117,7 @@ unknown), so the script runs a copy of `build.sh` with `|| true` after it. The c
 `build.sh` is not edited. Before running anything we read the launchers and grepped all 258 Python files for network, deletion and dynamic
 execution (only `ast.literal_eval`, a method named `eval`, and one `exec` that compiles a function from the official verifier file).
 
-## 8. His stage map and qubit width [V]
+## 8. His stage map and qubit width [V], and ours [M]
 
 The build record keeps 432 stage marks with the builder's allocated-qubit count after each (`build.json`, `stages`). Order: gauge open (70
 `blocked_mask_shear`, 15 `adaptive64_histogram`, one weight-gauge mark; width 840), extract forward (35 `raw_query_prefix`, width 865),
@@ -116,9 +126,9 @@ synthesis return (34), extract return (35, falling to 864), gauge close (70 `blo
 peak of 889 is reached inside a stage and is not recorded. The marks carry no Toffoli counts, so his per-stage T still has to come from the
 ledger above or from a profile.
 
-Consequence [I]: his width is 865 for most of the circuit and 889 only transiently, while our `fixed.kmb` showed ids 840 to 889 live through the
-run. Whether ours could also drop below 890 for most stages is the next measurement (the same `num_allocated_qubits` read at each of our stage
-marks).
+Our own build reports 864 to 866 allocated qubits at its marks (`dqi-ours-stages.png`), the same as his 865, so the width profile is not a
+difference. The 890 against 889 is an in-stage peak on both sides: the extractor's own ledger says 864 data qubits plus 26 scratch. The remaining
+question is which stage holds each peak, which needs allocation read inside the stage and not only at its end.
 
 ![His qubit timeline](../img/analysis/dqi-qubit-timeline.png)
 
@@ -127,10 +137,13 @@ marks).
 1. **Match (path A), mostly done.** His pipeline is reproduced byte for byte in a container (section 7) and used as the oracle. We keep it
    out of git (its closure is 52 MB with hash-pinned records) and run it through `scripts/dqi_reference_build.sh`; the 58 modules already
    vendored stay as they are. Still to do: our own stage marks (below), then moving our generator onto his newer lineage.
-2. **Own the parts we change (path B).** For each module we modify, rewrite it from scratch in `src/dqi_gen`, keep the vendored copy as
+2. **First module: the extractor.** It is 71% of the gap. His final extractor binds the newer first-three retained-norm adapter and deferred
+   inverses (section 2); ours is the older `raw_query_extractor`. Move that stage first, keep the old one as the oracle, and require the
+   per-stage count to fall and the official verify to pass at 10 salts.
+3. **Own the parts we change (path B).** For each module we modify, rewrite it from scratch in `src/dqi_gen`, keep the vendored copy as
    the reference oracle, and require identical Toffoli count and a passing official verify before swapping it in.
-3. **Exceed.** After the match, candidates (all estimates [G]): a lower-rank GF(2^24) product (about 1.3k T per unit of rank), a
+4. **Exceed.** After the match, candidates (all estimates [G]): a lower-rank GF(2^24) product (about 1.3k T per unit of rank), a
    qubit-for-Toffoli trade in the extractor scratch (1 qubit is 879 T), and the open synthesis gap that his v3 base hides. Every step is
    measured as delta T, delta Q and delta cost at 10 salts, and added to `analysis/numbers/dqi.json`.
 
-Not yet done: per-stage marks and allocated-qubit reads on our own build (needs the `stage=` hook), and provenance rows for the ideas above.
+Not yet done: allocation read inside stages (for the 890 peak), the same marks on the full instance, and provenance rows for the ideas above.

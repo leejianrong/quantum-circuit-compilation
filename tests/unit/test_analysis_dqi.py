@@ -21,7 +21,16 @@ def test_data_is_internally_consistent() -> None:
         t = d["totals"][key]
         assert m[side]["CCX"] + m[side]["CCZ"] + m[side]["CSWAP"] == t["toffoli_like"]
     comps = d["stage_ledger"]["components"]
-    assert abs(sum(c["ours"] for c in comps) - d["stage_ledger"]["ours_total"]) < 600
+    assert (
+        sum(c["ours"] for c in comps)
+        == d["stage_ledger"]["ours_total"]
+        == d["totals"]["ours"]["toffoli_like"]
+    )
+    n = d["ours_native_stages"]
+    assert sum(x["toffoli"] for x in n["stages"]) == n["total_narrow"]
+    assert (
+        n["total_narrow"] - n["scan_narrow"] + n["scan_full_instance"] == d["totals"]["ours"]["toffoli_like"]
+    )
     assert sum(c["theirs_v2"] for c in comps) == d["stage_ledger"]["theirs_v2_total"]
     assert sum(c["theirs_final"] for c in comps) == d["stage_ledger"]["theirs_final_total"]
     assert d["stage_ledger"]["theirs_final_total"] == d["totals"]["theirs"]["toffoli_like"]
