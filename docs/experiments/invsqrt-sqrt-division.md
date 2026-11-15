@@ -260,6 +260,8 @@ centres the error (`-3` units, free as the register's initial value). Exact mode
 | V1 (AND-temporary product) | 105 | 2,904 | PASS | 341,878 |
 | V2 (signed-digit product, deferred adders, lazy carry allocation in `md_add`) | 90 | 2,780 | PASS | 281,802 (ratio 7.37) |
 
+> **Update 2026-11-15:** reading his builder source (`invsqrt-syed-decode.md`) contradicts the 'dead end' below: the consuming product is 10 signed-digit rows into a 16-wire word (3 seed, 3 sign copies, 10 `h` wires), where `h_i` controls row i and then becomes the next top wire of the accumulator, and the table is reloaded because the inverse needs the coefficient. The decode note cites file and line for this; we have not yet re-checked it ourselves or implemented it, so treat it as the lead, not a result.
+
 **What did not decode: the consuming multiplier.** At fixed `v`, with all 813 residuals `h`, the reference's product register is 16 wires
 (`q0` to `q8` plus seven new ones) whose flip rates over consecutive `h` fall 669, 645, 572, 480, 323, 286, 161, 81, 41, 21, 11, 5, 3, 1:
 a counter of about 14 bits in which `q0` to `q8` are the high columns and about 5 new wires the low columns (slope about 20 per unit `h`),
