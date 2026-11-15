@@ -42,6 +42,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## docs-site
 
 - 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
+- 2026-11-16: [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) (positive)
 
 ## environment
 
@@ -76,6 +77,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Our first DQI decoder (divsteps plus a GF(2^6) tower) has 4.8x fewer Toffolis than the reference but only 18% lower Q^2 T](entries/2026-11-12-dqi-divstep-v0.md) (positive)
 - 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
+
+## knowledge
+
+- 2026-11-16: [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) (positive)
 
 ## loader
 

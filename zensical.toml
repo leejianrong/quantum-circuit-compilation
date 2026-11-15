@@ -39,10 +39,12 @@ nav = [
   ] },
   { "Knowledge" = [
     { "Overview" = "knowledge/index.md" },
+    { "By benchmark" = "knowledge/benchmarks.md" },
     { "Claims register" = "knowledge/claims.md" },
     { "Assumptions" = "knowledge/assumptions.md" },
     { "Open questions" = "knowledge/open-questions.md" },
     { "Environment" = "knowledge/environment.md" },
+    { "Project glossary" = "knowledge/glossary.md" },
   ] },
   { "Results" = [
     { "Scoreboard" = "results/scoreboard.md" },
