@@ -1,24 +1,151 @@
 {
   "meta": {
     "purpose": "Points plotted in the learning-track cost figures (analysis/learn_figures.py). Each ledger point is checked against ledger/results.jsonl by tests/unit/test_learn_figures.py.",
-    "baseline_cost": {"invsqrt": 2076774.233715282, "dqi": 24439463583672.9},
+    "baseline_cost": {
+      "invsqrt": 2076774.233715282,
+      "dqi": 24439463583672.9
+    },
     "dqi_r_eps": 1.2,
     "dqi_r_eps_note": "cost = R(eps) * Q^2 * T. R measured on the plotted circuits is 1.19 to 1.22; the iso-cost curves use 1.2, the points use their own measured cost."
   },
   "invsqrt": {
-    "reference": {"label": "reference (paper)", "qubits": 260, "cost": 2076774.233715282, "kind": "reference"},
+    "reference": {
+      "label": "reference (paper)",
+      "qubits": 260,
+      "cost": 2076774.233715282,
+      "kind": "reference"
+    },
     "points": [
-      {"label": "ours E023", "sha": "cc5472d2", "qubits": 93, "cost": 168238, "kind": "ours"},
-      {"label": "public 62-qubit", "sha": "c6519219", "qubits": 62, "cost": 94600, "kind": "public"},
-      {"label": "public 46-qubit", "sha": "321aff83", "qubits": 46, "cost": 80163, "kind": "public"}
+      {
+        "label": "ours E023",
+        "sha": "cc5472d2",
+        "qubits": 93,
+        "cost": 168238,
+        "kind": "ours"
+      },
+      {
+        "label": "public 62-qubit",
+        "sha": "c6519219",
+        "qubits": 62,
+        "cost": 94600,
+        "kind": "public"
+      },
+      {
+        "label": "public 46-qubit",
+        "sha": "321aff83",
+        "qubits": 46,
+        "cost": 80163,
+        "kind": "public"
+      }
     ]
   },
   "dqi": {
     "points": [
-      {"label": "ours BM (7.9x)", "sha": "d25804a5", "qubits": 1855, "toffoli": 740602, "cost": 3108706155778, "kind": "ours"},
-      {"label": "ours Thiele (36x)", "sha": "1d21250d", "qubits": 955, "toffoli": 615399, "cost": 671676174887, "kind": "ours"},
-      {"label": "ours fixed (65.8x)", "sha": "37d8047d", "qubits": 890, "toffoli": 391326, "cost": 371563918246, "kind": "ours", "offset": [-8, 8]},
-      {"label": "public 889-qubit (67.4x)", "sha": "7cbe8ecf", "qubits": 889, "toffoli": 384003, "cost": 362389950383, "kind": "public", "offset": [-8, -16]}
+      {
+        "label": "ours BM (7.9x)",
+        "sha": "d25804a5",
+        "qubits": 1855,
+        "toffoli": 740602,
+        "cost": 3108706155778,
+        "kind": "ours"
+      },
+      {
+        "label": "ours Thiele (36x)",
+        "sha": "1d21250d",
+        "qubits": 955,
+        "toffoli": 615399,
+        "cost": 671676174887,
+        "kind": "ours"
+      },
+      {
+        "label": "ours fixed (65.8x)",
+        "sha": "37d8047d",
+        "qubits": 890,
+        "toffoli": 391326,
+        "cost": 371563918246,
+        "kind": "ours",
+        "offset": [
+          -8,
+          8
+        ]
+      },
+      {
+        "label": "public 889-qubit (67.4x)",
+        "sha": "7cbe8ecf",
+        "qubits": 889,
+        "toffoli": 384003,
+        "cost": 362389950383,
+        "kind": "public",
+        "offset": [
+          -8,
+          -16
+        ]
+      }
+    ]
+  },
+  "widgets": {
+    "baselines": {
+      "invsqrt": 2076774.233715282,
+      "dqi": 24439463583672.9,
+      "dfthcsos": 3355599588.3155365
+    },
+    "axes": {
+      "invsqrt": {
+        "q": [
+          30,
+          380
+        ],
+        "y": [
+          800,
+          30000
+        ],
+        "ylabel": "Toffoli-equivalents C",
+        "levels": [
+          1,
+          5,
+          10,
+          25
+        ]
+      },
+      "dqi": {
+        "q": [
+          700,
+          2800
+        ],
+        "y": [
+          300000.0,
+          1200000.0
+        ],
+        "ylabel": "Toffolis T",
+        "levels": [
+          5,
+          10,
+          30,
+          60
+        ]
+      }
+    },
+    "dfthcsos_presets": [
+      {
+        "name": "baseline (README)",
+        "lam": 308.4559397330944,
+        "eGap": 3.965477244291833,
+        "t": 93237,
+        "q": 730,
+        "err1": 0.0,
+        "err2": 0.0,
+        "note": "errors not applicable: the baseline is the reference"
+      },
+      {
+        "name": "public 11.31x table",
+        "lam": 282.974,
+        "eGap": 3.9148982,
+        "t": 14810,
+        "q": 427,
+        "err1": 0.01961,
+        "err2": 0.0199988,
+        "note": "measured with our model; the verifier agrees to every digit (see the log entry)"
+      }
     ]
   }
 }

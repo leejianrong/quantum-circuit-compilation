@@ -92,3 +92,19 @@ def test_circuit_drawer_handles_every_gate_kind() -> None:
     gates = [("H", 0), ("X", 1), ("CX", 0, 1), ("CZ", 0, 2, {"cond": "m"}), ("CCX", 0, 1, 2), ("HMR", 2)]
     fig = draw(gates, ["a", "b", "c"], title="all kinds")
     assert len(fig.axes) == 1
+
+
+def test_widget_data_module_is_current() -> None:
+    path = learn_figures.WIDGET_DATA
+    assert path.read_text(encoding="utf-8") == learn_figures.widget_data(), "run `make learn-figures`"
+
+
+def test_pages_only_use_registered_widgets() -> None:
+    registry = set(
+        re.findall(r'^\s+"?([a-z-]+)"?: mount\w+,', (ROOT / "docs/javascripts/widgets.mjs").read_text(), re.M)
+    )
+    used = set()
+    for page in LEARN.rglob("*.md"):
+        used |= set(re.findall(r'data-widget="([a-z-]+)"', page.read_text()))
+    assert registry == {"interference", "iso-cost", "mbuc", "dfthcsos"}
+    assert used == registry

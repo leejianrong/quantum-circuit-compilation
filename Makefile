@@ -34,7 +34,7 @@ log-check: ## Lint the log entries and fail if a generated page is stale (also r
 	uv run python -m bench.logbook --check
 
 docs: ## Build the learning site into site/ (snippets are run by `make test`)
-	uv run zensical build --clean
+	uv run zensical build --clean --strict
 
 docs-serve: ## Serve the learning site locally with live reload
 	uv run zensical serve

@@ -39,9 +39,17 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Our first DQI decoder (divsteps plus a GF(2^6) tower) has 4.8x fewer Toffolis than the reference but only 18% lower Q^2 T](entries/2026-11-12-dqi-divstep-v0.md) (positive)
 - 2026-11-12: [DQI reference: 73% of its 5,725,461 Toffolis are two Euclid passes, and every qubit counts twice](entries/2026-11-12-dqi-cost-drivers.md) (positive)
 
+## docs-site
+
+- 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
+
 ## environment
 
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
+
+## figures
+
+- 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
 
 ## fit
 
@@ -164,3 +172,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
+
+## widgets
+
+- 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
