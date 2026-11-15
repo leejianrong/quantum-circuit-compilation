@@ -35,7 +35,8 @@ def test_every_nav_target_exists() -> None:
 
 
 def test_every_page_is_in_the_nav() -> None:
-    pages = {str(p.relative_to(DOCS)) for p in DOCS.rglob("*.md")}
+    # Log entries are reached through the generated log indexes (test_logbook checks every entry is linked).
+    pages = {str(p.relative_to(DOCS)) for p in DOCS.rglob("*.md") if "log/entries/" not in str(p)}
     orphans = sorted(pages - listed())
     assert not orphans, f"pages missing from zensical.toml nav: {orphans}"
 
