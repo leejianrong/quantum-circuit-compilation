@@ -214,6 +214,7 @@ Loader (`compiler/emit_plan.py`, read and re-derived, our `anf.py` matches its a
 - 11 selection qubits, five 8-bit words, 69 hi monomial ANDs (`S < 77`), 15 low monomials (some low monomials are
   carried by the helper qubits), uncomputed by measurement (HMR plus CZ).
 - Planes: 7 per word (35). The 8th bit is the "helper" `bit7 xor bit6`, a table that is almost always 0 and is loaded as
+  (Correction 2026-11-15: `dfthcsos-syed-decode.md` finds that this is wrong: the helper is a fixed low monomial in all batches, density about 25%; see that note.)
   a cheap pure monomial; CX bit6 to bit7 before and after (the same trick as our `sign_ext`).
 - Each Toffoli computes `(l1 + h1)(l2 + h2)`, a PAIR of rank-one terms, and fans the result out to an output mask over
   the 35 planes (CX from the first output qubit to the others before and after). 212 products per circuit, every one
