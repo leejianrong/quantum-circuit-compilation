@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import date
@@ -28,6 +29,7 @@ from bench.plots import BASELINES
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 ENTRIES = DOCS / "log" / "entries"
+PR_SNAPSHOT = ROOT / "analysis" / "numbers" / "prs.json"
 
 TYPES = ("experiment", "run", "decision", "reading", "correction", "incident")
 BENCHMARKS = ("invsqrt", "dqi", "dfthcsos", "infra", "docs")
@@ -106,6 +108,7 @@ def lint(
     exp_ids: set[str],
     sha_prefixes: set[str],
     pr_exists: set[int] | None = None,
+    pr_max: int = 0,
 ) -> list[str]:
     """Problems as `file: message` strings; empty means clean."""
     errs: list[str] = []
@@ -153,8 +156,8 @@ def lint(
         for pr in m.get("prs", []):
             if not isinstance(pr, int):
                 err(f"prs must be integers, got {pr!r}")
-            elif pr_exists is not None and pr not in pr_exists:
-                err(f"PR {pr} is not in the PR snapshot")
+            elif pr_exists is not None and pr <= pr_max and pr not in pr_exists:
+                err(f"PR {pr} is not in the PR snapshot (analysis/numbers/prs.json)")
         for x in m.get("experiments", []):
             if x not in exp_ids:
                 err(f"experiment {x!r} is not in ledger/experiments.jsonl")
@@ -322,12 +325,65 @@ def render_results(rows: list[ledger.Row], exps: dict[str, experiments.Experimen
     return pages
 
 
+def load_prs(root: Path = ROOT) -> list[dict[str, Any]]:
+    path = root / "analysis" / "numbers" / "prs.json"
+    return json.loads(path.read_text()) if path.exists() else []
+
+
+def render_prs(prs: list[dict[str, Any]], entries: list[Entry]) -> dict[Path, str]:
+    by_pr: dict[int, list[Entry]] = {}
+    for e in _sorted(entries):
+        for n in e.meta.get("prs", []):
+            by_pr.setdefault(n, []).append(e)
+    out = [
+        HEADER,
+        "# Pull requests\n\nEvery pull request of the repository, from a snapshot taken with "
+        "`python -m bench.logbook --refresh-prs` (needs the `gh` CLI). The last column lists the log "
+        "entries that cite the PR.\n",
+        "| PR | Merged | State | Title | Log entries |",
+        "|---:|---|---|---|---|",
+    ]
+    for pr in sorted(prs, key=lambda x: -x["number"]):
+        links = ", ".join(f"[{e.id}](../log/entries/{e.path.name})" for e in by_pr.get(pr["number"], []))
+        out.append(
+            f"| #{pr['number']} | {(pr.get('mergedAt') or '')[:10]} | {pr['state'].lower()} | "
+            f"{_cell(pr['title'], 140)} | {links} |"
+        )
+    return {Path("results/prs.md"): "\n".join(out) + "\n"}
+
+
+def refresh_prs(root: Path = ROOT) -> int:
+    res = subprocess.run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--state",
+            "all",
+            "--limit",
+            "1000",
+            "--json",
+            "number,title,state,mergedAt,headRefName",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=root,
+    )
+    if res.returncode != 0:
+        print("error: gh pr list failed:", res.stderr.strip())
+        return 1
+    prs = sorted(json.loads(res.stdout), key=lambda x: x["number"])
+    (root / "analysis" / "numbers" / "prs.json").write_text(json.dumps(prs, indent=1, sort_keys=True) + "\n")
+    print(f"wrote analysis/numbers/prs.json ({len(prs)} pull requests)")
+    return 0
+
+
 def generate(root: Path = ROOT) -> dict[Path, str]:
     """All generated pages, keyed by path relative to docs/."""
     entries = load_entries(root / "docs" / "log" / "entries")
     rows = ledger.read(root / "ledger" / "results.jsonl")
     exps = experiments.read(root / "ledger" / "experiments.jsonl")
-    pages = {**render_log(entries), **render_results(rows, exps)}
+    pages = {**render_log(entries), **render_results(rows, exps), **render_prs(load_prs(root), entries)}
     return {k: re.sub(r"\n{3,}", "\n\n", v) for k, v in pages.items()}
 
 
@@ -357,7 +413,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--check", action="store_true", help="lint and fail on stale generated pages; write nothing"
     )
+    ap.add_argument("--refresh-prs", action="store_true", help="re-snapshot the pull requests with gh first")
     a = ap.parse_args(argv)
+    if a.refresh_prs and refresh_prs():
+        return 1
     errs = lint_repo()
     for e in errs:
         print("lint:", e)

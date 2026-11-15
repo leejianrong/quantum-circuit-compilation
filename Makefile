@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report learn-figures log log-check
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report learn-figures log log-check log-prs
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -26,6 +26,9 @@ learn-figures: ## Redraw docs/img/learn/*.svg (learning-track figures) from code
 
 log: ## Lint docs/log/entries and rewrite the generated log and results pages
 	uv run python -m bench.logbook
+
+log-prs: ## Re-snapshot the pull requests with gh (analysis/numbers/prs.json) and rebuild the log pages
+	uv run python -m bench.logbook --refresh-prs
 
 log-check: ## Lint the log entries and fail if a generated page is stale (also run by the tests)
 	uv run python -m bench.logbook --check

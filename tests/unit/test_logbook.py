@@ -142,3 +142,11 @@ def test_relative_links_in_log_and_results_pages_resolve() -> None:
             assert (page.parent / target).resolve().exists(), (
                 f"{page.relative_to(logbook.DOCS)}: broken link {target}"
             )
+
+
+def test_pr_numbers_are_checked_against_the_snapshot_only_up_to_its_newest() -> None:
+    shas = {"37d8047d" + "0" * 56}
+    unknown = entry(GOOD.replace("prs: [1, 2]", "prs: [2]"))
+    assert any("PR 2" in e for e in lint([unknown], {"E001"}, shas, {1, 3}, 3))
+    newer = entry(GOOD.replace("prs: [1, 2]", "prs: [4]"))  # snapshot not refreshed yet: allowed
+    assert lint([newer], {"E001"}, shas, {1, 3}, 3) == []
