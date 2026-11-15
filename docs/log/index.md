@@ -6,6 +6,15 @@ One dated entry per piece of work: what we tried, the setup, the numbers, what w
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-15 | reading | invsqrt | correction | [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (backfilled) | #184 |
 | 2026-11-15 | experiment | dqi | positive | [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) | #186, #187, #188, #189 |
 | 2026-11-14 | run | infra | positive | [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (backfilled) | #183 |
 | 2026-11-14 | run | infra | positive | [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (backfilled) |  |
+| 2026-11-13 | experiment | invsqrt | positive | [invsqrt ratio 12.34 (93 qubits, 168,237.5): lean qubits and exhaustive windows pay, the Horner mirror cannot be removed](entries/2026-11-13-invsqrt-uncompute.md) (backfilled) | #87, #88 |
+| 2026-11-13 | reading | invsqrt | negative | [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md) (backfilled) | #94, #96 |
+| 2026-11-13 | experiment | invsqrt | inconclusive | [invsqrt by square root and division: a 46-qubit design re-derived, our own builds reach 90 qubits (281,802 at 1/20 shots), consuming multiplier not closed](entries/2026-11-13-invsqrt-sqrt-division.md) (backfilled) | #140, #145, #147, #152, #154, #157, #161, #162, #184 |
+| 2026-11-13 | experiment | invsqrt | negative | [invsqrt one-pass study: the frontier has a Horner unwind after all, and none of four levers moves ratio 12.34](entries/2026-11-13-invsqrt-onepass.md) (backfilled) | #99, #107, #112, #117, #126 |
+| 2026-11-12 | experiment | invsqrt | positive | [invsqrt 101 qubits, ratio 10.65: the phase adder loses, signed-digit rows and lazy allocation win](entries/2026-11-12-invsqrt-phase-adder.md) (backfilled) | #70, #71 |
+| 2026-11-12 | experiment | invsqrt | positive | [invsqrt: our own generator takes the reference from ratio 1.0 to 7.00 (136 qubits), then 8.40 (121 qubits)](entries/2026-11-12-invsqrt-generator.md) (backfilled) | #46, #54, #57 |
+| 2026-11-12 | reading | invsqrt | positive | [invsqrt: the host reference is 88% schoolbook multiplications, and qubits and Toffolis weigh equally in the score](entries/2026-11-12-invsqrt-cost-drivers.md) (backfilled) | #35 |
+| 2026-11-12 | experiment | invsqrt | positive | [invsqrt 121 qubits, ratio 8.40: serial and split phasing do not pay alone, the centered remainder does](entries/2026-11-12-invsqrt-bitserial.md) (backfilled) | #54, #57 |

@@ -4,6 +4,18 @@
 
 Entries grouped by the benchmark they concern.
 
+## invsqrt
+
+- 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (correction)
+- 2026-11-13: [invsqrt ratio 12.34 (93 qubits, 168,237.5): lean qubits and exhaustive windows pay, the Horner mirror cannot be removed](entries/2026-11-13-invsqrt-uncompute.md) (positive)
+- 2026-11-13: [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md) (negative)
+- 2026-11-13: [invsqrt by square root and division: a 46-qubit design re-derived, our own builds reach 90 qubits (281,802 at 1/20 shots), consuming multiplier not closed](entries/2026-11-13-invsqrt-sqrt-division.md) (inconclusive)
+- 2026-11-13: [invsqrt one-pass study: the frontier has a Horner unwind after all, and none of four levers moves ratio 12.34](entries/2026-11-13-invsqrt-onepass.md) (negative)
+- 2026-11-12: [invsqrt 101 qubits, ratio 10.65: the phase adder loses, signed-digit rows and lazy allocation win](entries/2026-11-12-invsqrt-phase-adder.md) (positive)
+- 2026-11-12: [invsqrt: our own generator takes the reference from ratio 1.0 to 7.00 (136 qubits), then 8.40 (121 qubits)](entries/2026-11-12-invsqrt-generator.md) (positive)
+- 2026-11-12: [invsqrt: the host reference is 88% schoolbook multiplications, and qubits and Toffolis weigh equally in the score](entries/2026-11-12-invsqrt-cost-drivers.md) (positive)
+- 2026-11-12: [invsqrt 121 qubits, ratio 8.40: serial and split phasing do not pay alone, the centered remainder does](entries/2026-11-12-invsqrt-bitserial.md) (positive)
+
 ## dqi
 
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
