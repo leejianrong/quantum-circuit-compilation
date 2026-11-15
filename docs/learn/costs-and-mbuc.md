@@ -21,7 +21,7 @@ simulate any of it, they just price gates:
 - A Toffoli-like gate (`CCX`, `CCZ`, `CSWAP`) costs 1.
 - A `Z_POW` rotation at a Clifford angle is free, at a T angle costs 1 T gate, and at any other
   angle costs `0.56 log2(1/eps) + 5.3` T gates for synthesis error `eps`.
-- Four T gates are priced as one Toffoli, so `C = Toffolis + T/4` (invsqrt verifier source).
+- Four T gates are priced as one Toffoli, so \(C = N_{\text{Toffoli}} + N_T/4\) (invsqrt verifier source).
 - `Q` is the circuit's logical qubit count, `circuit.num_qubits`. Scratch qubits that are freed get
   reused, so careful allocation keeps it down.
 
@@ -33,6 +33,13 @@ number needs a combination, and each benchmark picks its own:
 | invsqrt | `Q * C` | `verify_submission_invsqrt.py` |
 | dqi | `R(eps) * Q^2 * T` | `verify_submission_dqi.py` |
 | dfthcsos | `lambda_eff * T_total * Q_total` | `SCORING_README.md` |
+
+The three scores, with \(Q\) the qubit count and \(T\) the Toffoli count:
+
+\[
+\text{invsqrt: } Q \cdot C, \qquad \text{dqi: } R(\varepsilon)\, Q^{2} T, \qquad
+\text{dfthcsos: } \lambda_{\text{eff}}\, T_{\text{total}}\, Q_{\text{total}} .
+\]
 
 The squared `Q` in dqi means a 1% cut in qubits is worth a 2% cut in Toffolis. The paper's
 reference invsqrt circuit has `Q = 260`, 7,735 Toffolis, 1 T gate and 37 non-Clifford rotations,
