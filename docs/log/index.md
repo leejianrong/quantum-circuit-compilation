@@ -15,6 +15,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 | 2026-11-16 | decision | docs | positive | [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) | #199 |
 | 2026-11-16 | decision | docs | n/a | [HANDOFF said our DQI was not promoted; the promotion ledger and best/ say it was, on 2026-11-14](entries/2026-11-16-handoff-dqi-promoted.md) |  |
 | 2026-11-16 | experiment | dqi | positive | [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) |  |
+| 2026-11-16 | experiment | dqi | positive | [DQI: the 890th qubit is reached in the outer stages, not the extractor; v3 already brings the extractor to 889](entries/2026-11-16-dqi-qubit-peak.md) |  |
 | 2026-11-16 | experiment | dqi | positive | [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) |  |
 | 2026-11-15 | reading | invsqrt | correction | [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (backfilled) | #184 |
 | 2026-11-15 | experiment | dqi | positive | [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) | #186, #187, #188, #189 |

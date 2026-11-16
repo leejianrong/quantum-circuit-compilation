@@ -144,6 +144,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Cutting the divstep decoder from 4,013 to 2,764 qubits doubles the ratio to 2.64, and its dialog is at its information minimum](entries/2026-11-12-dqi-qubits.md) (positive)
 - 2026-11-12: [A dialog-free Lanczos decoder halves the qubits (2,764 to 1,472) and verifies, but 0.75% of shots fail and R doubles](entries/2026-11-12-dqi-inplace.md) (positive)
 
+## qubit-timeline
+
+- 2026-11-16: [DQI: the 890th qubit is reached in the outer stages, not the extractor; v3 already brings the extractor to 889](entries/2026-11-16-dqi-qubit-peak.md) (positive)
+
 ## reproduction
 
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
