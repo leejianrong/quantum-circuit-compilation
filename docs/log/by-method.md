@@ -158,6 +158,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## source-decode
 
+- 2026-11-16: [DQI: vendored the 25-module back half of the newer pipeline (finish, scan, outer, deferred tail, padded seed)](entries/2026-11-16-dqi-backhalf-vendor.md) (n/a)
 - 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (correction)
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
 - 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
