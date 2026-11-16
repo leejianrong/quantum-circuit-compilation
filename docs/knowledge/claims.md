@@ -29,7 +29,7 @@ the numbers. `tests/unit/test_knowledge.py` checks that every evidence link exis
 
 | Claim | Status | Evidence |
 |---|---|---|
-| The score is `R * Q^2 * T`, so one qubit is worth about two Toffolis | holds | [cost drivers](../log/entries/2026-11-12-dqi-cost-drivers.md) |
+| The score is `R * Q^2 * T`, so 1% of qubits is worth 2% of Toffolis (one qubit is about 830 Toffolis; corrected by S2) | holds | [cost drivers](../log/entries/2026-11-12-dqi-cost-drivers.md) |
 | The reference's two Euclid passes are 73% of its 5,725,461 Toffolis | holds | [cost drivers](../log/entries/2026-11-12-dqi-cost-drivers.md) |
 | Lanczos failures (about 0.75% of shots) are not fixable locally | holds | [failures](../log/entries/2026-11-12-dqi-failures.md) |
 | Exact look-ahead costs about +30% T | refuted: only a lower bound | [look-ahead](../log/entries/2026-11-13-dqi-lookahead.md) |
