@@ -61,3 +61,4 @@ Entries grouped by the benchmark they concern.
 - 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
 - 2026-11-16: [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) (positive)
 - 2026-11-16: [HANDOFF said our DQI was not promoted; the promotion ledger and best/ say it was, on 2026-11-14](entries/2026-11-16-handoff-dqi-promoted.md) (n/a)
+- 2026-11-16: [Docs sweep after the DQI promotions: README, HANDOFF, QUESTIONS and AGENTS brought in line; six dependency PRs merged](entries/2026-11-16-docs-sweep.md) (n/a)

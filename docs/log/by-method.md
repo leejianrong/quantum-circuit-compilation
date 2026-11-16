@@ -83,6 +83,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## housekeeping
 
 - 2026-11-16: [HANDOFF said our DQI was not promoted; the promotion ledger and best/ say it was, on 2026-11-14](entries/2026-11-16-handoff-dqi-promoted.md) (n/a)
+- 2026-11-16: [Docs sweep after the DQI promotions: README, HANDOFF, QUESTIONS and AGENTS brought in line; six dependency PRs merged](entries/2026-11-16-docs-sweep.md) (n/a)
 
 ## kaggle-verify
 
