@@ -43,6 +43,7 @@ the numbers. `tests/unit/test_knowledge.py` checks that every evidence link exis
 | Our own `fixed` circuit scores 65.77x (890 qubits, 10 salts, 0 failures) | holds | [environment and promotion](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
 | The newer extractor in our front half cuts 5,148 T and scores 66.50x (890 qubits, 10 salts, 0 failures) | holds | [extractor v3](../log/entries/2026-11-16-dqi-extractor-v3.md) |
 | Nested-norm arithmetic in the synthesis saves 102 T (return side) and scores 66.75x (10 salts, 0 failures) | holds | [synthesis nested norm](../log/entries/2026-11-16-dqi-synthesis-nested-norm.md) |
+| Our extractor with the newer lineage peaks at 889 qubits; the 890th is reached in the outer stages | holds (narrow instance) | [qubit peak](../log/entries/2026-11-16-dqi-qubit-peak.md) |
 | The gap to the best public circuit sits in convert and unconvert | refuted: 62% is the extractor return path | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | The extractor return gap is a constant +114 T at each of 31 nodes | holds (measured on both builds) | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 
