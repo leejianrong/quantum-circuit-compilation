@@ -57,7 +57,7 @@ def xmats(u: np.ndarray, w: np.ndarray) -> np.ndarray:
 
 
 def fit_cap_w(
-    ctx: Ctx, x: np.ndarray, w: np.ndarray, margin: float = 2e-4
+    ctx: Ctx, x: np.ndarray, w: np.ndarray, margin: float = 2e-4, start: np.ndarray | None = None
 ) -> tuple[np.ndarray, dict[str, float]]:
     """Minimise ``lambda_eff`` over ``W (R, C)`` with ``E_gap >= floor + margin``."""
     r, b, c = w.shape
@@ -93,8 +93,10 @@ def fit_cap_w(
         return gap - E_FLOOR - margin, dgap
 
     best = None
-    for t in (1.0,):
-        w0 = -t * ws.ravel()
+    starts = [(1.0, -ws.ravel())]
+    if start is not None:  # warm start: after a rotation the W landscape has several optima (S4)
+        starts.append((-1.0, np.asarray(start, dtype=np.float64).ravel()))
+    for t, w0 in starts:
         res = minimize(
             lambda z: f(z)[0],
             w0,
@@ -133,7 +135,7 @@ def refit_w(tsym: np.ndarray, uq: np.ndarray, w: np.ndarray, iters: int) -> np.n
     return np.asarray(res.x.reshape(w.shape) * sc)
 
 
-def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False, l1_target=0.0):  # type: ignore[no-untyped-def]
+def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False, l1_target=0.0, joint=0, restarts=0):  # type: ignore[no-untyped-def]
     from dfthcsos.scoreinfra import dfthc_math as dm
 
     from dfthcsos_gen import post
@@ -152,9 +154,19 @@ def build(ctx: Ctx, tsym, u, w0, edges, brot, iters, rotate, half=False, l1_targ
         print(f"  L1 refit: mu {mu:.2e}, error_2 {e2:.5f}", flush=True)
     if rotate:
         for k in range(r):
-            w[k], _ = post.rotate_min_l1(w[k], iters=300)
+            if restarts:
+                w[k] = post.rotate_min_l1_restarts(w[k], restarts)
+            else:
+                w[k], _ = post.rotate_min_l1(w[k], iters=300)
+    cap_start = None
+    for i in range(joint):  # rotate w and the capital W together; only Lambda changes (S4, QCC-62)
+        cap_i, _ = fit_cap_w(ctx, xmats(uq, w), w, start=cap_start)
+        cap_start = np.empty_like(cap_i)
+        for k in range(r):
+            w[k], cap_start[k], _ = post.rotate_joint(w[k], cap_i[k])
+        print(f"  joint rotation {i + 1}/{joint} done", flush=True)
     w = w.astype(np.float32).astype(np.float64)
-    cap_w, _ = fit_cap_w(ctx, xmats(uq, w), w)
+    cap_w, _ = fit_cap_w(ctx, xmats(uq, w), w, start=cap_start)
     h2i = (cap_w + w.sum(axis=1)).astype(np.float32)  # stored as H2_I = W + sum_b w
     cap_w = h2i.astype(np.float64) - w.sum(axis=1)
     h1_thc = np.asarray(ctx.ref["oei"]) - 0.5 * np.einsum("prrq->pq", np.asarray(ctx.ref["tei"]))
@@ -186,6 +198,12 @@ def main() -> None:
     ap.add_argument("--no-rotate", action="store_true")
     ap.add_argument("--no-write", action="store_true")
     ap.add_argument(
+        "--rotate-restarts", type=int, default=0, help="random restarts of the L1 rotation (0 = one start)"
+    )
+    ap.add_argument(
+        "--joint-rotate", type=int, default=0, help="rounds of joint (w, W) rotation before the final W fit"
+    )
+    ap.add_argument(
         "--l1-target", type=float, default=0.0, help="refit weights for a small L1 proxy at this error_2"
     )
     ap.add_argument(
@@ -205,7 +223,18 @@ def main() -> None:
         edges = post.balanced_tree() if tn == "balanced" else post.path_tree()
         for bs in a.brot.split(","):
             words, res, w, h2i = build(
-                ctx, tsym, u, w0, edges, int(bs), a.refit_iters, not a.no_rotate, a.half, a.l1_target
+                ctx,
+                tsym,
+                u,
+                w0,
+                edges,
+                int(bs),
+                a.refit_iters,
+                not a.no_rotate,
+                a.half,
+                a.l1_target,
+                a.joint_rotate,
+                a.rotate_restarts,
             )
             print(
                 f"tree={tn} brot={bs}:",

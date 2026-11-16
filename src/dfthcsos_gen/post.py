@@ -85,6 +85,59 @@ def rotate_min_l1(
     return w @ o, o
 
 
+def rotate_min_l1_restarts(w: np.ndarray, restarts: int = 4, iters: int = 1500) -> np.ndarray:
+    """Best of `rotate_min_l1` from the identity and `restarts` random orthogonal starts (non-convex)."""
+    best = rotate_min_l1(w, iters=iters)[0]
+    for s in range(restarts):
+        a = np.linalg.qr(np.random.default_rng(s).standard_normal((w.shape[1],) * 2))[0]
+        cand = rotate_min_l1(w @ a, iters=iters)[0]
+        if np.sum(np.abs(cand).sum(0) ** 2) < np.sum(np.abs(best).sum(0) ** 2):
+            best = cand
+    return best
+
+
+def _joint_obj(w: np.ndarray, cap_w: np.ndarray, eps: float) -> tuple[float, np.ndarray, np.ndarray]:
+    """``sum_c (||w_c||_1 + |sum_b w_bc + W_c|)^2`` (weight part of ``Lambda`` times 4) and its gradients."""
+    phi = np.sqrt(w * w + eps * eps)
+    a = phi.sum(axis=0)
+    s = w.sum(axis=0) + cap_w
+    sa = np.sqrt(s * s + eps * eps)
+    g = a + sa
+    return float(np.sum(g * g)), 2 * g[None, :] * (w / phi) + (2 * g * s / sa)[None, :], 2 * g * s / sa
+
+
+def rotate_joint(
+    w: np.ndarray, cap_w: np.ndarray, iters: int = 400, eps: float = 1e-4
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Orthogonal ``O`` minimising the weight part of ``Lambda`` including the offset term, one ``rho``.
+
+    ``w`` is B x C, ``cap_w`` the capital ``W`` of length C. ``sum_c X_c (x) X_c`` and ``sum_c W_c X_c`` are
+    invariant under ``w -> w O``, ``W -> W O`` (``O`` orthogonal), so only ``Lambda`` changes. Unlike
+    ``rotate_min_l1`` this sees ``|W_c + sum_b w_bc|``. Returns ``(w O, W O, O)``.
+    """
+    c = w.shape[1]
+    o = np.eye(c)
+    f, gw, gcap = _joint_obj(w, cap_w, eps)
+    step = 0.05
+    for _ in range(iters):
+        grad = w.T @ gw + cap_w[:, None] * gcap[None, :]
+        om = grad @ o.T - o @ grad.T
+        nrm = np.linalg.norm(om)
+        if nrm < 1e-12:
+            break
+        while step > 1e-14:
+            o2 = expm(-step * om / nrm) @ o
+            f2, gw2, gcap2 = _joint_obj(w @ o2, cap_w @ o2, eps)
+            if f2 < f:
+                o, f, gw, gcap = o2, f2, gw2, gcap2
+                step *= 1.5
+                break
+            step *= 0.5
+        else:
+            break
+    return w @ o, cap_w @ o, o
+
+
 def angles_of(u: np.ndarray, edges: np.ndarray, brot: int, half: bool = False) -> np.ndarray:
     """Real-valued angles in word units: ``encode`` before rounding.
 
