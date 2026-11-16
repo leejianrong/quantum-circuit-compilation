@@ -1179,7 +1179,7 @@
     "id": "S2-synthesis-nested-norm",
     "what": "S1 plus nested-norm arithmetic in the fused synthesis (return side only)",
     "generator": "fixed3s",
-    "commit": null,
+    "commit": "508db56",
     "total_T": 386076,
     "dT": -102,
     "dT_vs_baseline": -5250,
@@ -1276,7 +1276,15 @@
      "value_errors": 0,
      "phase_errors": 0
     },
-    "official_full": null,
+    "official_full": {
+     "salts": 10,
+     "failures": 0,
+     "worst_cost": 366148516077.577,
+     "ratio": 66.747,
+     "dCost_vs_S1": -1376546960.5,
+     "sha256": "f983871ec6208225cfd8d03f5caec16cbbd2de84a5fcbba4871ae6c2ec34da47",
+     "kaggle_wall_s": 1162
+    },
     "source": "M"
    }
   ]

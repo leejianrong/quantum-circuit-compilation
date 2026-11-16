@@ -86,6 +86,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## kaggle-verify
 
+- 2026-11-16: [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
 
 ## knowledge
@@ -170,6 +171,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## stage-ledger
 
+- 2026-11-16: [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
