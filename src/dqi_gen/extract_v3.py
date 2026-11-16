@@ -88,7 +88,7 @@ def set_synthesis_nested(nested: bool) -> None:
     bind()
     if _synth_original is None:
         _synth_original = fs.Arithmetic
-    import gf24_nested_norm  # type: ignore[import-not-found]
+    import gf24_nested_norm
 
     fs.Arithmetic = gf24_nested_norm if nested else _synth_original
 
