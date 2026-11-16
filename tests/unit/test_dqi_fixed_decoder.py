@@ -16,7 +16,7 @@ pytestmark = [
 ]
 
 
-@pytest.mark.parametrize("gen", ["fixed", "fixed3", "fixed3s"])
+@pytest.mark.parametrize("gen", ["fixed", "fixed3", "fixed3s", "fixed4"])
 def test_fixed_decoder_verifies_on_narrow(gen: str) -> None:
     inst = instances.INSTANCES["narrow"]
     out = instances.verify(instances.build(gen, inst), inst, shots=2048)

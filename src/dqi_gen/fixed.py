@@ -77,7 +77,8 @@ def build_decoder(
     """Append the decoder to `builder`; returns static numbers of the scan.
 
     `extractor` is `"v2"` (`raw_query_extractor`, the oracle), `"v3"` (`extract_v3`, the newer lineage) or
-    `"v3s"` (v3 plus nested-norm arithmetic in the synthesis).
+    `"v3s"` (v3 plus nested-norm arithmetic in the synthesis) or `"v4"` (v3s plus the back half of the newer
+    lineage: `backhalf.py`).
 
     `stage(name)` is called after each stage when given (it does not change the circuit unless it emits tags).
     """
@@ -100,8 +101,17 @@ def build_decoder(
     words = [list(flat[24 * i : 24 * i + 24]) for i in range(35)]
     carry = list(builder.alloc_qubits(24))
     builder.x(carry[0])
-    if extractor not in ("v2", "v3", "v3s"):
-        raise ValueError(f"extractor must be 'v2', 'v3' or 'v3s', not {extractor!r}")
+    if extractor not in ("v2", "v3", "v3s", "v4"):
+        raise ValueError(f"extractor must be 'v2', 'v3', 'v3s' or 'v4', not {extractor!r}")
+    if extractor == "v4":
+        from dqi_gen import backhalf
+
+        info4 = backhalf.run(builder, words, carry, masks, stage=stage)
+        builder.x(carry[0])
+        builder.free(km.array(carry))
+        apply_matrix_inplace(builder, flat, inv)
+        mark("geometry_return")
+        return info4
     ext = extract if extractor == "v2" else extract_v3
     if extractor != "v2" or extract_v3._bound is not None:
         extract_v3.set_synthesis_nested(extractor == "v3s")
