@@ -12,11 +12,11 @@ beside the public ones they have to beat.
 | Benchmark | Our own best (verified) | Public best we have measured | What is in `best/` |
 |---|---|---|---|
 | invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 25.9 (syed3000, 80,162.7) | `c6519219`, 21.95 |
-| dqi | **65.77** (convert decoder `--gen fixed`, 890 qubits, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`) | 67.4 (syed3000, 889 qubits) | `37d8047d`, our own `fixed.kmb`, 65.77 (promoted 2026-11-14, `ledger/promotions.jsonl`) |
+| dqi | **66.50** (`--gen fixed3`, 890 qubits, 386,178 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` was 65.77) | 67.4 (syed3000, 889 qubits) | `c9d53c1f`, our own `fixed3.kmb`, 66.50 (promoted 2026-11-16, `ledger/promotions.jsonl`; replaced `37d8047d`, 65.77) |
 | dfthcsos | 2.50 (E040, fully-own 11-bit ANF loader, 3 salts) | 11.31 (syed3000, 296.6M), 11.20 (`91d0ad25`) | `91d0ad25`, 11.20 |
 
-Own DQI is within 3% of the best public circuit. It was promoted into `best/` on 2026-11-14 (10 salts, 0 failures,
-`ledger/promotions.jsonl`), so `best/dqi` holds our own `37d8047d`, not the public `e9f54be3`. invsqrt and dfthcsos are
+Own DQI is within 3% of the best public circuit. `fixed` was promoted on 2026-11-14 and `fixed3` replaced it on 2026-11-16 (10 salts, 0 failures,
+`ledger/promotions.jsonl`), so `best/dqi` holds our own `c9d53c1f`, not the public `e9f54be3`. invsqrt and dfthcsos are
 far behind the public frontier.
 
 What the last rounds established (all in `docs/experiments/`, newest first):
@@ -88,7 +88,7 @@ Git holds code, docs, ledgers (`ledger/*.jsonl`, append-only) and the vendored A
 |---|---|---|
 | `data/` (1 GB) | competition data: verifiers, kickmix, sample submissions, FCIDUMP, baseline circuits | `make fetch-data` (Kaggle CLI, competition `google-verifiable-quantum-circuit-compilation`). Never redistribute (rules B.4.b). |
 | `public/` (1.9 GB) | other participants' public circuits and `MANIFEST.tsv` (sha256) | `bash scripts/fetch_public.sh`; each file has a row in `docs/PROVENANCE.md`. Third-party, licences as stated there, never committed. |
-| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt c6519219`, `dqi 37d8047d` (own), `dfthcsos 91d0ad25` | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
+| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt c6519219`, `dqi c9d53c1f` (own), `dfthcsos 91d0ad25` | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
 | `out/` | plots, `submission.zip`, scratch builds | `uv run bench plots`, `bench pack`; regenerable, safe to delete. |
 | `.venv/`, caches | environment | `make install`. |
 | `~/qcc-circuits/` (about 1 GB) | our built circuits and syed3000 references | see below. |
@@ -137,8 +137,8 @@ Kaggle is free.
 
 ## Backlog, in order
 
-1. DQI: `fixed.kmb` is promoted. Next is the extractor return path (62% of the gap to the best public circuit,
-   `docs/log/entries/2026-11-15-dqi-stage-ledgers.md`); a different decoder design after that.
+1. DQI: `fixed3` is promoted (66.50; best public 67.44). Next: nested-norm arithmetic in synthesis (-102 T, narrow-verified), then the
+   remaining 2,175 T (`docs/log/entries/2026-11-16-dqi-extractor-v3.md`).
 2. dfthcsos: the `Lambda` basin (above), then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
    search is open; about 8% of `T_total` at best).
 3. invsqrt: parked.
