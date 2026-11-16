@@ -1,0 +1,18 @@
+{
+  "id": "leejianrong/qcc-dqi-verify-public",
+  "title": "qcc dqi verify public",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [
+    "google-verifiable-quantum-circuit-compilation"
+  ],
+  "kernel_sources": [
+    "balramsrinivasan/vqcc-28-10-gf24-closings-in-syed-v13-dqi",
+    "koushikrudra/qcc-v54-best-verified"
+  ]
+}

@@ -28,6 +28,14 @@ SOURCES=(
   "k|alexchilton/24-94-lb-verified-three-task-portfolio"
   "k|atakanaldemir/qcc-terminal-readout-and-phase-folds"
   "k|yoyobar/lb-22-99-invsqrt-101-62-qubits"
+  "k|balramsrinivasan/vqcc-28-10-gf24-closings-in-syed-v13-dqi"
+  "k|koushikrudra/qcc-v54-best-verified"
+  "k|ozertuu/vqcc-super-sota-verified-portfolio-28-091"
+  "k|adityaravi2/qcc-frontier-rebase-refit-validation-20261116"
+  "k|drpatrickchan/qcc-chem-refit-sub1-on-the-28-09-frontier"
+  "k|jeffemerson/28-071-44-qubit-stack-our-and-merge-cut"
+  "k|derrickirons/invsqrt-precision-trimming-a-verifiable-quantum"
+  "k|alexchilton/28-09-lb-which-circuits-survive-private-salt"
 )
 
 mkdir -p public
