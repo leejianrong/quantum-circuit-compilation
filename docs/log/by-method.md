@@ -159,7 +159,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## source-decode
 
 - 2026-11-16: [DQI: vendored the 25-module back half of the newer pipeline (finish, scan, outer, deferred tail, padded seed)](entries/2026-11-16-dqi-backhalf-vendor.md) (n/a)
-- 2026-11-16: [DQI: back half of the newer lineage in our front half (fixed4): -1,314 T and the 890th qubit](entries/2026-11-16-dqi-backhalf-outer.md) (n/a)
+- 2026-11-16: [DQI: back half of the newer lineage in our front half (fixed4): -1,314 T and the 890th qubit](entries/2026-11-16-dqi-backhalf-outer.md) (positive)
 - 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (correction)
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
 - 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
@@ -180,7 +180,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-16: [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
-- 2026-11-16: [DQI: back half of the newer lineage in our front half (fixed4): -1,314 T and the 890th qubit](entries/2026-11-16-dqi-backhalf-outer.md) (n/a)
+- 2026-11-16: [DQI: back half of the newer lineage in our front half (fixed4): -1,314 T and the 890th qubit](entries/2026-11-16-dqi-backhalf-outer.md) (positive)
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
 - 2026-11-13: [The 892-qubit public DQI circuit works in place on the 840 syndrome qubits plus 52, and a quadratic-extension pivot removes the failures](entries/2026-11-13-dqi-stage2.md) (positive)

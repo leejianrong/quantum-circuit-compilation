@@ -5,11 +5,11 @@ title: "DQI: back half of the newer lineage in our front half (fixed4): -1,314 T
 type: experiment
 benchmark: dqi
 methods: [stage-ledger, source-decode]
-status: open
-outcome: n/a
+status: done
+outcome: positive
 commit: c61a316
 prs: []
-rows: []
+rows: [599cb515]
 studies: [docs/experiments/dqi-syed-decode.md]
 corrects: []
 backfilled: false
@@ -44,9 +44,17 @@ By group: outer forward -211, finish + outer return -713, synthesis return -221,
 The outer needs the finish's live inverse, so finish and outer go in together. The qubit comes from the outer
 borrowing the tail's gauge flag and `carry[12:]`. What is left of the 2,073 T gap is the adaptive-gauge scan (759 T).
 
+### Official, full size
+
+Kaggle kernel `qcc-dqi-gen`, 10 salts, 0 failures, worst cost 3.63139e11 (ratio 67.30, was 66.75), 889 qubits,
+384,762 static T (narrow total - 781 + 45,045), sha256 `599cb51579cd`. Promoted into `best/dqi` on 2026-11-16
+(`ledger/promotions.jsonl`; replaced `f983871e`). The cost fell 3.0e9 although the static count fell only 1,314 T,
+so the return-side saving is worth more in the mean cost, as with the earlier steps.
+
 ## Decision
 
-Verify at 10 salts on Kaggle, promote if the worst cost beats 3.66149e11. Next: the adaptive-gauge scan.
+Promoted. Remaining distance to his 384,003 T is the adaptive-gauge scan (759 T); next step is porting it
+(`adaptive_gauge64`, vendored) on top of `fixed4`.
 
 ## Reproduce
 
