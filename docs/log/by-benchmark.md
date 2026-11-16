@@ -24,6 +24,7 @@ Entries grouped by the benchmark they concern.
 - 2026-11-16: [DQI: the 890th qubit is reached in the outer stages, not the extractor; v3 already brings the extractor to 889](entries/2026-11-16-dqi-qubit-peak.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
 - 2026-11-16: [DQI: vendored the 25-module back half of the newer pipeline (finish, scan, outer, deferred tail, padded seed)](entries/2026-11-16-dqi-backhalf-vendor.md) (n/a)
+- 2026-11-16: [DQI: back half of the newer lineage in our front half (fixed4): -1,314 T and the 890th qubit](entries/2026-11-16-dqi-backhalf-outer.md) (positive)
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
 - 2026-11-13: [The 889-qubit DQI architecture re-derived: a Thiele-type in-place extraction over GF(2^24), and our own decoder reaches ratio 36.4 then about 66 on a narrow build](entries/2026-11-13-dqi-syed.md) (positive)

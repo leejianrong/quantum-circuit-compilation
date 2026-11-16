@@ -39,7 +39,8 @@ idea ([HANDOFF](../HANDOFF.md)).
 | | Ratio | Qubits | Static Toffolis | Evidence |
 |---|---:|---:|---:|---|
 | Our best (`fixed`, promoted) | 65.77 | 890 | 391,326 | [environment restore](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
-| Our `fixed3s` (nested-norm synthesis, not promoted) | 66.75 | 890 | 386,076 | [synthesis nested norm](../log/entries/2026-11-16-dqi-synthesis-nested-norm.md) |
+| Our `fixed4` (back half of the newer lineage, promoted) | 67.30 | 889 | 384,762 | [back half](../log/entries/2026-11-16-dqi-backhalf-outer.md) |
+| Our `fixed3s` (nested-norm synthesis, promoted earlier) | 66.75 | 890 | 386,076 | [synthesis nested norm](../log/entries/2026-11-16-dqi-synthesis-nested-norm.md) |
 | Our `fixed3` (newer extractor, promoted) | 66.50 | 890 | 386,178 | [extractor v3](../log/entries/2026-11-16-dqi-extractor-v3.md) |
 | Best public circuit | 67.44 | 889 | 384,003 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
 | Our dialog-free BM decoder | 7.86 | 1,855 | 740,602 | [BM](../log/entries/2026-11-13-dqi-bm.md) |

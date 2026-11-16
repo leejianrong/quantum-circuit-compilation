@@ -21,7 +21,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
 | Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |
-| Where exactly does his outer stage save the qubit (the loan of the tail's gauge flag is the suspect)? Our 890 is now placed in the outer stages, the extractor is 889 | the 1-qubit difference is worth about 879 T | [dqi syed decode study](../experiments/dqi-syed-decode.md), section 8 |
+| Does porting the adaptive-gauge scan (`adaptive_gauge64`) on top of `fixed4` close the last 759 T to his 384,003? (The qubit question is answered: the outer's loan of the tail's gauge flag gives 889, `fixed4`) | the last static gap; his cost is 3.607e11 at zero failed shots | [dqi syed decode study](../experiments/dqi-syed-decode.md), section 8 |
 
 ## Data to reconcile
 

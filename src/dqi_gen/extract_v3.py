@@ -93,6 +93,27 @@ def set_synthesis_nested(nested: bool) -> None:
     fs.Arithmetic = gf24_nested_norm if nested else _synth_original
 
 
+_tail_original: dict[Any, Any] = {}
+
+
+def set_tail_deferred(deferred: bool) -> None:
+    """Run the extractors on the deferred rolling tail (padded-seed lineage), or restore the early one.
+
+    The source pipeline assigns `Tail = rolling_tail_deferred` on both extractors before the adapter is
+    imported; here the adapter may already be imported, so every module that holds the name is assigned.
+    """
+    import rolling_tail_deferred  # type: ignore[import-not-found]
+
+    first3 = bind()
+    import direct_carry_extractor as direct
+
+    holders = (direct, first3.Base, first3, first3.Third)
+    for m in holders:
+        if m not in _tail_original:
+            _tail_original[m] = m.Tail
+        m.Tail = rolling_tail_deferred if deferred else _tail_original[m]
+
+
 def forward(
     builder: Any, words: list[list[Any]], carry: list[Any], stage: Callable[[str], None] | None = None
 ) -> Any:
