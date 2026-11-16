@@ -723,6 +723,34 @@
    "licence": "apache-2.0 (dataset metadata)",
    "text": "metadata apache-2.0; `LICENSE` in the dataset",
    "url": "kaggle.com/datasets/syed3000/vqcc-own-circuit-portfolio"
+  },
+  {
+   "author": "koushikrudra",
+   "id": "S15",
+   "licence": "unstated",
+   "text": "unstated in metadata; text: public circuits used under their authors' licences (Apache-2.0 or CC0 as stated), lineage credits printed",
+   "url": "kaggle.com/code/koushikrudra/qcc-v54-best-verified"
+  },
+  {
+   "author": "balramsrinivasan",
+   "id": "S16",
+   "licence": "unstated",
+   "text": "unstated in metadata",
+   "url": "kaggle.com/code/balramsrinivasan/vqcc-28-10-gf24-closings-in-syed-v13-dqi"
+  },
+  {
+   "author": "syed3000 dataset v13 (fetched 2026-11-17 into `public/syed3000__vqcc-own-circuit-portfolio-20261117/`; v12 kept in the original directory)",
+   "id": "S17",
+   "licence": "see source",
+   "text": "apache-2.0; `LICENSE`, `NOTICE` (Section 4(d): every redistribution and every derivative must carry the NOTICE and name Syed Asad Ali as original builder before later contributors)",
+   "url": "kaggle.com/datasets/syed3000/vqcc-own-circuit-portfolio"
+  },
+  {
+   "author": "heliosli `qcc-circuits-live` re-uploaded 2026-11-15 (`public/heliosli__qcc-circuits-live-20261117/`)",
+   "id": "S18",
+   "licence": "unstated",
+   "text": "unstated or apache-2.0 as in their notices",
+   "url": "as listed"
   }
  ]
 }

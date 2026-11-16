@@ -15,6 +15,7 @@ either is worth the same.
 | Our best (E023) | 12.34 | 93 | [uncompute](../log/entries/2026-11-13-invsqrt-uncompute.md) |
 | Public 62-qubit circuit | 21.95 | 62 | [environment restore](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
 | Public 46-qubit circuit | 25.91 | 46 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
+| Public 44-qubit circuit (koushik v54, in `best/`) | 27.77 | 44 | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 
 **What we know.** The reference spends 88% of its cost in schoolbook multiplications
 ([cost drivers](../log/entries/2026-11-12-invsqrt-cost-drivers.md)). Our generator reached 93 qubits through lean qubits,
@@ -42,7 +43,8 @@ idea ([HANDOFF](../HANDOFF.md)).
 | Our `fixed4` (back half of the newer lineage, promoted) | 67.30 | 889 | 384,762 | [back half](../log/entries/2026-11-16-dqi-backhalf-outer.md) |
 | Our `fixed3s` (nested-norm synthesis, promoted earlier) | 66.75 | 890 | 386,076 | [synthesis nested norm](../log/entries/2026-11-16-dqi-synthesis-nested-norm.md) |
 | Our `fixed3` (newer extractor, promoted) | 66.50 | 890 | 386,178 | [extractor v3](../log/entries/2026-11-16-dqi-extractor-v3.md) |
-| Best public circuit | 67.44 | 889 | 384,003 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
+| Best public circuit (v54 `00ac37d4`, in `best/`) | 70.04 | 890 | about 368,120 mean | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
+| Earlier public circuit (syed3000 v12) | 67.44 | 889 | 384,003 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
 | Our dialog-free BM decoder | 7.86 | 1,855 | 740,602 | [BM](../log/entries/2026-11-13-dqi-bm.md) |
 | Our Thiele generator | 36.4 | 955 | 615,399 | [syed](../log/entries/2026-11-13-dqi-syed.md) |
 
@@ -71,6 +73,7 @@ gate rejects the circuit whatever the score ([primer](../learn/primer-dfthcsos.m
 |---|---:|---|
 | Our best (E040, fully own 11-bit table, ANF loader) | 2.50 | [stage 2](../log/entries/2026-11-13-dfthcsos-stage2.md) |
 | Public 11.31x table | 11.31 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
+| Public 11.38x table (koushik v54, in `best/`) | 11.38 | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 | Public refit | 11.20 | [environment restore](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
 
 **What we know.** Our cost model reproduces the verifier score exactly

@@ -1,6 +1,6 @@
 # Handoff: starting on a new machine
 
-For a developer or agent taking over, for example on a machine with a GPU. Written 2026-11-14. Read this, then
+For a developer or agent taking over, for example on a machine with a GPU. Written 2026-11-14, state updated 2026-11-17. Read this, then
 [AGENTS.md](https://github.com/leejianrong/quantum-circuit-compilation/blob/main/AGENTS.md), then [COMPETITION.md](COMPETITION.md). Trust the code over any doc, and the ledger over both.
 
 ## Where we are
@@ -11,11 +11,11 @@ beside the public ones they have to beat.
 
 | Benchmark | Our own best (verified) | Public best we have measured | What is in `best/` |
 |---|---|---|---|
-| invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 25.9 (syed3000, 80,162.7) | `c6519219`, 21.95 |
-| dqi | **67.30** (`--gen fixed4`, 889 qubits, 384,762 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` was 65.77, `fixed3` 66.50, `fixed3s` 66.75) | 67.4 (syed3000, 889 qubits) | `599cb515`, our own `fixed4.kmb`, 67.30 (promoted 2026-11-16, `ledger/promotions.jsonl`; replaced `f983871e` 66.75, `c9d53c1f` 66.50, `37d8047d` 65.77) |
-| dfthcsos | 2.50 (E040, fully-own 11-bit ANF loader, 3 salts) | 11.31 (syed3000, 296.6M), 11.20 (`91d0ad25`) | `91d0ad25`, 11.20 |
+| invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 27.77 (koushikrudra v54, 74,797.4, 44 qubits; syed3000 v13 27.63) | `0af21cb8`, 27.77 (promoted 2026-11-17) |
+| dqi | 67.30 (`--gen fixed4`, 889 qubits, 384,762 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` 65.77, `fixed3` 66.50, `fixed3s` 66.75) | 70.04 (koushikrudra v54 `00ac37d4`, 890 qubits, 10 salts 0 failures; syed3000 v13 69.93, balram 69.81) | `00ac37d4`, 70.04 (promoted 2026-11-17; replaced our `599cb515` fixed4 67.30) |
+| dfthcsos | 2.50 (E040, fully-own 11-bit ANF loader, 3 salts) | 11.38 (koushikrudra v54 npz `703843d3`, 294.76M, 10 salts 0 failures; syed3000 v13 11.36) | `4c6e5963` (dir), 11.38 (promoted 2026-11-17) |
 
-Own DQI is within 0.3% of the best public circuit (67.30 against 67.44). `fixed` was promoted on 2026-11-14 and `fixed3`, `fixed3s` and then `fixed4` replaced it on 2026-11-16 (10 salts, 0 failures,
+Own DQI (`fixed4`, 67.30) is 4% behind the public 70.04 that `best/` now holds. `fixed` was promoted on 2026-11-14 and `fixed3`, `fixed3s` and then `fixed4` replaced it on 2026-11-16 (10 salts, 0 failures,
 `ledger/promotions.jsonl`), so `best/dqi` holds our own `599cb515`, not the public `e9f54be3`. invsqrt and dfthcsos are
 far behind the public frontier.
 
@@ -88,7 +88,7 @@ Git holds code, docs, ledgers (`ledger/*.jsonl`, append-only) and the vendored A
 |---|---|---|
 | `data/` (1 GB) | competition data: verifiers, kickmix, sample submissions, FCIDUMP, baseline circuits | `make fetch-data` (Kaggle CLI, competition `google-verifiable-quantum-circuit-compilation`). Never redistribute (rules B.4.b). |
 | `public/` (1.9 GB) | other participants' public circuits and `MANIFEST.tsv` (sha256) | `bash scripts/fetch_public.sh`; each file has a row in `docs/PROVENANCE.md`. Third-party, licences as stated there, never committed. |
-| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt c6519219`, `dqi 599cb515` (own), `dfthcsos 91d0ad25` | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
+| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt 0af21cb8`, `dqi 00ac37d4`, `dfthcsos 4c6e5963` (all from koushikrudra's package, promoted 2026-11-17) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
 | `out/` | plots, `submission.zip`, scratch builds | `uv run bench plots`, `bench pack`; regenerable, safe to delete. |
 | `.venv/`, caches | environment | `make install`. |
 | `~/qcc-circuits/` (about 1 GB) | our built circuits and syed3000 references | see below. |
@@ -137,7 +137,7 @@ Kaggle is free.
 
 ## Backlog, in order
 
-1. DQI: `fixed4` is promoted (67.30, 889 qubits; best public 67.44). Next: the adaptive-gauge scan (`adaptive_gauge64`, vendored) for the
+1. DQI: our `fixed4` (67.30, 889 qubits) is 4% behind the public 70.04 now in `best/` (890 qubits, 368,120 mean Toffolis; study it with `dqi_gen.study`). The adaptive-gauge scan (`adaptive_gauge64`, vendored) for the
    remaining 759 T (`docs/log/entries/2026-11-16-dqi-backhalf-outer.md`).
 2. dfthcsos: the `Lambda` basin (above), then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
    search is open; about 8% of `T_total` at best).
