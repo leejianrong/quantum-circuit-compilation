@@ -34,7 +34,7 @@ idea ([HANDOFF](../HANDOFF.md)).
 
 ## dqi
 
-**Score** `R(eps) * Q^2 * T`: qubits are squared, so one qubit is worth about two Toffolis.
+**Score** `R(eps) * Q^2 * T`: qubits are squared: 1% of qubits is worth 2% of Toffolis, one qubit about 830 Toffolis ([S2](../experiments/spike-s2-exchange-rates.md)).
 
 | | Ratio | Qubits | Static Toffolis | Evidence |
 |---|---:|---:|---:|---|
