@@ -121,12 +121,14 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## promotion
 
+- 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
 - 2026-11-16: [Promoted fixed3s (DQI 66.75x) into best/; the owner now leaves promotion to the agent](entries/2026-11-16-promote-fixed3s.md) (n/a)
 - 2026-11-16: [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) (n/a)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
 
 ## public-reference
 
+- 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
 
 ## qat
@@ -207,6 +209,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## verify
 
+- 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
 

@@ -5,19 +5,19 @@ Kaggle competition: make three fault-tolerant quantum subroutines cheaper, with 
 by the official classical verifiers. It has a verification harness with a results ledger, and a
 learning site that takes a Python programmer with no quantum background to the point of reading these circuits.
 
-**Status (2026-11-16):** public leaderboard score **25.218** (submitted 2026-11-14), from a portfolio of other
+**Status (2026-11-17):** public leaderboard score **25.218** (submitted 2026-11-14), from a portfolio of other
 participants' public circuits that we verified ourselves at several salts. Our own circuits are still behind that
-frontier, except on DQI, where our own `fixed4` (67.30x) is now what `best/` holds, within 0.3% of the best public circuit (67.44x). Taking over on a new machine? Start with
+frontier: on 2026-11-17 `best/` was refilled with the best public circuits we verified (koushikrudra's v54 package, geometric mean about 28.1; the DQI circuit of 67.30x that we built ourselves, `fixed4`, is 4% behind it). Taking over on a new machine? Start with
 [docs/HANDOFF.md](docs/HANDOFF.md).
 
 | Benchmark | What it is | Baseline cost | In `best/` | Our own best (verified) |
 |---|---|---|---|---|
-| invsqrt | 1/sqrt(x) phasing for fusion simulations | 2,076,774 | 94,600 (21.95) | 12.34 (E023) |
-| dqi | Reed-Solomon decoder for Decoded Quantum Interferometry | 2.44e13 | 3.63e11 (67.30, our own `fixed4`) | 3.63e11 (67.30, 889 qubits) |
-| dfthcsos | FeMoCo block encoding (chemistry) | 3.36e9 | 2.996e8 (11.20) | 1.34e9 (2.50) |
+| invsqrt | 1/sqrt(x) phasing for fusion simulations | 2,076,774 | 74,797 (27.77) | 12.34 (E023) |
+| dqi | Reed-Solomon decoder for Decoded Quantum Interferometry | 2.44e13 | 3.49e11 (70.04) | 3.63e11 (67.30, 889 qubits, `fixed4`) |
+| dfthcsos | FeMoCo block encoding (chemistry) | 3.36e9 | 2.948e8 (11.38) | 1.34e9 (2.50) |
 
 The score is the geometric mean of the three ratios. Any failed verifier test rejects the whole submission.
-The invsqrt and dfthcsos circuits in `best/` are other participants' public work and the dqi one is ours (built on kernels from a public Apache-2.0 builder); see [docs/PROVENANCE.md](docs/PROVENANCE.md) for authors,
+The circuits in `best/` are other participants' public work (the invsqrt and DQI lines trace to Syed Asad Ali's Apache-2.0 builders); see [docs/PROVENANCE.md](docs/PROVENANCE.md) for authors,
 sources and licences as stated.
 
 ```mermaid

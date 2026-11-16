@@ -2,7 +2,7 @@
 
 Inputs (attached in kernel-metadata.json): the competition data and a public dataset holding the
 candidate circuits. Output: /kaggle/working/ledger/results.jsonl and timing.txt.
-Run as: python run.py <salts> (default 2).
+Run as: python run.py <salts> (default 10).
 """
 
 import pathlib
@@ -17,7 +17,7 @@ COMP = next(p.parent for p in INPUT.glob("**/verifiers") if (p.parent / "kickmix
 print("competition data dir:", COMP, flush=True)
 REPO = pathlib.Path("/kaggle/working/repo")
 OUT = pathlib.Path("/kaggle/working")
-salts = sys.argv[1] if len(sys.argv) > 1 else "5"
+salts = sys.argv[1] if len(sys.argv) > 1 else "10"
 
 subprocess.run(
     ["git", "clone", "--depth=1", "https://github.com/leejianrong/quantum-circuit-compilation", str(REPO)],
