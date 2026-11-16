@@ -27,3 +27,16 @@ def test_rotation_keeps_gram_and_shrinks_l1() -> None:
     assert np.allclose(o @ o.T, np.eye(6), atol=1e-9)
     assert np.allclose(w2 @ w2.T, w @ w.T, atol=1e-9)
     assert np.sum(np.abs(w2).sum(0) ** 2) < 0.9 * np.sum(np.abs(w).sum(0) ** 2)
+
+
+def test_joint_rotation_keeps_invariants_and_lowers_weight_part() -> None:
+    from dfthcsos_gen.post import _joint_obj, rotate_joint
+
+    rng = np.random.default_rng(3)
+    w = rng.standard_normal((12, 6)) * (rng.random((12, 6)) < 0.4)
+    cap = rng.standard_normal(6)
+    w2, cap2, o = rotate_joint(w, cap, iters=100)
+    assert np.allclose(o @ o.T, np.eye(6), atol=1e-9)
+    assert np.allclose(w2 @ w2.T, w @ w.T)  # sum_c w_c w_c^T, hence sum_c X_c (x) X_c, is unchanged
+    assert np.allclose(w2 @ cap2, w @ cap)  # sum_c W_c w_c, hence the offset term, is unchanged
+    assert _joint_obj(w2, cap2, 1e-4)[0] < _joint_obj(w, cap, 1e-4)[0]

@@ -81,6 +81,7 @@ nav = [
     { "co-design the table and the loader" = "experiments/dfthcsos-codesign.md" },
     { "dfthcsos cost model" = "experiments/dfthcsos-cost-model.md" },
     { "S2 exchange rates" = "experiments/spike-s2-exchange-rates.md" },
+    { "S4 Lambda" = "experiments/spike-s4-lambda.md" },
     { "can our own table reach 8 bits?" = "experiments/dfthcsos-eight-bit.md" },
     { "our own angle loader" = "experiments/dfthcsos-loader.md" },
     { "fewer than 8 bits per angle word" = "experiments/dfthcsos-low-brot.md" },
