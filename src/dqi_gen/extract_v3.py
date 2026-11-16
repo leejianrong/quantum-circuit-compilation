@@ -77,7 +77,7 @@ _synth_original: Any = None
 
 
 def set_synthesis_nested(nested: bool) -> None:
-    """Run the fused synthesis on the nested-norm arithmetic (-3 T per inverse, 34 of them) or on the original.
+    """Run the fused synthesis on nested-norm arithmetic (-3 T per inverse, 34 of them), or restore it.
 
     The source pipeline assigns `Synthesis.Arithmetic = gf24_nested_norm` the same way. Sets or restores a
     module global, so every build calls it.
