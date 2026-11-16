@@ -114,6 +114,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## promotion
 
+- 2026-11-16: [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) (n/a)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
 
 ## public-reference

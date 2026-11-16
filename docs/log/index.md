@@ -8,6 +8,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-16 | decision | dqi | n/a | [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) | #202 |
 | 2026-11-16 | decision | docs | positive | [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) | #200 |
 | 2026-11-16 | decision | docs | positive | [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) | #190, #191, #198 |
 | 2026-11-16 | decision | docs | positive | [Knowledge section extended: a state-of-knowledge page per benchmark and a project glossary](entries/2026-11-16-knowledge-benchmarks-and-glossary.md) | #199 |
