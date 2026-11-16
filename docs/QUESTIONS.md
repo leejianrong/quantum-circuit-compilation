@@ -11,7 +11,7 @@ Round 1 closed. Open with the owner (2026-11-14, details in [HANDOFF.md](HANDOFF
 
 - Run syed3000's builders in a sandbox to regenerate their circuits? (the permission classifier blocks it)
 - A GPU run of the dfthcsos fit with a `Lambda` penalty from the start?
-- Which licensed portfolio is submitted, and when `fixed.kmb` (own DQI, 65.77) is promoted into `best/`?
+- Which licensed portfolio is submitted? (Own DQI `fixed4`, 67.30, is already in `best/` since 2026-11-16; nothing is submitted without the owner's say-so.)
 
 ## Register
 

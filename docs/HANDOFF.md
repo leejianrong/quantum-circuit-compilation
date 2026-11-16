@@ -15,8 +15,8 @@ beside the public ones they have to beat.
 | dqi | **67.30** (`--gen fixed4`, 889 qubits, 384,762 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` was 65.77, `fixed3` 66.50, `fixed3s` 66.75) | 67.4 (syed3000, 889 qubits) | `599cb515`, our own `fixed4.kmb`, 67.30 (promoted 2026-11-16, `ledger/promotions.jsonl`; replaced `f983871e` 66.75, `c9d53c1f` 66.50, `37d8047d` 65.77) |
 | dfthcsos | 2.50 (E040, fully-own 11-bit ANF loader, 3 salts) | 11.31 (syed3000, 296.6M), 11.20 (`91d0ad25`) | `91d0ad25`, 11.20 |
 
-Own DQI is within 3% of the best public circuit. `fixed` was promoted on 2026-11-14 and `fixed3`, `fixed3s` and then `fixed4` replaced it on 2026-11-16 (10 salts, 0 failures,
-`ledger/promotions.jsonl`), so `best/dqi` holds our own `f983871e`, not the public `e9f54be3`. invsqrt and dfthcsos are
+Own DQI is within 0.3% of the best public circuit (67.30 against 67.44). `fixed` was promoted on 2026-11-14 and `fixed3`, `fixed3s` and then `fixed4` replaced it on 2026-11-16 (10 salts, 0 failures,
+`ledger/promotions.jsonl`), so `best/dqi` holds our own `599cb515`, not the public `e9f54be3`. invsqrt and dfthcsos are
 far behind the public frontier.
 
 What the last rounds established (all in `docs/experiments/`, newest first):
@@ -114,7 +114,7 @@ Git holds code, docs, ledgers (`ledger/*.jsonl`, append-only) and the vendored A
 |---|---|---|
 | `own/tsym/tsym.npy` (68 MB) | dfthcsos fit target: FCIDUMP integrals plus the fixed symmetry shift | `QCC_DATA=$PWD/data uv run python scripts/dfthcsos_fit.py <dir>`; needs `data/`. |
 | `kaggle/leejianrong__qcc-dfthcsos-{fit,fit-b,fit-c,fit-e,cen,sparse1,sparse2}/` | continuous fits `v.npy`, `w.npy`, `log.jsonl` (8,176,56 unless noted); fit-e `exact_8x176x56` is the best (`error_2` 0.01159) | Kaggle free-CPU kernels `notebooks/dfthcsos_fit*` (each a chain of L-BFGS runs, 6 to 20 hours); `uv run bench kaggle fetch leejianrong/qcc-dfthcsos-<name> --out ~/qcc-fits/kaggle`. fit-c (continuous 0.01471) is the base of E040. |
-| `kaggle/leejianrong__qcc-dqi-gen/` (2.1 GB) | DQI kernel output: `fixed.kmb` (the 65.77 circuit), `rs.kmb`, `thiele.kmb`, logs, ledger rows | `uv run bench kaggle fetch leejianrong/qcc-dqi-gen --out ~/qcc-fits/kaggle` (the kernel's output stays on Kaggle; rerun with `uv run bench kaggle run notebooks/dqi_gen`, which builds `--gen fixed --instance full` and verifies at 10 salts, about 20 minutes; the generators are `reference, divstep, lanczos, bm, rs, thiele, fixed`). The submit candidate is `fixed.kmb`, sha256 `37d8047d5f4b...`. |
+| `kaggle/leejianrong__qcc-dqi-gen/` (2.1 GB) | DQI kernel output: `fixed.kmb` (the 65.77 circuit), `fixed3.kmb`, `fixed3s.kmb`, `fixed4.kmb` (the 67.30 circuit in `best/`), `rs.kmb`, `thiele.kmb`, logs, ledger rows | `uv run bench kaggle fetch leejianrong/qcc-dqi-gen --out ~/qcc-fits/kaggle` (the kernel's output stays on Kaggle; rerun with `uv run bench kaggle run notebooks/dqi_gen`, which builds `--gen fixed --instance full` and verifies at 10 salts, about 20 minutes; the generators are `reference, divstep, lanczos, bm, rs, thiele, fixed`). The submit candidate is `fixed.kmb`, sha256 `37d8047d5f4b...`. |
 | `own/qat{8,10,11}_half_fit{c,e}/` | half-circle QAT results (`v.npy`, `w.npy`, `words.npy`) | `scripts/dfthcsos_qat.py <fit> <out> --tsym <tsym> --brot <b> --half` (6 to 10 minutes each). Only 11 bits passes. |
 | `repo/` copies in each kaggle dir | the cloned source the kernel ran | ignore. |
 

@@ -5,19 +5,19 @@ Kaggle competition: make three fault-tolerant quantum subroutines cheaper, with 
 by the official classical verifiers. It has a verification harness with a results ledger, and a
 learning site that takes a Python programmer with no quantum background to the point of reading these circuits.
 
-**Status (2026-11-14):** public leaderboard score **25.218**, from a portfolio of other participants'
-public circuits that we verified ourselves at several salts. Our own circuits are still behind that
-frontier, except on DQI where we are within 3%. Taking over on a new machine? Start with
+**Status (2026-11-16):** public leaderboard score **25.218** (submitted 2026-11-14), from a portfolio of other
+participants' public circuits that we verified ourselves at several salts. Our own circuits are still behind that
+frontier, except on DQI, where our own `fixed4` (67.30x) is now what `best/` holds, within 0.3% of the best public circuit (67.44x). Taking over on a new machine? Start with
 [docs/HANDOFF.md](docs/HANDOFF.md).
 
-| Benchmark | What it is | Baseline cost | Public circuits in `best/` | Our own best (verified) |
+| Benchmark | What it is | Baseline cost | In `best/` | Our own best (verified) |
 |---|---|---|---|---|
 | invsqrt | 1/sqrt(x) phasing for fusion simulations | 2,076,774 | 94,600 (21.95) | 12.34 (E023) |
-| dqi | Reed-Solomon decoder for Decoded Quantum Interferometry | 2.44e13 | 3.74e11 to 3.78e11 (about 65) | 3.72e11 (65.77, 890 qubits) |
+| dqi | Reed-Solomon decoder for Decoded Quantum Interferometry | 2.44e13 | 3.63e11 (67.30, our own `fixed4`) | 3.63e11 (67.30, 889 qubits) |
 | dfthcsos | FeMoCo block encoding (chemistry) | 3.36e9 | 2.996e8 (11.20) | 1.34e9 (2.50) |
 
 The score is the geometric mean of the three ratios. Any failed verifier test rejects the whole submission.
-The circuits in this entry are other participants' public work; see [docs/PROVENANCE.md](docs/PROVENANCE.md) for authors,
+The invsqrt and dfthcsos circuits in `best/` are other participants' public work and the dqi one is ours (built on kernels from a public Apache-2.0 builder); see [docs/PROVENANCE.md](docs/PROVENANCE.md) for authors,
 sources and licences as stated.
 
 ```mermaid
@@ -78,6 +78,7 @@ benchmark, and a hands-on page where you build and verify your own circuit.
 - [docs/COMPETITION.md](docs/COMPETITION.md): the competition, scoring and prizes
 - [docs/PLAN.md](docs/PLAN.md) and [docs/SLICES.md](docs/SLICES.md): plan and work breakdown
 - [docs/MEASUREMENT.md](docs/MEASUREMENT.md): ledger, metrics, plots and the dashboard
+- [docs/log/](docs/log/index.md) and [docs/knowledge/](docs/knowledge/claims.md): the dated log book, and what it currently shows (claims, benchmarks, open questions)
 - [docs/experiments/](docs/experiments/): one write-up per experiment, positive and negative
 - [docs/PROVENANCE.md](docs/PROVENANCE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md): every public circuit or source we use, with licence
 - [docs/adr/](docs/adr/): decisions and why
