@@ -76,7 +76,8 @@ def build_decoder(
 ) -> dict[str, Any]:
     """Append the decoder to `builder`; returns static numbers of the scan.
 
-    `extractor` is `"v2"` (`raw_query_extractor`, the oracle) or `"v3"` (`extract_v3`, the newer lineage).
+    `extractor` is `"v2"` (`raw_query_extractor`, the oracle), `"v3"` (`extract_v3`, the newer lineage) or
+    `"v3s"` (v3 plus nested-norm arithmetic in the synthesis).
 
     `stage(name)` is called after each stage when given (it does not change the circuit unless it emits tags).
     """
@@ -99,9 +100,11 @@ def build_decoder(
     words = [list(flat[24 * i : 24 * i + 24]) for i in range(35)]
     carry = list(builder.alloc_qubits(24))
     builder.x(carry[0])
-    if extractor not in ("v2", "v3"):
-        raise ValueError(f"extractor must be 'v2' or 'v3', not {extractor!r}")
-    ext = extract_v3 if extractor == "v3" else extract
+    if extractor not in ("v2", "v3", "v3s"):
+        raise ValueError(f"extractor must be 'v2', 'v3' or 'v3s', not {extractor!r}")
+    ext = extract if extractor == "v2" else extract_v3
+    if extractor != "v2" or extract_v3._bound is not None:
+        extract_v3.set_synthesis_nested(extractor == "v3s")
     rec = ext.forward(builder, words, carry, stage=stage)
     mark("extract_fwd")
     if seeded:
@@ -124,7 +127,7 @@ def build_decoder(
     if seeded:
         _seeded_backward(builder, words, carry, rec, state)
         mark("synthesis_return")
-        if extractor == "v3":
+        if extractor != "v2":
             extract_v3.closing(builder, words, carry, rec, stage=stage)
         else:
             import raw_query_extractor as rq  # type: ignore[import-not-found]
