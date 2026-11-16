@@ -10,35 +10,35 @@ import resource
 import subprocess
 import time
 
-BRANCH = "main"
+BRANCH = "qcc-19-synth-nested"
 REV = ""  # commit to build (empty: the branch head)
 OUT = pathlib.Path("/kaggle/working")
 # Each job: (name, argv after `python`). {out} expands to /kaggle/working, {repo} to the clone.
 JOBS = [
     (
-        "build-fixed3-full",
+        "build-fixed3s-full",
         [
             "-m",
             "dqi_gen.instances",
             "--gen",
-            "fixed3",
+            "fixed3s",
             "--instance",
             "full",
             "--salts",
             "0",
             "--sha",
             "--save",
-            "{out}/fixed3.kmb",
+            "{out}/fixed3s.kmb",
         ],
     ),
     (
-        "verify-fixed3-full",
+        "verify-fixed3s-full",
         [
             "-c",
             "import sys; from bench.cli import main; sys.exit(main(sys.argv[1:]))",
             "verify",
             "dqi",
-            "{out}/fixed3.kmb",
+            "{out}/fixed3s.kmb",
             "--salts",
             "10",
             "--salt-start",

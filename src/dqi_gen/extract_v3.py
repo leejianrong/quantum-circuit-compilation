@@ -73,6 +73,26 @@ def bind() -> Any:
     return first3
 
 
+_synth_original: Any = None
+
+
+def set_synthesis_nested(nested: bool) -> None:
+    """Run the fused synthesis on the nested-norm arithmetic (-3 T per inverse, 34 of them) or on the original.
+
+    The source pipeline assigns `Synthesis.Arithmetic = gf24_nested_norm` the same way. Sets or restores a
+    module global, so every build calls it.
+    """
+    global _synth_original
+    import fused_crt_synthesis as fs  # type: ignore[import-not-found]
+
+    bind()
+    if _synth_original is None:
+        _synth_original = fs.Arithmetic
+    import gf24_nested_norm  # type: ignore[import-not-found]
+
+    fs.Arithmetic = gf24_nested_norm if nested else _synth_original
+
+
 def forward(
     builder: Any, words: list[list[Any]], carry: list[Any], stage: Callable[[str], None] | None = None
 ) -> Any:
