@@ -21,7 +21,7 @@ jobs:
       - run: uv sync --frozen --extra plots
       - run: uv run pytest tests/unit/test_docs_snippets.py tests/unit/test_docs_nav.py
       - run: make docs
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
   deploy:
