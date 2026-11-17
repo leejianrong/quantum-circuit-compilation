@@ -1,9 +1,9 @@
 """Kaggle kernel: aggregate structure scan of the public 70x DQI circuit next to our own `fixed4` (QCC-19).
 
-Inputs (kernel-metadata.json): koushikrudra's notebook output (submission.zip holds dqi.kmb, read as data and never
-executed) and the output of our `qcc-dqi-gen` kernel (holds fixed4.kmb). Each circuit goes through `dqi_gen.study`
-(counts only: instruction mix, Toffolis per window, qubit-block lifetimes, tag names). Output: study_*.json.
-"""
+Inputs (kernel-metadata.json): koushikrudra's notebook output (its submission.zip holds dqi.kmb, read as
+data, never executed) and the output of our `qcc-dqi-gen` kernel (holds fixed4.kmb). Each circuit goes through
+`dqi_gen.study` (counts only: instruction mix, Toffolis per window, qubit-block lifetimes, tag names).
+Output: study_*.json.
 
 import pathlib
 import resource
