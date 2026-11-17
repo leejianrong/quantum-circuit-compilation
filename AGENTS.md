@@ -32,8 +32,10 @@ Board: Pandan `QCC`, id 46 (use the `pandan` skill; `pandan board use 46`). Trus
 - The ledger is append-only: never rewrite old lines. `toffolis` there is a static count, not the official cost.
 - Never commit `data/`, `public/`, `best/` (third-party circuits, licences unresolved), `.mcp.json` or tokens.
   Never reformat or edit fetched files; they stay byte-identical.
-- Resources (7 GB RAM, 16 cores): `bench verify invsqrt` takes about 5 min per salt on all cores, so run one heavy
-  verify at a time. DQI needs 5-9 GB: run it on Kaggle (`notebooks/dqi_verify/` to verify, `notebooks/dqi_gen/` to build and verify our own generators; it clones the pushed branch), never here (ADR-0002).
+- Resources: the old laptop had 7 GB RAM and 16 cores; the current machine has 31 GB and 20 cores. `bench verify invsqrt` takes 2 to 5 min per salt on all cores, so run one heavy
+  verify at a time (`flock /tmp/qcc-heavy.lock`). DQI needs 5-9 GB: run it on Kaggle (`notebooks/dqi_verify/` to verify, `notebooks/dqi_gen/` to build and verify our own generators; it clones the pushed branch), never here (ADR-0002).
 - kickmix: use the pip wheel from `uv sync`. The competition's `data/kickmix/kickmix.so` needs a newer libstdc++ than this
   WSL has, so never put `data/kickmix` on `PYTHONPATH` or `sys.path` before it (it works only on Kaggle).
+- In a worktree under `.claude/worktrees/`, `uv run` builds a bare `.venv` and `make check` fails on docs snippets: export `UV_PROJECT_ENVIRONMENT=<main checkout>/.venv UV_NO_SYNC=1 PYTHONPATH=$PWD/src CUDA_VISIBLE_DEVICES=` first (torch CUDA init segfaults on this WSL).
+- Research spikes S1 to S6 live in epic QCC-E4; each writes `docs/experiments/spike-*.md` and a log entry.
 - A bug becomes a test first; tests are deterministic. Tests marked `integration` need kickmix and `data/`.

@@ -21,6 +21,12 @@ far behind the public frontier.
 
 What the last rounds established (all in `docs/experiments/`, newest first):
 
+- S4 stage 1 (`spike-s4-lambda.md`): the public `Lambda` 283 is 13.5 one-body plus 269.8 weights; ours is 13 plus 476. A joint rotation of
+  `w` and `W` with restarts (`dfthcsos_post.py --joint-rotate 3 --rotate-restarts 4`) takes fit-c to 417 (`lambda_eff` 63.05 to 58.21) at no cost;
+  the rest is a basin (our weight columns are 1.4x larger in one-norm). Stage 2, the penalised fit, waits for the GPU queue (QCC-55).
+- S2 (`spike-s2-exchange-rates.md`): a qubit is 0.23% on DQI and dfthcsos, 2.27% on invsqrt; one DQI qubit is about 830 Toffolis. The dfthcsos gap
+  is 1.65x loader times 2.74x words.
+
 - dfthcsos: the gap to 11.3 is a different fit basin. Our `Lambda` is 490 to 560 for every fit against 283 for the public refit,
   and longer dense fits do not lower it (`dfthcsos-stage2.md`, "Lambda across our fits"). 8-bit rounding (QAT) lands at
   `error_2` 0.083 to 0.086 against a 0.02 gate, 10 bits at 0.027, whatever the continuous fit; 11 bits passes (E040).
@@ -137,11 +143,13 @@ Kaggle is free.
 
 ## Backlog, in order
 
+Research spikes S1 (cost model), S3 (invsqrt co-design), S5 and S6 (DQI) are open on the board (epic QCC-E4) and not started; S2 is done, S4 is in progress.
+
 1. DQI: our `fixed4` (67.30, 889 qubits) is 4% behind the public 70.04 now in `best/` (890 qubits, 368,120 mean Toffolis; study it with `dqi_gen.study`). The adaptive-gauge scan (`adaptive_gauge64`, vendored) for the
    remaining 759 T (`docs/log/entries/2026-11-16-dqi-backhalf-outer.md`).
-2. dfthcsos: the `Lambda` basin (above), then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
+2. dfthcsos: S4 stage 2 (penalised fit, GPU via pueue), then then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
    search is open; about 8% of `T_total` at best).
-3. invsqrt: parked.
+3. invsqrt: no longer parked. The public 44-qubit circuit is 27.77x; staged port of syed3000's builder (v12 source in `public/syed3000__vqcc-own-circuit-portfolio/`), then S3.
 4. Housekeeping: `make plots-readme` after each result; keep `docs/PROVENANCE.md` and `THIRD_PARTY_NOTICES.md` current.
 
 ## Pitfalls that cost time before

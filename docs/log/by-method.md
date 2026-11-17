@@ -40,6 +40,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Our first DQI decoder (divsteps plus a GF(2^6) tower) has 4.8x fewer Toffolis than the reference but only 18% lower Q^2 T](entries/2026-11-12-dqi-divstep-v0.md) (positive)
 - 2026-11-12: [DQI reference: 73% of its 5,725,461 Toffolis are two Euclid passes, and every qubit counts twice](entries/2026-11-12-dqi-cost-drivers.md) (positive)
 
+## docs
+
+- 2026-11-17: [Docs refresh after the promotion and S2/S4: README status, AGENTS resources and worktree gotcha, HANDOFF backlog](entries/2026-11-17-docs-refresh.md) (n/a)
+
 ## docs-site
 
 - 2026-11-16: [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) (positive)
