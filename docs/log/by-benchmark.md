@@ -6,6 +6,7 @@ Entries grouped by the benchmark they concern.
 
 ## invsqrt
 
+- 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
 - 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) (correction)
 - 2026-11-13: [invsqrt ratio 12.34 (93 qubits, 168,237.5): lean qubits and exhaustive windows pay, the Horner mirror cannot be removed](entries/2026-11-13-invsqrt-uncompute.md) (positive)
 - 2026-11-13: [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md) (negative)

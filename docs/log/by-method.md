@@ -131,6 +131,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [invsqrt 101 qubits, ratio 10.65: the phase adder loses, signed-digit rows and lazy allocation win](entries/2026-11-12-invsqrt-phase-adder.md) (positive)
 - 2026-11-12: [invsqrt 121 qubits, ratio 8.40: serial and split phasing do not pay alone, the centered remainder does](entries/2026-11-12-invsqrt-bitserial.md) (positive)
 
+## port
+
+- 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
+
 ## promotion
 
 - 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
@@ -194,6 +198,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-13: [The 892-qubit public DQI circuit works in place on the 840 syndrome qubits plus 52, and a quadratic-extension pivot removes the failures](entries/2026-11-13-dqi-stage2.md) (positive)
 - 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
 - 2026-11-12: [invsqrt: the host reference is 88% schoolbook multiplications, and qubits and Toffolis weigh equally in the score](entries/2026-11-12-invsqrt-cost-drivers.md) (positive)
+
+## source-study
+
+- 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
 
 ## sqrt-division
 
