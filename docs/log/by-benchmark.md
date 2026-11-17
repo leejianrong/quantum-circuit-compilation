@@ -20,6 +20,7 @@ Entries grouped by the benchmark they concern.
 ## dqi
 
 - 2026-11-17: [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) (positive)
+- 2026-11-17: [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) (correction)
 - 2026-11-16: [Promoted fixed3s (DQI 66.75x) into best/; the owner now leaves promotion to the agent](entries/2026-11-16-promote-fixed3s.md) (n/a)
 - 2026-11-16: [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) (n/a)
 - 2026-11-16: [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) (positive)

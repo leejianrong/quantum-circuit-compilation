@@ -35,19 +35,25 @@ In the vendored window code (`third_party/syed_dqi/.../after_v3/blocks/transpose
 **quantum** flag qubit. The same file already has `release()`, which measures the flag with `hmr`, frees it, and
 keeps the outcome as a classical `flagmask` whose phase debt (`cz(flagmask, flag)`) is paid later.
 
-## Hypothesis (S5, QCC-63)
+## Hypothesis (S5, QCC-63), corrected the same day
 
-The public v13 circuit routes under a measured flag: `hmr` the flag, apply the swaps as classically conditioned `SWAP`
-(free, `PUSH_CONDITION` blocks), and pay the phase debt where the flag is recomputed. That would remove the CSWAPs, add
-the 5x classical instructions, and cost only the recomputation of the flag. Prediction: removing the 12,384
-CSWAPs alone takes our static T to 372,378 (ratio about 69.5x); the remaining 3,400 T (0.9%) are the 759 T of the adaptive
-gauge scan plus the `CCX` and `CCZ` residue.
+First reading (wrong): the public circuit routes under a measured flag with conditional swaps. **This is not valid.** The
+flag is `toggle_zero(B[-1], flag)`, a data-dependent predicate of a quantum register. `hmr` measures in the X basis and only
+helps uncompute a bit whose phase debt is paid later; measuring the flag in the computational basis to route classically
+would collapse the superposition, pass on basis-state inputs and fail as a quantum circuit. No competition gate set
+allows it, and the five-fold classical instructions of the public circuit are most likely deferred-mask bookkeeping
+(parities of `HMR` outcomes, the "GF(2^24) closings" of the v13 notes), not routing.
 
-Not yet tested. The v13 source is not available to us (the dataset dropped the archives), so this has to be derived from
-our own vendored v12 window code and our own wiring, not read from his.
+What stands: the public circuit has no `CSWAP` and 15,771 fewer static Toffolis; 79% of that is the count of CSWAPs in our
+outer window routing. A controlled swap of two words costs one Toffoli per bit however it is written, so the public
+design must avoid the data-dependent swap or keep the two words in a layout where the swap is a relabelling. How it does
+this is unknown; the v13 source is not available to us.
 
-## Next experiment
+## Next experiments (valid ones)
 
-Narrow instance first: wrap `route` of the window object so the flag is released before the routing block and the routing
-becomes a conditional swap, pay the debt where the closing code recomputes the flag, check the narrow instance verifies
-(official verifier, narrow), then Toffoli and qubit deltas per stage. Then full size on Kaggle at 10 salts.
+1. Gate context of the public circuit: how many of its `SWAP`s sit inside `PUSH_CONDITION` blocks, and on which bits
+   (extend `dqi_gen.study` and rerun the Kaggle kernel). If its swaps are under conditions from `HMR` masks, that tells which
+   deferred-mask mechanism it uses.
+2. In our own wiring, test whether a window routing can be restructured so the swap is absorbed into the next
+   transpose (a relabelling that the caller tracks), narrow instance first.
+3. Keep the adaptive gauge scan (759 T) as the small sure item.
