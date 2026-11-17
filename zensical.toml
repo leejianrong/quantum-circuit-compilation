@@ -80,6 +80,7 @@ nav = [
   { "Studies: dfthcsos" = [
     { "co-design the table and the loader" = "experiments/dfthcsos-codesign.md" },
     { "dfthcsos cost model" = "experiments/dfthcsos-cost-model.md" },
+    { "S1 cost model" = "experiments/spike-s1-cost-model.md" },
     { "S2 exchange rates" = "experiments/spike-s2-exchange-rates.md" },
     { "S4 Lambda" = "experiments/spike-s4-lambda.md" },
     { "invsqrt port plan" = "experiments/invsqrt-port-plan.md" },
