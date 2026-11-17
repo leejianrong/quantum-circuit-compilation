@@ -72,6 +72,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
 
+## gate-mix
+
+- 2026-11-17: [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) (positive)
+
 ## gauge
 
 - 2026-11-17: [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) (inconclusive)
@@ -221,6 +225,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-15: [DQI: the 7,323 T gap to the best public builder is 62% extractor return path (+114 T per node)](entries/2026-11-15-dqi-stage-ledgers.md) (positive)
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
 - 2026-11-13: [The 892-qubit public DQI circuit works in place on the 840 syndrome qubits plus 52, and a quadratic-extension pivot removes the failures](entries/2026-11-13-dqi-stage2.md) (positive)
+
+## study
+
+- 2026-11-17: [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) (positive)
 
 ## survey
 

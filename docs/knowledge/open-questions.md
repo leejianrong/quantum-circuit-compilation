@@ -21,7 +21,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
 | Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |
-| Does porting the adaptive-gauge scan (`adaptive_gauge64`) on top of `fixed4` close the last 759 T to his 384,003? (The qubit question is answered: the outer's loan of the tail's gauge flag gives 889, `fixed4`) | the last static gap; his cost is 3.607e11 at zero failed shots | [dqi syed decode study](../experiments/dqi-syed-decode.md), section 8 |
+| Can the outer's routing under a quantum flag (12,384 `CSWAP`, 79% of our 15,771 T gap to the public 70.04x) be replaced by routing under a measured flag with conditional swaps? The adaptive gauge scan is only 759 T of the rest | closes the DQI gap to the public frontier (about 4%) | [70x study](../experiments/dqi-70x-study.md) |
 
 ## Data to reconcile
 
