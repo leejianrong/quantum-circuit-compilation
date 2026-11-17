@@ -10,6 +10,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 |---|---|---|---|---|---|
 | 2026-11-17 | experiment | dfthcsos | inconclusive | [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) |  |
 | 2026-11-17 | experiment | infra | positive | [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) |  |
+| 2026-11-17 | experiment | infra | negative | [S1: a static-count cost model is off by 4%; reduced-shot screening is exact to 1e-5 on invsqrt](entries/2026-11-17-spike-s1-cost-model.md) |  |
 | 2026-11-17 | run | infra | positive | [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) |  |
 | 2026-11-17 | reading | invsqrt | inconclusive | [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) |  |
 | 2026-11-17 | decision | docs | n/a | [Docs refresh after the promotion and S2/S4: README status, AGENTS resources and worktree gotcha, HANDOFF backlog](entries/2026-11-17-docs-refresh.md) |  |
