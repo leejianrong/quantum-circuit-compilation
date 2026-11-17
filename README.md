@@ -5,10 +5,11 @@ Kaggle competition: make three fault-tolerant quantum subroutines cheaper, with 
 by the official classical verifiers. It has a verification harness with a results ledger, and a
 learning site that takes a Python programmer with no quantum background to the point of reading these circuits.
 
-**Status (2026-11-17):** public leaderboard score **25.218** (submitted 2026-11-14), from a portfolio of other
-participants' public circuits that we verified ourselves at several salts. Our own circuits are still behind that
-frontier: on 2026-11-17 `best/` was refilled with the best public circuits we verified (koushikrudra's v54 package, geometric mean about 28.1; the DQI circuit of 67.30x that we built ourselves, `fixed4`, is 4% behind it). Taking over on a new machine? Start with
-[docs/HANDOFF.md](docs/HANDOFF.md).
+**Status (2026-11-17):** public leaderboard score **25.218** (submitted 2026-11-14). `best/` now holds the best public
+circuits we verified ourselves at 10 salts (geometric mean about 28.1, koushikrudra's v54 package). Our own circuits
+are behind: DQI `fixed4` is 4% short of the public 70.04x, invsqrt and dfthcsos far more. Research spikes S1 to S6
+(epic QCC-E4) are logged in [docs/experiments/](docs/experiments/spike-s2-exchange-rates.md) and the
+[log book](docs/log/index.md). Taking over on a new machine? Start with [docs/HANDOFF.md](docs/HANDOFF.md).
 
 | Benchmark | What it is | Baseline cost | In `best/` | Our own best (verified) |
 |---|---|---|---|---|

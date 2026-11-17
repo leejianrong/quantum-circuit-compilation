@@ -17,7 +17,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 
 | Question | Why it matters | Source |
 |---|---|---|
-| Is the `Lambda` gap (283 against 490 to 560) the basin or the objective? Cheap test: a constrained refit on our own vectors | decides whether more fitting can close the dfthcsos gap | [dfthcsos syed decode](../log/entries/2026-11-15-dfthcsos-syed-decode.md) |
+| Is the remaining `Lambda` gap (283 against 417 after the joint rotation) a basin? Test: the `Lambda`-penalised fit (S4 stage 2, GPU) | decides whether more fitting can close the dfthcsos gap | [S4 stage 1](../log/entries/2026-11-17-spike-s4-lambda-gauge.md) |
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
 | Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |

@@ -71,3 +71,4 @@ the numbers. `tests/unit/test_knowledge.py` checks that every evidence link exis
 | Claim | Status | Evidence |
 |---|---|---|
 | The public portfolio verifies at invsqrt 25.91x, dqi 67.44x, dfthcsos 11.31x (5 salts each, 0 failures) | holds | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
+| The dfthcsos `Lambda` gap is not the one-body part (13.0 against 13.5); a free rotation gauge on the copy index is worth 7.7% of `lambda_eff` on fit-c | holds [M] | [S4 stage 1](../log/entries/2026-11-17-spike-s4-lambda-gauge.md) |
