@@ -14,6 +14,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 | 2026-11-17 | run | infra | positive | [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) |  |
 | 2026-11-17 | reading | invsqrt | inconclusive | [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) |  |
 | 2026-11-17 | experiment | dqi | positive | [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) |  |
+| 2026-11-17 | correction | dqi | correction | [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) |  |
 | 2026-11-17 | decision | docs | n/a | [Docs refresh after the promotion and S2/S4: README status, AGENTS resources and worktree gotcha, HANDOFF backlog](entries/2026-11-17-docs-refresh.md) |  |
 | 2026-11-16 | decision | dqi | n/a | [Promoted fixed3s (DQI 66.75x) into best/; the owner now leaves promotion to the agent](entries/2026-11-16-promote-fixed3s.md) | #204 |
 | 2026-11-16 | decision | dqi | n/a | [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) | #202 |

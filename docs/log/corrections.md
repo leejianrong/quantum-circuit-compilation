@@ -4,5 +4,6 @@
 
 Earlier claims that turned out to be wrong. The original entry is never rewritten; it gets a pointer to the entry that corrects it.
 
+- 2026-11-17: [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) corrects [2026-11-17-dqi-70x-study](entries/2026-11-17-dqi-70x-study.md)
 - 2026-11-15: [invsqrt: the 46-qubit builder's product is ten signed-digit rows into a 16-wire word, Q48 to Q46 is worth 4.2% of its cost](entries/2026-11-15-invsqrt-syed-decode.md) corrects [2026-11-13-invsqrt-sqrt-division](entries/2026-11-13-invsqrt-sqrt-division.md)
 - 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) corrects [2026-11-13-dfthcsos-stage2](entries/2026-11-13-dfthcsos-stage2.md)
