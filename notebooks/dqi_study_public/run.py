@@ -4,6 +4,7 @@ Inputs (kernel-metadata.json): koushikrudra's notebook output (its submission.zi
 data, never executed) and the output of our `qcc-dqi-gen` kernel (holds fixed4.kmb). Each circuit goes through
 `dqi_gen.study` (counts only: instruction mix, Toffolis per window, qubit-block lifetimes, tag names).
 Output: study_*.json.
+"""
 
 import pathlib
 import resource
