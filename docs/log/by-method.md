@@ -102,6 +102,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
 
+## gpu
+
+- 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
+
 ## housekeeping
 
 - 2026-11-16: [HANDOFF said our DQI was not promoted; the promotion ledger and best/ say it was, on 2026-11-14](entries/2026-11-16-handoff-dqi-promoted.md) (n/a)
@@ -118,6 +122,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## lambda
 
+- 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
 - 2026-11-17: [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) (inconclusive)
 
 ## loader
@@ -134,6 +139,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
 - 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
 - 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
+
+## penalised-fit
+
+- 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
 
 ## phase-adder
 

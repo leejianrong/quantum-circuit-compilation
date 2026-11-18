@@ -23,7 +23,7 @@ What the last rounds established (all in `docs/experiments/`, newest first):
 
 - S4 stage 1 (`spike-s4-lambda.md`): the public `Lambda` 283 is 13.5 one-body plus 269.8 weights; ours is 13 plus 476. A joint rotation of
   `w` and `W` with restarts (`dfthcsos_post.py --joint-rotate 3 --rotate-restarts 4`) takes fit-c to 417 (`lambda_eff` 63.05 to 58.21) at no cost;
-  the rest is a basin (our weight columns are 1.4x larger in one-norm). Stage 2, the penalised fit, waits for the GPU queue (QCC-55).
+  the rest was a basin: stage 2, a `Lambda`-penalised fit (`run_fit_gpu.py --mu 3e-5`), reaches `Lambda` 283.6 (public 283.3), `lambda_eff` 48.06, `error_2` 0.0148. Stage 3 is 8 to 11-bit rounding of it (QCC-55, QCC-62). GPU: only torch 2.9.1+cu128 works here (`~/qcc-gpu-venv2`).
 - S2 (`spike-s2-exchange-rates.md`): a qubit is 0.23% on DQI and dfthcsos, 2.27% on invsqrt; one DQI qubit is about 830 Toffolis. The dfthcsos gap
   is 1.65x loader times 2.74x words.
 

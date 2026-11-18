@@ -54,6 +54,17 @@ def make_loss(tsym: Any, n: int, shape: tuple[int, int, int], device: str) -> An
     return loss
 
 
+def penalty(w: Any, eps: float) -> Any:
+    """Weight part of ``Lambda`` without the offset term: ``1/4 sum_(rho c) (sum_b |w_b|)^2`` (smooth abs).
+
+    ``w`` is (R, B, C). The verifier's ``Lambda`` also has ``|W_c + sum_b w_bc|`` inside the square and a
+    one-body part; both are handled after the fit (``scripts/dfthcsos_post.py --joint-rotate``). S4 stage 2.
+    """
+    import torch
+
+    return 0.25 * (torch.sqrt(w * w + eps * eps).sum(dim=1) ** 2).sum()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--tsym", type=Path, required=True)
@@ -65,6 +76,10 @@ def main() -> None:
     ap.add_argument("--checkpoint-every", type=int, default=200)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--history", type=int, default=30)
+    ap.add_argument(
+        "--mu", type=float, default=0.0, help="weight of the Lambda penalty, in units of error_2^2"
+    )
+    ap.add_argument("--pen-eps", type=float, default=1e-4)
     a = ap.parse_args()
     import numpy as np
     import torch
@@ -100,20 +115,23 @@ def main() -> None:
 
     def closure() -> Any:
         opt.zero_grad()
-        f = loss(v, w * wsc) * 1e3
+        f = (loss(v, w * wsc) + a.mu * penalty(w * wsc, a.pen_eps)) * 1e3
         f.backward()
         return f
 
     def save() -> float:
         with torch.no_grad():
             e2 = float(loss(v, w * wsc).clamp(min=0).sqrt())
+            pen = float(penalty(w * wsc, a.pen_eps))
         np.save(a.out / "v.tmp.npy", v.detach().cpu().numpy())
         np.save(a.out / "w.tmp.npy", (w.detach() * wsc).cpu().numpy())
         os.replace(a.out / "v.tmp.npy", a.out / "v.npy")
         os.replace(a.out / "w.tmp.npy", a.out / "w.npy")
         with (a.out / "log.jsonl").open("a") as fh:
-            fh.write(json.dumps({"it": it, "error_2": e2, "secs": round(time.time() - t0, 1)}) + "\n")
-        print(f"it {it} error_2={e2:.5f} t={time.time() - t0:.0f}s", flush=True)
+            fh.write(
+                json.dumps({"it": it, "error_2": e2, "pen": pen, "secs": round(time.time() - t0, 1)}) + "\n"
+            )
+        print(f"it {it} error_2={e2:.5f} pen={pen:.1f} t={time.time() - t0:.0f}s", flush=True)
         return e2
 
     while it < a.iters:

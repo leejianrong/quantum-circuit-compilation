@@ -35,13 +35,46 @@ Consequence: a joint-rotation `lambda_eff` gain of 7.6% would take E040 from 2.5
 gain. By S2 the words gap (2.74x) is half `Lambda` (1.32 to 1.41) and half bits and planes, so no `Lambda` work alone
 closes dfthcsos.
 
-## Next stages
+## Stage 2: the `Lambda`-penalised fit (2026-11-18, GPU)
 
-2. Penalised fit from the start: add `mu * 1/4 sum (||w_c||_1 + |W_c + sum_b w_bc|)^2` to the `error_2^2` objective in
-   `scripts/run_fit_gpu.py` and sweep `mu` to the `error_2` = 0.02 gate. This is the real test of the basin
-   hypothesis and needs the GPU queue (pueue); the GPU is in use by another session until about 04:00.
-3. Then 8-bit rounding of the penalised fit (needed for the other half of the gap).
+`scripts/run_fit_gpu.py --mu MU` adds `MU * 1/4 sum_(rho c) (sum_b |w_bc|)^2` (smooth abs, `penalty()`) to the `error_2^2`
+objective, starting from fit-c (8,176,56), 40 minutes of L-BFGS per value on the RTX 3080 Ti (about 9,300 iterations
+each, torch 2.9.1+cu128 in `~/qcc-gpu-venv2`; torch 2.15+cu132 segfaults on CUDA init here). Each result goes
+through the same post-processing as before (`dfthcsos_post.py --brot 16 --rotate-restarts 4 --joint-rotate 3`) so the
+numbers are comparable. All [M]; the logs of the six runs are in `~/qcc-fits/own/pen_mu*/log.jsonl`.
 
-## Lesson
+| fit | `error_2` | `Lambda` | `lambda_eff` | vs fit-c |
+|---|---:|---:|---:|---:|
+| fit-c, pipeline gauge (stage 0) | 0.01474 | 488.6 | 63.05 | |
+| fit-c, restarts + joint rotation (stage 1) | 0.01474 | 416.8 | 58.21 | -7.7% |
+| penalised, mu = 1e-7 | 0.01262 | 354.3 | 53.63 | -14.9% |
+| mu = 3e-7 | 0.01276 | 336.3 | 52.25 | -17.1% |
+| mu = 1e-6 | 0.01308 | 315.4 | 50.60 | -19.7% |
+| mu = 3e-6 | 0.01379 | 298.6 | 49.22 | -21.9% |
+| mu = 1e-5 | 0.01452 | 286.6 | 48.24 | -23.5% |
+| **mu = 3e-5** | 0.01484 | **283.6** | **48.06** | **-23.8%** |
+| public v13 table | 0.0200 | 283.3 | 46.93 | |
 
-A flag that was parsed but never passed to `build()` made the first end-to-end run show no effect from the restarts (61.40 against the scratch 58.25). The cross-check against an independent scratch run caught it; check that a new option changes the output before trusting a null result.
+Findings:
+
+1. **The basin hypothesis holds and a penalised fit reaches it.** `Lambda` falls monotonically with `mu` and saturates at
+   283.6, equal to the public 283.3, at `error_2` 0.0148, still inside the 0.02 gate. Kill criterion (above 400 after three
+   restarts) clearly not met: the unpenalised fit's 490 to 560 was a different basin that no amount of fitting or gauge
+   work reaches, and a penalty from the first iteration does.
+2. The penalty also lowered `error_2` at small `mu` (0.0147 to 0.0126 at 1e-7): the penalised objective escapes a worse
+   basin on both counts. At larger `mu` error rises slowly, so `mu` of 1e-5 to 3e-5 is the useful range here.
+3. The remaining `lambda_eff` gap to the public table (48.06 against 46.93, 2.4%) is `E_gap`: ours sits at 4.102 and
+   the public table at the floor 3.9149; `lambda_eff = sqrt(E_gap (2 Lambda - E_gap))`. The capital-`W` fit trades them;
+   a joint rotation round no longer helps at `mu` = 3e-5 (the penalty has already used the gauge).
+4. Effect on the score if these words could be rounded to 11 bits as E040 was: `lambda_eff` 63.14 to 48.06 is 1.31x,
+   so E040's 2.50 would be about 3.3. The words and loader factors of S2 (bits, planes) are the rest of the gap.
+
+Process notes: a queued job that read `scripts/run_fit_gpu.py` from the working tree broke when I switched branches (the
+first `mu` ran on code loaded earlier and is valid); later jobs ran from a copy outside the repository. The final sweep job
+was killed at the end of `mu` = 3e-5 by a session teardown (checkpoint at iteration 8,800 of about 9,500, `error_2`
+0.01482); the number above is from that checkpoint.
+
+## Stage 3 (open): bits
+
+`dfthcsos_qat.py` (error-only quantisation-aware fit) at 8 and 10 bits on the `mu` = 3e-5 fit, then `Lambda` again
+(the QAT does not carry the penalty). Gate: `error_2` <= 0.02. Result goes in the next entry.
