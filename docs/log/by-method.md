@@ -167,6 +167,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## qat
 
+- 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
 - 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
 - 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
 - 2026-11-12: [A fully own dfthcsos circuit passes the verifier (ratio 1.98 at 11 bits); the gap to 6.85 is bit width and lambda_eff](entries/2026-11-12-dfthcsos-structured.md) (positive)
@@ -197,6 +198,10 @@ Entries grouped by the `methods` tags in their front matter.
 ## rotation
 
 - 2026-11-17: [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) (inconclusive)
+
+## rounding
+
+- 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
 
 ## screening
 
@@ -260,6 +265,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## verify
 
+- 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
 - 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
 - 2026-11-14: [syed3000's portfolio verified by us: invsqrt 25.91x, DQI 67.44x, dfthcsos 11.31x (geometric mean about 27.0)](entries/2026-11-14-syed-portfolio-verified.md) (positive)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)

@@ -15,7 +15,7 @@ are behind: DQI `fixed4` is 4% short of the public 70.04x, invsqrt and dfthcsos 
 |---|---|---|---|---|
 | invsqrt | 1/sqrt(x) phasing for fusion simulations | 2,076,774 | 74,797 (27.77) | 12.34 (E023) |
 | dqi | Reed-Solomon decoder for Decoded Quantum Interferometry | 2.44e13 | 3.49e11 (70.04) | 3.63e11 (67.30, 889 qubits, `fixed4`) |
-| dfthcsos | FeMoCo block encoding (chemistry) | 3.36e9 | 2.948e8 (11.38) | 1.34e9 (2.50) |
+| dfthcsos | FeMoCo block encoding (chemistry) | 3.36e9 | 2.948e8 (11.38) | 1.02e9 (3.28) |
 
 The score is the geometric mean of the three ratios. Any failed verifier test rejects the whole submission.
 The circuits in `best/` are other participants' public work (the invsqrt and DQI lines trace to Syed Asad Ali's Apache-2.0 builders); see [docs/PROVENANCE.md](docs/PROVENANCE.md) for authors,

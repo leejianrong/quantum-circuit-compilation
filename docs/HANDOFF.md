@@ -13,7 +13,7 @@ beside the public ones they have to beat.
 |---|---|---|---|
 | invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 27.77 (koushikrudra v54, 74,797.4, 44 qubits; syed3000 v13 27.63) | `0af21cb8`, 27.77 (promoted 2026-11-17) |
 | dqi | 67.30 (`--gen fixed4`, 889 qubits, 384,762 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` 65.77, `fixed3` 66.50, `fixed3s` 66.75) | 70.04 (koushikrudra v54 `00ac37d4`, 890 qubits, 10 salts 0 failures; syed3000 v13 69.93, balram 69.81) | `00ac37d4`, 70.04 (promoted 2026-11-17; replaced our `599cb515` fixed4 67.30) |
-| dfthcsos | 2.50 (E040, fully-own 11-bit ANF loader, 3 salts) | 11.38 (koushikrudra v54 npz `703843d3`, 294.76M, 10 salts 0 failures; syed3000 v13 11.36) | `4c6e5963` (dir), 11.38 (promoted 2026-11-17) |
+| dfthcsos | 3.28 (`09324acd`, penalised-fit 11-bit ANF loader, 3 salts, 0 failures; E040 was 2.50) | 11.38 (koushikrudra v54 npz `703843d3`, 294.76M, 10 salts 0 failures; syed3000 v13 11.36) | `4c6e5963` (dir), 11.38 (promoted 2026-11-17) |
 
 Own DQI (`fixed4`, 67.30) is 4% behind the public 70.04 that `best/` now holds. `fixed` was promoted on 2026-11-14 and `fixed3`, `fixed3s` and then `fixed4` replaced it on 2026-11-16 (10 salts, 0 failures,
 `ledger/promotions.jsonl`), so `best/dqi` holds our own `599cb515`, not the public `e9f54be3`. invsqrt and dfthcsos are
