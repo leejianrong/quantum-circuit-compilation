@@ -44,6 +44,7 @@ Entries grouped by the benchmark they concern.
 
 ## dfthcsos
 
+- 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
 - 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
 - 2026-11-17: [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) (inconclusive)
 - 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)

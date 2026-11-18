@@ -74,7 +74,32 @@ first `mu` ran on code loaded earlier and is valid); later jobs ran from a copy 
 was killed at the end of `mu` = 3e-5 by a session teardown (checkpoint at iteration 8,800 of about 9,500, `error_2`
 0.01482); the number above is from that checkpoint.
 
-## Stage 3 (open): bits
+## Stage 3: bits (2026-11-19)
 
-`dfthcsos_qat.py` (error-only quantisation-aware fit) at 8 and 10 bits on the `mu` = 3e-5 fit, then `Lambda` again
-(the QAT does not carry the penalty). Gate: `error_2` <= 0.02. Result goes in the next entry.
+`dfthcsos_qat.py --half` (error-only quantisation-aware fit, no penalty) on the `mu` = 3e-5 fit:
+
+| bits | final all-rounded `error_2` | gate 0.02 |
+|---|---:|---|
+| 8 | 0.0994 | fails |
+| 10 | 0.0299 | fails |
+| 11 | 0.01883 | passes |
+
+Plain rounding at 11 bits (300 weight-refit iterations, no QAT) gives 0.0227 and fails narrowly. Same pattern as every earlier
+fit (8 bits about 0.085, 10 bits 0.027, 11 bits passes): the penalty changes `Lambda`, not the bit requirement, and 8 bits
+still needs a rounding method we do not have.
+
+At 11 bits the full pipeline (`dfthcsos_post.py --brot 11 --half --loader anf --rotate-restarts 4 --joint-rotate 2`)
+gives: `error_1` 0.00698, `error_2` 0.01883, `Lambda` 284.9, `E_gap` 4.0867, `lambda_eff` 48.09 (E040: 63.14); best loader
+`lb = 6`, J = 3, 10,875 Toffolis, 120 qubits; predicted cost 1,022,615,598.
+
+**Official verifier, 3 salts, 0 failures: cost 1,022,615,598.11, ratio 3.28** [M] (ledger row `09324acd`, 47 s wall; the model
+predicted it to all printed digits). Our own best for dfthcsos goes from 2.50 (E040) to 3.28, a factor 1.31 = 63.14 / 48.09 as predicted.
+Circuit directory `~/qcc-circuits/own_dfthcsos_11bit_pen` (outside git; regenerate with the commands above from
+`~/qcc-fits/own/pen_mu3e-5`). It is far below the public 11.38x and not a promotion candidate.
+
+## Where the rest of the gap is
+
+3.28 against 11.38 is 3.47x. `lambda_eff` is now within 2.4% of the public table, so the remaining factor is `T_total * Q_total`:
+our 11-bit loader costs 10,875 Toffolis and 120 qubits per pass against the public table's 8-bit words and its own loaders
+(about 14,700 Toffolis and 427 total qubits for the whole benchmark, S2). Closing it needs 8-bit words that pass the gate
+(the public table's rounding polish) and the public loader structure (QCC-69).

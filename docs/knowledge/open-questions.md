@@ -17,7 +17,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 
 | Question | Why it matters | Source |
 |---|---|---|
-| Do the penalised words (`Lambda` 283.6) survive 8 to 11-bit rounding inside the `error_2` gate, and with what `Lambda` after quantisation-aware training (which has no penalty)? | the other half of the dfthcsos gap (bits and planes) | [S4 stage 2](../log/entries/2026-11-19-spike-s4-penalised-fit.md) |
+| What rounding gets the penalised words to 8 bits inside the `error_2` gate (QAT gives 0.099), and what loader structure does the public table use to reach 4,040 Toffolis per loader pass? | the remaining 3.5x of the dfthcsos gap is `T_total * Q_total`, not `lambda_eff` | [S4 stage 3](../log/entries/2026-11-19-spike-s4-stage3-own-3x.md) |
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
 | Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |

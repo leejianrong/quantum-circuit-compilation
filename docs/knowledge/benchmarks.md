@@ -71,7 +71,8 @@ gate rejects the circuit whatever the score ([primer](../learn/primer-dfthcsos.m
 
 | | Ratio | Evidence |
 |---|---:|---|
-| Our best (E040, fully own 11-bit table, ANF loader) | 2.50 | [stage 2](../log/entries/2026-11-13-dfthcsos-stage2.md) |
+| Our best (penalised-fit 11-bit table, ANF loader) | 3.28 | [stage 2](../log/entries/2026-11-13-dfthcsos-stage2.md) |
+| Earlier own best (E040) | 2.50 | [stage 2](../log/entries/2026-11-13-dfthcsos-stage2.md) |
 | Public 11.31x table | 11.31 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
 | Public 11.38x table (koushik v54, in `best/`) | 11.38 | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 | Public refit | 11.20 | [environment restore](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
