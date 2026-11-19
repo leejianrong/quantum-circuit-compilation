@@ -80,9 +80,8 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
             if op in COND_OPS:
                 inline = BRE.findall(line)
                 cbit = int(inline[0]) if inline else (cond_bits[-1] if cond_bits else None)
-                conditioned = cbit is not None and cbit >= 0
-                cond_mix[op]["conditioned" if conditioned else "plain"] += 1
-                if conditioned:
+                cond_mix[op]["conditioned" if cbit is not None and cbit >= 0 else "plain"] += 1
+                if cbit is not None and cbit >= 0:
                     cond_origin[op][origin.get(cbit, "unknown")] += 1
                 if op in TOFFOLI:
                     cond_depth_tof[len(cond_bits) + (1 if inline else 0)] += 1
