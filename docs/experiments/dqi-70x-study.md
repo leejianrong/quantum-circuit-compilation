@@ -49,11 +49,38 @@ outer window routing. A controlled swap of two words costs one Toffoli per bit h
 design must avoid the data-dependent swap or keep the two words in a layout where the swap is a relabelling. How it does
 this is unknown; the v13 source is not available to us.
 
-## Next experiments (valid ones)
+## Condition statistics (2026-11-19, Kaggle, `dqi_gen.study` with condition counts)
 
-1. Gate context of the public circuit: how many of its `SWAP`s sit inside `PUSH_CONDITION` blocks, and on which bits
-   (extend `dqi_gen.study` and rerun the Kaggle kernel). If its swaps are under conditions from `HMR` masks, that tells which
-   deferred-mask mechanism it uses.
-2. In our own wiring, test whether a window routing can be restructured so the swap is absorbed into the next
-   transpose (a relabelling that the caller tracks), narrow instance first.
-3. Keep the adaptive gauge scan (759 T) as the small sure item.
+Per operation, conditioned means inside a `PUSH_CONDITION` block or with an inline `if bN`; the origin is whether the
+condition bit was written by an `HMR` (a measurement outcome) or by derived classical bit logic [M].
+
+| op | ours conditioned / plain | public conditioned / plain | condition bit from HMR / derived (ours) | (public) |
+|---|---:|---:|---:|---:|
+| `SWAP` | 258,513 / 121,669 | 269,424 / 112,667 | 159,202 / 99,311 | 167,351 / 102,073 |
+| `CX` | 922,587 / 30,372,086 | 916,940 / 29,409,640 | 677,289 / 245,298 | 629,217 / 287,723 |
+| `CCX` | 45,687 / 319,622 | 45,519 / 317,446 | 3,815 / 41,872 | 4,099 / 41,420 |
+| `CCZ` | 7,069 / 0 | 6,026 / 0 | 2,903 / 4,166 | 1,944 / 4,082 |
+| `CSWAP` | 0 / 12,384 | none | | |
+
+Toffoli-like gates by nesting depth of conditions (0, 1, 2): ours 332,006 / 48,171 / 4,585; public 317,446 / 46,498 / 5,047.
+
+What this settles:
+
+1. **Conditions are not where the public circuit wins.** The two circuits condition their gates the same way to within a few
+   percent, with the same split between measurement and derived bits. The five-fold count of `BIT_INVERT` and `PUSH_CONDITION`
+   instructions is classical bookkeeping (how the same bit parities are written out), not a different quantum design.
+2. **The whole gap is in unconditioned Toffolis**: depth 0 differs by 14,560 (ours is higher), of which our 12,384 `CSWAP`s (all
+   unconditioned) are 85%; the remaining 2,176 are plain `CCX`. Depth-1 and depth-2 counts are within 4%.
+3. So the public circuit avoids a data-dependent word swap that ours performs coherently. A routing swap decided by a quantum flag
+   cannot be skipped without changing what the circuit computes. Options: a different algorithm (no swap needed in its
+   continued-fraction or Cayley step), or a priced approximation that ignores the degenerate branch and pays for it in failures.
+   The second looks unlikely to pay: `R(epsilon)` reacts strongly to failed shots (2 failures in the public draw moved the
+   leaderboard score 0.3%), and the degenerate branch (`B[-1] = 0` in GF(2^12)) has probability about 1/4096 per node.
+
+## Status of S5
+
+Both cheap ideas are closed: measured-flag routing is invalid, and conditioning is not the difference. What is left is to find
+the algorithm that needs no data-dependent swap. Without the v13 source (the dataset dropped the archives) that is a design
+question for the Thiele/Cayley outer, not an engineering port. The adaptive gauge scan (759 T, 0.2%) stays as the small sure item.
+S5 is parked at low confidence and not started further; S6 (an in-place Euclid history) is the same kind of design question and is
+next.

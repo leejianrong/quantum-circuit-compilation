@@ -21,7 +21,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
 | Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
 | Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |
-| How does the public 70.04x DQI circuit avoid the 12,384 `CSWAP`s (79% of our 15,771 T gap) that our outer window routing needs? (Routing under a *measured* flag is not valid; see the correction.) Adaptive gauge scan is only 759 T of the rest | closes the DQI gap to the public frontier (about 4%) | [70x study](../experiments/dqi-70x-study.md) |
+| Which algorithm needs no data-dependent word swap in the DQI outer (the public 70.04x circuit has no `CSWAP`; its conditioning is otherwise the same as ours, so the 12,384 unconditioned `CSWAP`s are 79% of the gap)? | closes the DQI gap to the public frontier (about 4%); a design question, not a port | [70x study](../experiments/dqi-70x-study.md) |
 
 ## Data to reconcile
 
