@@ -4,6 +4,7 @@
 
 Ideas that were tried and did not work, with the reason. They are as useful as the wins: they tell the next person where not to dig.
 
+- 2026-11-19, dqi: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md)
 - 2026-11-17, infra: [S1: a static-count cost model is off by 4%; reduced-shot screening is exact to 1e-5 on invsqrt](entries/2026-11-17-spike-s1-cost-model.md)
 - 2026-11-13, invsqrt: [invsqrt stage 2: the 62-qubit frontier uses our mathematics, and its advantage is lookup, normalisation, conditional execution and qubit count](entries/2026-11-13-invsqrt-stage2.md)
 - 2026-11-13, invsqrt: [invsqrt one-pass study: the frontier has a Horner unwind after all, and none of four levers moves ratio 12.34](entries/2026-11-13-invsqrt-onepass.md)

@@ -8,6 +8,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
 
+## conditions
+
+- 2026-11-19: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md) (negative)
+
 ## correction
 
 - 2026-11-17: [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) (correction)
@@ -251,6 +255,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## study
 
+- 2026-11-19: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md) (negative)
 - 2026-11-17: [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) (positive)
 - 2026-11-17: [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) (correction)
 
