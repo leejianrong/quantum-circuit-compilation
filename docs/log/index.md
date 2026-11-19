@@ -13,6 +13,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 | 2026-11-19 | experiment | dfthcsos | positive | [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) |  |
 | 2026-11-19 | run | invsqrt | positive | [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) |  |
 | 2026-11-19 | run | invsqrt | positive | [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) |  |
+| 2026-11-19 | run | invsqrt | positive | [invsqrt port Stage C1: our wiring builds the 46-qubit line to within 0.5% of the reference and gives a per-patch ledger](entries/2026-11-19-invsqrt-port-wiring.md) |  |
 | 2026-11-19 | experiment | dqi | negative | [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md) | #227 |
 | 2026-11-17 | experiment | dfthcsos | inconclusive | [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) |  |
 | 2026-11-17 | experiment | infra | positive | [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) |  |

@@ -161,6 +161,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-19: [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) (positive)
 - 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
+- 2026-11-19: [invsqrt port Stage C1: our wiring builds the 46-qubit line to within 0.5% of the reference and gives a per-patch ledger](entries/2026-11-19-invsqrt-port-wiring.md) (positive)
 - 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
 
 ## promotion
@@ -255,6 +256,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## stage-ledger
 
+- 2026-11-19: [invsqrt port Stage C1: our wiring builds the 46-qubit line to within 0.5% of the reference and gives a per-patch ledger](entries/2026-11-19-invsqrt-port-wiring.md) (positive)
 - 2026-11-16: [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
 - 2026-11-16: [DQI: back half of the newer lineage in our front half (fixed4): -1,314 T and the 890th qubit](entries/2026-11-16-dqi-backhalf-outer.md) (positive)
