@@ -21,6 +21,8 @@ from typing import Any
 
 TOFFOLI = ("CCX", "CCZ", "CSWAP")
 QRE = re.compile(r"q(\d+)")
+BRE = re.compile(r"\bb(\d+)")
+COND_OPS = ("CX", "SWAP", "CSWAP", "CCX", "CCZ", "CZ", "Z", "X", "R")
 TAG = re.compile(r'INFO_TAG "([^"]*)"')
 
 
@@ -36,6 +38,11 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
     cur_tof = 0
     cur_ids: set[int] = set()
     stack: list[str] = []
+    cond_bits: list[int] = []  # PUSH_CONDITION bit ids
+    origin: dict[int, str] = {}  # classical bit id -> 'hmr' or 'derived'
+    cond_mix: dict[str, collections.Counter[str]] = {o: collections.Counter() for o in COND_OPS}
+    cond_depth_tof: collections.Counter[int] = collections.Counter()
+    cond_origin: dict[str, collections.Counter[str]] = {o: collections.Counter() for o in COND_OPS}
     paths: dict[str, dict[str, Any]] = {}
     i = 0
     for i, line in enumerate(lines):
@@ -57,7 +64,27 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
                 if len(tags) < 5000:
                     tags.append((i, name))
                     tag_cum.append((name, i, total_tof))
+        elif op == "PUSH_CONDITION":
+            bits = [int(x) for x in BRE.findall(line)]
+            cond_bits.append(bits[0] if bits else -1)
+        elif op == "POP_CONDITION":
+            if cond_bits:
+                cond_bits.pop()
+        elif op.startswith("BIT_") or op == "HMR":
+            bits = [int(x) for x in BRE.findall(line)]
+            if bits:  # the first classical operand is the one written
+                origin.setdefault(bits[0], "hmr" if op == "HMR" else "derived")
+                if op == "HMR":
+                    origin[bits[0]] = "hmr"
         elif op not in ("APPEND_TO_REGISTER", "REGISTER"):
+            if op in COND_OPS:
+                inline = BRE.findall(line)
+                cbit = int(inline[0]) if inline else (cond_bits[-1] if cond_bits else None)
+                cond_mix[op]["conditioned" if cbit is not None and cbit >= 0 else "plain"] += 1
+                if cbit is not None and cbit >= 0:
+                    cond_origin[op][origin.get(cbit, "unknown")] += 1
+                if op in TOFFOLI:
+                    cond_depth_tof[len(cond_bits) + (1 if inline else 0)] += 1
             ids = [int(x) for x in QRE.findall(line)]
             for q in ids:
                 first.setdefault(q, i)
@@ -93,6 +120,9 @@ def scan(lines: Iterable[str], window: int = 200_000, block: int = 12) -> dict[s
         "tags": tags,
         "tag_cum": tag_cum,
         "total_toffoli": total_tof,
+        "cond_mix": {o: dict(c) for o, c in cond_mix.items()},
+        "cond_origin": {o: dict(c) for o, c in cond_origin.items()},
+        "cond_depth_toffoli": {str(k): v for k, v in sorted(cond_depth_tof.items())},
         "paths": {
             k: {"enter": v["enter"], "toffoli": v["toffoli"], "first": v["first"], "qubits": len(v["ids"])}
             for k, v in paths.items()
