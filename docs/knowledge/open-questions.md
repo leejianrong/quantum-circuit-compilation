@@ -20,7 +20,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 | What rounding gets the penalised words to 8 bits inside the `error_2` gate (QAT gives 0.099), and what loader structure does the public table use to reach 4,040 Toffolis per loader pass? | the remaining 3.5x of the dfthcsos gap is `T_total * Q_total`, not `lambda_eff` | [S4 stage 3](../log/entries/2026-11-19-spike-s4-stage3-own-3x.md) |
 | Does the consuming multiplier work as the builder source suggests (ten signed-digit rows into a 16-wire word)? We have not re-checked or built it | the invsqrt 46-qubit lead | [invsqrt syed decode](../log/entries/2026-11-15-invsqrt-syed-decode.md) |
 | Which single module of his extractor bundle (nested-norm arithmetic, retained-norm return) gives the -114 T per node? The bundle is shown to; modules are not isolated | 62% of the DQI gap | [stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md) |
-| Does an in-place Euclid history exist that makes the reciprocal scan buildable? | the reciprocal scan is worth about ratio 10 only with it | [psi](../log/entries/2026-11-13-dqi-psi.md) |
+| (closed 2026-11-19, obsolete) Does an in-place Euclid history exist for the reciprocal scan? The frontier scans at 11 T per position, the reciprocal scan needs 23 | none | [S6](../experiments/spike-s6-euclid-history.md) |
 | Which algorithm needs no data-dependent word swap in the DQI outer (the public 70.04x circuit has no `CSWAP`; its conditioning is otherwise the same as ours, so the 12,384 unconditioned `CSWAP`s are 79% of the gap)? | closes the DQI gap to the public frontier (about 4%); a design question, not a port | [70x study](../experiments/dqi-70x-study.md) |
 
 ## Data to reconcile
