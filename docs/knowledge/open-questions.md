@@ -5,7 +5,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
 
 ## Owner decisions
 
-* May the Apache-2.0 builders of syed3000 be run to regenerate their circuits? [HANDOFF](../HANDOFF.md) lists this as
+* (invsqrt: answered 2026-11-19, one sandboxed container build approved and done, see the [log](../log/entries/2026-11-19-invsqrt-reference-build.md); dfthcsos still open.) May the Apache-2.0 builders of syed3000 be run to regenerate their circuits? [HANDOFF](../HANDOFF.md) lists this as
   open because the permission classifier blocks it. The DQI builder has since been reproduced byte for byte inside a
   sandboxed container ([stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md)); confirm the policy for the
   invsqrt and dfthcsos builders.

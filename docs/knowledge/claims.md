@@ -75,3 +75,4 @@ the numbers. `tests/unit/test_knowledge.py` checks that every evidence link exis
 | A static Toffoli count predicts the official invsqrt cost to only 4% (leave-one-out); reduced-shot runs match to 1e-5 | holds [M] | [S1](../log/entries/2026-11-17-spike-s1-cost-model.md) |
 | A `Lambda`-penalised fit from iteration zero reaches the public `Lambda` (283.6 against 283.3) at `error_2` 0.0148; `lambda_eff` falls 63.05 to 48.06 | holds [M] | [S4 stage 2](../log/entries/2026-11-19-spike-s4-penalised-fit.md) |
 | Our own dfthcsos verifies at 3.28x (11-bit words from the `Lambda`-penalised fit, 3 salts, 0 failures); 8 and 10 bits still fail the `error_2` gate | holds [M] | [S4 stage 3](../log/entries/2026-11-19-spike-s4-stage3-own-3x.md) |
+| The v12 invsqrt builder reproduces the 46-qubit circuit byte for byte in a sandbox and executes 78 of its 255 Python files | holds [M] | [reference build](../log/entries/2026-11-19-invsqrt-reference-build.md) |
