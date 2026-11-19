@@ -82,12 +82,51 @@ The lists are `docs/experiments/data/invsqrt_v12_executed_py.txt` and `invsqrt_v
 The 302 data files include every pinned file the sources hash-check, so they over-count what the port needs; which are read for
 content (tables, loader certificates) is the next narrowing.
 
+## Stage C0 and C1 (2026-11-19): vendored closure and our wiring
+
+C0: the 78 executed modules are vendored under `third_party/syed_invsqrt/` (`docs/log/entries/2026-11-19-invsqrt-vendored.md`).
+C1: `src/invsqrt_gen/port/stages.py` (our code) assembles the work tree (archive data, vendored files checked byte-equal,
+relocation token, host `kickmix.so` and verifier), then builds every prefix of the 13 patches, one process per prefix, through the
+vendored `build_variant.build()` and reports qubits, exact mean Toffolis, rotations and the modelled cost. It runs in the
+same sandbox as the reference build (`scripts/invsqrt_port_stages.sh`, about 9 s per build). Data:
+`docs/experiments/data/invsqrt_port_ledger.json`. [M]
+
+| k | patch | width | qubits | mean Toffolis | modelled cost | step | ratio |
+|---:|---|---|---:|---:|---:|---:|---:|
+| 0 | `(base candidate10)` | own (48) | 48 | 1,548.75 | 85,469 |  | 24.30 |
+| 1 | `patch_fwd_narrow` | own (48) | 48 | 1,548.25 | 85,445 | -24 | 24.31 |
+| 2 | `patch_w47_body` | own (48) | 48 | 1,544.57 | 85,268 | -177 | 24.36 |
+| 3 | `patch_endpoint_v9e2` | own (48) | 48 | 1,520.57 | 84,116 | -1,152 | 24.69 |
+| 4 | `patch_hret_sat_s15k7a` | own (48) | 48 | 1,511.07 | 83,660 | -456 | 24.82 |
+| 5 | `patch_seedinv` | own (48) | 48 | 1,505.07 | 83,372 | -288 | 24.91 |
+| 6 | `patch_coefdisp` | own (48) | 48 | 1,505.07 | 83,372 | +0 | 24.91 |
+| 7 | `patch_coef2_q46` | own (48) | 48 | 1,506.07 | 83,420 | +48 | 24.90 |
+| 8 | `patch_h2ret` | own (48) | 48 | 1,505.57 | 83,396 | -24 | 24.90 |
+| 9 | `patch_proddisp` | own (48) | 48 | 1,505.57 | 83,396 | +0 | 24.90 |
+| 11 | `patch_ld_first20_56b8` | own (48) | 48 | 1,500.57 | 83,156 | -240 | 24.97 |
+| 12 | `patch_second46_c19_70nb1` | own (48) | 48 | 1,491.57 | 82,724 | -432 | 25.10 |
+| 12 | `patch_second46_c19_70nb1` | 46 | 46 | 1,521.57 | 80,657 |  | 25.75 |
+| 13 | `patch_q47_decoder_resynth2` | own (48) | 48 | 1,489.57 | 82,628 |  | 25.13 |
+| 13 | `patch_q47_decoder_resynth2` | 46 | 46 | 1,519.57 | 80,565 |  | 25.78 |
+
+`cost` is the modelled `Q * (Toffolis + T/4 + rotation charge)`, not measured; the ratio is against the paper reference
+2,076,774. Findings:
+
+1. **The wiring works**: the full 13-patch build at width 46 gives 46 qubits, 1,519.57 Toffolis, modelled cost 80,565 (25.78x).
+   The reference circuit is 80,162.76 (1,511.57 Toffolis, 25.91x); the 0.5% difference is the mechanical finishing passes of
+   `tools/pipeline.sh` (affine audit, hold pass, `Z_POW` merging) and the post pass `relocate_cs2`, which our wiring does not yet run.
+2. **Most of the quality is in the base, not the patches.** The unpatched base `candidate10` is already 48 qubits at 24.30x; the
+   13 patches add 3.3% in cost at width 48. The largest steps: `endpoint_v9e2` (-1,152, the ring endpoint with hold/measure-release),
+   `hret_sat` (-456), `second46_c19` (-432), `seedinv` (-288), `ld_first20` (-240). The 2-qubit narrowing to 46 (cost -2,000 at the
+   last steps, 2.4%) is bought with +30 Toffolis, so the width patches pay.
+3. **Prefixes are not independent.** At width 46, prefixes 0 to 11 do not build (the width is declared at 48 until the width patches), and prefix 10
+   (`donor_first60`) needs a plan file that import-time code of a later patch supplies: the reference build loads all 13 patch
+   modules before applying any. Per-patch deltas are therefore valid at width 48 only, except for prefix 10, which has none.
+
 ## Plan
 
-* Stage A: done (inventory above).
-* Stage B: done (traced closure above).
-* Stage C: vendor the 78 modules byte-identically under `third_party/` with a PROVENANCE row and NOTICE, our own wiring in
-  `src/invsqrt_gen/port/` (an equivalent of `build_variant.py` that applies the 13 patches in `PATCH_ORDER.txt` order), then the
-  per-patch ledger of qubits and Toffolis, then the exact-proof run on Kaggle or the container, then the official verifier.
+* Stage A, B, C0, C1: done (above).
+* Stage C2: run the finishing passes from our wiring (the vendored `audit_affine`, `audit_pairs`, `hold_pass`, `postpass`, `merge_zpow`,
+  `kmx_to_kmb`, `prove_any`, `relocate_cs2`), so that the wiring reproduces `321aff83` byte for byte and the passes get their own ledger rows.
 * Stage D: S3 (exact optimisation of tables and loaders) on top of the working port.
 * Not covered: the 44-qubit circuits of v13 (no source; the dataset dropped the archives).
