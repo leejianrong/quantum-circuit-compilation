@@ -151,6 +151,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## port
 
+- 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
 - 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
 
 ## promotion
@@ -190,6 +191,10 @@ Entries grouped by the `methods` tags in their front matter.
 ## qubit-timeline
 
 - 2026-11-16: [DQI: the 890th qubit is reached in the outer stages, not the extractor; v3 already brings the extractor to 889](entries/2026-11-16-dqi-qubit-peak.md) (positive)
+
+## reference-build
+
+- 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
 
 ## reproduction
 
@@ -252,6 +257,10 @@ Entries grouped by the `methods` tags in their front matter.
 ## survey
 
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
+
+## trace
+
+- 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
 
 ## uncompute
 
