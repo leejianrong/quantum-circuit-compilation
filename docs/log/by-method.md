@@ -159,6 +159,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## port
 
+- 2026-11-19: [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) (positive)
 - 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
 - 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
 
@@ -283,6 +284,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## vendoring
 
+- 2026-11-19: [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
 
 ## verify
