@@ -83,6 +83,7 @@ nav = [
     { "S1 cost model" = "experiments/spike-s1-cost-model.md" },
     { "S2 exchange rates" = "experiments/spike-s2-exchange-rates.md" },
     { "DQI 70x study" = "experiments/dqi-70x-study.md" },
+    { "S6 Euclid history" = "experiments/spike-s6-euclid-history.md" },
     { "S4 Lambda" = "experiments/spike-s4-lambda.md" },
     { "invsqrt port plan" = "experiments/invsqrt-port-plan.md" },
     { "can our own table reach 8 bits?" = "experiments/dfthcsos-eight-bit.md" },
