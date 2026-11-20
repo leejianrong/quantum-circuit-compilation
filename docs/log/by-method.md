@@ -63,6 +63,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
 
+## exact-synthesis
+
+- 2026-11-20: [S3 plan: table and loader co-design has a 1% target, but only on the 46-qubit port, below best/](entries/2026-11-20-spike-s3-plan.md) (n/a)
+
 ## exchange-rates
 
 - 2026-11-17: [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) (positive)
@@ -248,6 +252,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## spike
 
+- 2026-11-20: [S3 plan: table and loader co-design has a 1% target, but only on the 46-qubit port, below best/](entries/2026-11-20-spike-s3-plan.md) (n/a)
 - 2026-11-19: [S6: the in-place Euclid history is moot; the frontier already scans at 11 Toffolis per position, the reciprocal scan needs 23](entries/2026-11-19-spike-s6-euclid-history.md) (negative)
 
 ## sqrt-division
