@@ -6,6 +6,7 @@ Entries grouped by the benchmark they concern.
 
 ## invsqrt
 
+- 2026-11-20: [invsqrt port Stage C2: our wiring of the finishing passes reproduces 321aff83 byte for byte](entries/2026-11-20-invsqrt-port-finish.md) (positive)
 - 2026-11-19: [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) (positive)
 - 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
 - 2026-11-19: [invsqrt port Stage C1: our wiring builds the 46-qubit line to within 0.5% of the reference and gives a per-patch ledger](entries/2026-11-19-invsqrt-port-wiring.md) (positive)
