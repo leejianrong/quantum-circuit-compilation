@@ -8,6 +8,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-20 | decision | invsqrt | n/a | [S3 plan: table and loader co-design has a 1% target, but only on the 46-qubit port, below best/](entries/2026-11-20-spike-s3-plan.md) |  |
 | 2026-11-20 | run | invsqrt | positive | [invsqrt port Stage C2: our wiring of the finishing passes reproduces 321aff83 byte for byte](entries/2026-11-20-invsqrt-port-finish.md) |  |
 | 2026-11-19 | decision | dqi | negative | [S6: the in-place Euclid history is moot; the frontier already scans at 11 Toffolis per position, the reciprocal scan needs 23](entries/2026-11-19-spike-s6-euclid-history.md) |  |
 | 2026-11-19 | run | dfthcsos | positive | [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) |  |
