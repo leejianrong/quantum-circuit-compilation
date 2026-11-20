@@ -71,6 +71,7 @@ the numbers. `tests/unit/test_knowledge.py` checks that every evidence link exis
 | Claim | Status | Evidence |
 |---|---|---|
 | The public portfolio verifies at invsqrt 25.91x, dqi 67.44x, dfthcsos 11.31x (5 salts each, 0 failures) | holds | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
+| Our wiring of the vendored v12 builder (13 patches and the finishing passes) rebuilds the public 46-qubit invsqrt circuit byte for byte; the passes save 0.5% | holds [M] | [port finish](../log/entries/2026-11-20-invsqrt-port-finish.md) |
 | The dfthcsos `Lambda` gap is not the one-body part (13.0 against 13.5); a free rotation gauge on the copy index is worth 7.7% of `lambda_eff` on fit-c | holds [M] | [S4 stage 1](../log/entries/2026-11-17-spike-s4-lambda-gauge.md) |
 | A static Toffoli count predicts the official invsqrt cost to only 4% (leave-one-out); reduced-shot runs match to 1e-5 | holds [M] | [S1](../log/entries/2026-11-17-spike-s1-cost-model.md) |
 | A `Lambda`-penalised fit from iteration zero reaches the public `Lambda` (283.6 against 283.3) at `error_2` 0.0148; `lambda_eff` falls 63.05 to 48.06 | holds [M] | [S4 stage 2](../log/entries/2026-11-19-spike-s4-penalised-fit.md) |

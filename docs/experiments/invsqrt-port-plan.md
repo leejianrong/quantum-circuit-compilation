@@ -126,7 +126,7 @@ same sandbox as the reference build (`scripts/invsqrt_port_stages.sh`, about 9 s
 ## Plan
 
 * Stage A, B, C0, C1: done (above).
-* Stage C2: run the finishing passes from our wiring (the vendored `audit_affine`, `audit_pairs`, `hold_pass`, `postpass`, `merge_zpow`,
-  `kmx_to_kmb`, `prove_any`, `relocate_cs2`), so that the wiring reproduces `321aff83` byte for byte and the passes get their own ledger rows.
+* Stage C2: done 2026-11-20. Our wiring runs the finishing passes and reproduces `321aff83` byte for byte, with a ledger row per pass
+  (`scripts/invsqrt_port_finish.sh`, `docs/experiments/data/invsqrt_port_finish.json`; [log](../log/entries/2026-11-20-invsqrt-port-finish.md)). [M]
 * Stage D: S3 (exact optimisation of tables and loaders) on top of the working port.
 * Not covered: the 44-qubit circuits of v13 (no source; the dataset dropped the archives).

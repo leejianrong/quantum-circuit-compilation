@@ -149,7 +149,7 @@ Research spikes S1 (cost model), S3 (invsqrt co-design), S5 and S6 (DQI) are ope
    remaining 759 T (`docs/log/entries/2026-11-16-dqi-backhalf-outer.md`).
 2. dfthcsos: S4 stage 2 (penalised fit, GPU via pueue), then then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
    search is open; about 8% of `T_total` at best).
-3. invsqrt: no longer parked. The public 44-qubit circuit is 27.77x; staged port of syed3000's builder (v12 source in `public/syed3000__vqcc-own-circuit-portfolio/`), then S3.
+3. invsqrt: no longer parked. The public 44-qubit circuit is 27.77x; staged port of syed3000's builder: Stages A to C2 done (our wiring reproduces `321aff83` byte for byte, `scripts/invsqrt_port_finish.sh`), then S3.
 4. Housekeeping: `make plots-readme` after each result; keep `docs/PROVENANCE.md` and `THIRD_PARTY_NOTICES.md` current.
 
 ## Pitfalls that cost time before
