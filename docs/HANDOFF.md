@@ -11,7 +11,7 @@ beside the public ones they have to beat.
 
 | Benchmark | Our own best (verified) | Public best we have measured | What is in `best/` |
 |---|---|---|---|
-| invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 27.77 (koushikrudra v54, 74,797.4, 44 qubits; syed3000 v13 27.63) | `0af21cb8`, 27.77 (promoted 2026-11-17) |
+| invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 28.67 (syed3000 v17, 72,440.4, 43 qubits; koushikrudra v54 27.77) | `70fe5f79`, 28.67 (promoted 2026-11-21; was `0af21cb8`, 27.77) |
 | dqi | 67.30 (`--gen fixed4`, 889 qubits, 384,762 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` 65.77, `fixed3` 66.50, `fixed3s` 66.75) | 70.04 (koushikrudra v54 `00ac37d4`, 890 qubits, 10 salts 0 failures; syed3000 v13 69.93, balram 69.81) | `00ac37d4`, 70.04 (promoted 2026-11-17; replaced our `599cb515` fixed4 67.30) |
 | dfthcsos | 3.28 (`09324acd`, penalised-fit 11-bit ANF loader, 3 salts, 0 failures; E040 was 2.50) | 11.38 (koushikrudra v54 npz `703843d3`, 294.76M, 10 salts 0 failures; syed3000 v13 11.36) | `4c6e5963` (dir), 11.38 (promoted 2026-11-17) |
 
@@ -94,7 +94,7 @@ Git holds code, docs, ledgers (`ledger/*.jsonl`, append-only) and the vendored A
 |---|---|---|
 | `data/` (1 GB) | competition data: verifiers, kickmix, sample submissions, FCIDUMP, baseline circuits | `make fetch-data` (Kaggle CLI, competition `google-verifiable-quantum-circuit-compilation`). Never redistribute (rules B.4.b). |
 | `public/` (1.9 GB) | other participants' public circuits and `MANIFEST.tsv` (sha256) | `bash scripts/fetch_public.sh`; each file has a row in `docs/PROVENANCE.md`. Third-party, licences as stated there, never committed. |
-| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt 0af21cb8`, `dqi 00ac37d4`, `dfthcsos 4c6e5963` (all from koushikrudra's package, promoted 2026-11-17) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
+| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt 70fe5f79` (from 2026-11-21), `dqi 00ac37d4`, `dfthcsos 4c6e5963` (all from koushikrudra's package, promoted 2026-11-17) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
 | `out/` | plots, `submission.zip`, scratch builds | `uv run bench plots`, `bench pack`; regenerable, safe to delete. |
 | `.venv/`, caches | environment | `make install`. |
 | `~/qcc-circuits/` (about 1 GB) | our built circuits and syed3000 references | see below. |
@@ -149,7 +149,7 @@ Research spikes S1 (cost model), S3 (invsqrt co-design), S5 and S6 (DQI) are ope
    remaining 759 T (`docs/log/entries/2026-11-16-dqi-backhalf-outer.md`).
 2. dfthcsos: S4 stage 2 (penalised fit, GPU via pueue), then then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
    search is open; about 8% of `T_total` at best).
-3. invsqrt: no longer parked. The public 44-qubit circuit is 27.77x; staged port of syed3000's builder: Stages A to C2 done (our wiring reproduces `321aff83` byte for byte, `scripts/invsqrt_port_finish.sh`), then S3.
+3. invsqrt: no longer parked. The public 43-qubit circuit is 28.67x (syed3000 v17, whose `invsqrt_generator` source we now hold); staged port of syed3000's builder: Stages A to C2 done (our wiring reproduces `321aff83` byte for byte, `scripts/invsqrt_port_finish.sh`), then S3.
 4. Housekeeping: `make plots-readme` after each result; keep `docs/PROVENANCE.md` and `THIRD_PARTY_NOTICES.md` current.
 
 ## Pitfalls that cost time before
