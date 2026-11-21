@@ -260,6 +260,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## source-study
 
+- 2026-11-21: [v17 invsqrt generator read: a 30-stage compiler plus lineage passes, and only 0.3% accuracy slack left](entries/2026-11-21-invsqrt-v17-generator-reading.md) (positive)
 - 2026-11-17: [invsqrt port plan: the builder is a pinned base plus 13 live-module patches, so the closure needs a runtime trace](entries/2026-11-17-invsqrt-port-plan.md) (inconclusive)
 
 ## spike
