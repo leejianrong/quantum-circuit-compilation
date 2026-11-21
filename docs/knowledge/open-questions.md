@@ -10,7 +10,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
   sandboxed container ([stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md)); confirm the policy for the
   invsqrt and dfthcsos builders.
 * Is a GPU run of the dfthcsos fit with a `Lambda` penalty from the start worth the quota?
-* May the sandboxed container route (rootless podman, no network, read-only inputs) be used once for syed3000's v17 `invsqrt_generator` (30-stage DAG, 1,182 files), as it was for v12? Asked 2026-11-21, see the [reading](../log/entries/2026-11-21-invsqrt-v17-generator-reading.md). The v17 `dqi_generator` and `dfthcsos_generator` are unread.
+* (v17 invsqrt container build: approved and done 2026-11-21, see the [log](../log/entries/2026-11-21-invsqrt-v17-reference-build.md). The v17 `dqi_generator` and `dfthcsos_generator` are unread; a container build of either needs its own approval.)
 * Which licensed portfolio is submitted? Nothing is promoted or submitted without the owner
   ([PROVENANCE](../PROVENANCE.md), licence column).
 

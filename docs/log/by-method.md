@@ -167,6 +167,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## port
 
+- 2026-11-21: [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) (positive)
 - 2026-11-20: [invsqrt port Stage C2: our wiring of the finishing passes reproduces 321aff83 byte for byte](entries/2026-11-20-invsqrt-port-finish.md) (positive)
 - 2026-11-19: [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) (positive)
 - 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
@@ -221,6 +222,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## reference-build
 
+- 2026-11-21: [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) (positive)
 - 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
 
 ## reproduction
