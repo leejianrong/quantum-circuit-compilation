@@ -94,7 +94,7 @@ Git holds code, docs, ledgers (`ledger/*.jsonl`, append-only) and the vendored A
 |---|---|---|
 | `data/` (1 GB) | competition data: verifiers, kickmix, sample submissions, FCIDUMP, baseline circuits | `make fetch-data` (Kaggle CLI, competition `google-verifiable-quantum-circuit-compilation`). Never redistribute (rules B.4.b). |
 | `public/` (1.9 GB) | other participants' public circuits and `MANIFEST.tsv` (sha256) | `bash scripts/fetch_public.sh`; each file has a row in `docs/PROVENANCE.md`. Third-party, licences as stated there, never committed. |
-| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt 70fe5f79` (from 2026-11-21), `dqi 00ac37d4`, `dfthcsos 4c6e5963` (all from koushikrudra's package, promoted 2026-11-17) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
+| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt 70fe5f79` (from 2026-11-21), `dqi a31716fa` (syed3000 v17, from 2026-11-21), `dfthcsos 4c6e5963` (koushikrudra's package, promoted 2026-11-17) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
 | `out/` | plots, `submission.zip`, scratch builds | `uv run bench plots`, `bench pack`; regenerable, safe to delete. |
 | `.venv/`, caches | environment | `make install`. |
 | `~/qcc-circuits/` (about 1 GB) | our built circuits and syed3000 references | see below. |
@@ -145,7 +145,7 @@ Kaggle is free.
 
 Research spikes S1 (cost model), S3 (invsqrt co-design), S5 and S6 (DQI) are open on the board (epic QCC-E4) and not started; S2 is done, S4 is in progress.
 
-1. DQI: our `fixed4` (67.30, 889 qubits) is 4% behind the public 70.04 now in `best/` (890 qubits, 368,120 mean Toffolis; study it with `dqi_gen.study`). The adaptive-gauge scan (`adaptive_gauge64`, vendored) for the
+1. DQI: our `fixed4` (67.30, 889 qubits) is 7% behind the public v17 circuit now in `best/` (`a31716fa`, about 72.2x, 890 qubits; its generator `dqi_generator.zip` is in `public/syed3000__vqcc-own-circuit-portfolio-20261121`, unread). The adaptive-gauge scan (`adaptive_gauge64`, vendored) for the
    remaining 759 T (`docs/log/entries/2026-11-16-dqi-backhalf-outer.md`).
 2. dfthcsos: S4 stage 2 (penalised fit, GPU via pueue), then then 8/10-bit words, then the matroid pair planner (`src/dfthcsos_gen/matroid.py`; the cut
    search is open; about 8% of `T_total` at best).
