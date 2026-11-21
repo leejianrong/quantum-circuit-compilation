@@ -176,6 +176,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## promotion
 
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
+- 2026-11-21: [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) (positive)
 - 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
 - 2026-11-16: [Promoted fixed3s (DQI 66.75x) into best/; the owner now leaves promotion to the agent](entries/2026-11-16-promote-fixed3s.md) (n/a)
 - 2026-11-16: [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) (n/a)
@@ -185,6 +186,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-21: [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) (positive)
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
+- 2026-11-21: [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) (positive)
 
 ## public-reference
 

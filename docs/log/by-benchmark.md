@@ -25,6 +25,7 @@ Entries grouped by the benchmark they concern.
 
 ## dqi
 
+- 2026-11-21: [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) (positive)
 - 2026-11-19: [S6: the in-place Euclid history is moot; the frontier already scans at 11 Toffolis per position, the reciprocal scan needs 23](entries/2026-11-19-spike-s6-euclid-history.md) (negative)
 - 2026-11-19: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md) (negative)
 - 2026-11-17: [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) (positive)
