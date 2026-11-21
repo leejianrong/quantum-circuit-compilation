@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 
-from bench import engine, experiments, ledger, outside, pack, plots, promote, remote, stats, sweep
+from bench import engine, experiments, ledger, outside, pack, plots, promote, publicdiff, remote, stats, sweep
 
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 Runner = Callable[[str], float]  # salt -> official cost; raises on any verifier failure
@@ -177,6 +177,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     remote.add_parser(sub)
     experiments.add_parser(sub)
     outside.add_parsers(sub)
+    publicdiff.add_parser(sub)
     plots.add_parser(sub)
     sweep.add_parser(sub)
     a = p.parse_args(argv)
@@ -190,6 +191,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return promote.run(a.bench, a.candidate, a.ledger, a.best, a.min_salts, a.dry_run)
     if a.cmd in ("backfill", "lb"):
         return outside.run(a)
+    if a.cmd == "public-diff":
+        return publicdiff.run(a)
     if a.cmd == "exp":
         return experiments.run(a)
     if a.cmd == "sweep":
