@@ -10,6 +10,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 |---|---|---|---|---|---|
 | 2026-11-21 | run | infra | positive | [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) |  |
 | 2026-11-21 | run | invsqrt | positive | [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) |  |
+| 2026-11-21 | run | invsqrt | positive | [invsqrt port v17 Stage C0: the 220 executed modules of the 43-qubit builder are vendored byte for byte](entries/2026-11-21-invsqrt-v17-vendored.md) |  |
 | 2026-11-21 | run | invsqrt | positive | [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) |  |
 | 2026-11-21 | reading | invsqrt | positive | [v17 invsqrt generator read: a 30-stage compiler plus lineage passes, and only 0.3% accuracy slack left](entries/2026-11-21-invsqrt-v17-generator-reading.md) |  |
 | 2026-11-21 | run | dqi | positive | [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) |  |
