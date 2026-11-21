@@ -167,6 +167,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## port
 
+- 2026-11-22: [invsqrt port v17 Stage C1: our driver reproduces 70fe5f79 byte for byte, with a ledger row per stage](entries/2026-11-22-invsqrt-v17-driver.md) (positive)
 - 2026-11-21: [invsqrt port v17 Stage C0: the 220 executed modules of the 43-qubit builder are vendored byte for byte](entries/2026-11-21-invsqrt-v17-vendored.md) (positive)
 - 2026-11-21: [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) (positive)
 - 2026-11-20: [invsqrt port Stage C2: our wiring of the finishing passes reproduces 321aff83 byte for byte](entries/2026-11-20-invsqrt-port-finish.md) (positive)
@@ -278,6 +279,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## stage-ledger
 
+- 2026-11-22: [invsqrt port v17 Stage C1: our driver reproduces 70fe5f79 byte for byte, with a ledger row per stage](entries/2026-11-22-invsqrt-v17-driver.md) (positive)
 - 2026-11-20: [invsqrt port Stage C2: our wiring of the finishing passes reproduces 321aff83 byte for byte](entries/2026-11-20-invsqrt-port-finish.md) (positive)
 - 2026-11-19: [invsqrt port Stage C1: our wiring builds the 46-qubit line to within 0.5% of the reference and gives a per-patch ledger](entries/2026-11-19-invsqrt-port-wiring.md) (positive)
 - 2026-11-16: [DQI: nested-norm arithmetic in the synthesis is -102 T, all on the return side; ratio 66.75 verified](entries/2026-11-16-dqi-synthesis-nested-norm.md) (positive)

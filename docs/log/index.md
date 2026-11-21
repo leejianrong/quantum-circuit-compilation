@@ -8,6 +8,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-22 | run | invsqrt | positive | [invsqrt port v17 Stage C1: our driver reproduces 70fe5f79 byte for byte, with a ledger row per stage](entries/2026-11-22-invsqrt-v17-driver.md) |  |
 | 2026-11-21 | run | infra | positive | [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) |  |
 | 2026-11-21 | run | invsqrt | positive | [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) |  |
 | 2026-11-21 | run | invsqrt | positive | [invsqrt port v17 Stage C0: the 220 executed modules of the 43-qubit builder are vendored byte for byte](entries/2026-11-21-invsqrt-v17-vendored.md) |  |
