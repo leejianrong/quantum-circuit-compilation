@@ -7,6 +7,7 @@
 #
 #   bash scripts/fetch_public.sh            fetch every source below
 #   bash scripts/fetch_public.sh <slug>...  fetch only those (slug = owner__name)
+#   FETCH_SUFFIX=-20261121 bash scripts/fetch_public.sh   refetch into new directories <slug>-20261121 (old ones stay)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 MAX_BYTES=$((1024 * 1024 * 1024)) # skip any single file over 1 GB
@@ -44,7 +45,7 @@ for src in "${SOURCES[@]}"; do
   if [ "$#" -gt 0 ]; then
     case " $* " in *" $slug "*) ;; *) continue ;; esac
   fi
-  dir="public/$slug"
+  dir="public/$slug${FETCH_SUFFIX:-}"
   if [ -e "$dir" ]; then echo "skip $slug (exists)"; continue; fi
   mkdir -p "$dir/files"
   echo "fetch $kind $ref"

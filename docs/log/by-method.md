@@ -71,6 +71,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-17: [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) (positive)
 
+## fetch
+
+- 2026-11-21: [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) (positive)
+
 ## figures
 
 - 2026-11-16: [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) (positive)
@@ -175,6 +179,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-16: [Promoted fixed3s (DQI 66.75x) into best/; the owner now leaves promotion to the agent](entries/2026-11-16-promote-fixed3s.md) (n/a)
 - 2026-11-16: [Promoted our own fixed3 DQI circuit (66.50x) into best/ on the owner's instruction](entries/2026-11-16-promote-fixed3.md) (n/a)
 - 2026-11-14: [New machine restored; own DQI fixed.kmb promoted into best/ (65.8x); public invsqrt and dfthcsos re-verified](entries/2026-11-14-environment-restore-and-promotion.md) (positive)
+
+## public-diff
+
+- 2026-11-21: [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) (positive)
 
 ## public-reference
 
