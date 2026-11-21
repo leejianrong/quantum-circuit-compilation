@@ -15,7 +15,8 @@ either is worth the same.
 | Our best (E023) | 12.34 | 93 | [uncompute](../log/entries/2026-11-13-invsqrt-uncompute.md) |
 | Public 62-qubit circuit | 21.95 | 62 | [environment restore](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
 | Public 46-qubit circuit | 25.91 | 46 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
-| Public 44-qubit circuit (koushik v54, in `best/`) | 27.77 | 44 | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
+| Public 43-qubit circuit (syed3000 v17, in `best/`) | 28.67 | 43 | [v17 promoted](../log/entries/2026-11-21-invsqrt-v17-verified-promoted.md) |
+| Public 44-qubit circuit (koushik v54, earlier `best/`) | 27.77 | 44 | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 
 **What we know.** The reference spends 88% of its cost in schoolbook multiplications
 ([cost drivers](../log/entries/2026-11-12-invsqrt-cost-drivers.md)). Our generator reached 93 qubits through lean qubits,

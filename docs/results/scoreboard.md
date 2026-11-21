@@ -8,6 +8,7 @@ Best verified runs per benchmark: official verifier, full shots, status PASS, on
 
 | Ratio | Cost | Qubits | Toffolis (static) | Salts | Circuit | Date |
 |---:|---:|---:|---:|---:|---|---|
+| 28.67 | 72,440 | 43 | 1,622 | 10 | `70fe5f79` | 2026-11-21 |
 | 27.77 | 74,797 | 44 | 1,560 | 10 | `0af21cb8` | 2026-11-16 |
 | 27.63 | 75,171 | 44 | 1,533 | 10 | `47b31838` | 2026-11-16 |
 | 25.91 | 80,163 | 46 | 1,599 | 5 | `321aff83` | 2026-11-14 |
@@ -15,7 +16,6 @@ Best verified runs per benchmark: official verifier, full shots, status PASS, on
 | 21.78 | 95,346 |  |  | 3 | `034c7c2a` |  |
 | 12.34 | 168,238 | 93 | 1,498 | 1 | `cc5472d2` | 2026-11-13 |
 | 12.21 | 170,103 | 94 | 1,500 | 1 | `25c0b722` | 2026-11-12 |
-| 10.65 | 195,063 | 101 | 1,620 | 5 | `fc834b80` | 2026-11-12 |
 
 ## dqi
 
