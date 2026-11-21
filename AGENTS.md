@@ -8,7 +8,7 @@ absent until merged). Learning site sources are `docs/learn/`.
 
 Read first: `docs/HANDOFF.md` (state, untracked files and their origin, new-machine setup, standing instructions), `docs/COMPETITION.md` (scoring, benchmarks, prizes), `docs/COMPETITION_RULES.md`, `docs/PLAN.md`,
 `docs/MEASUREMENT.md` (ledger, plots, dashboard), `docs/PROVENANCE.md` (every public circuit we use), `docs/adr/`.
-Board: Pandan `QCC`, id 46 (use the `pandan` skill; `pandan board use 46`). Trust the code over the docs.
+Board: Pandan `QCC`, id 46 (use the `pandan` skill). The pin expires after 12 h idle: run `pandan board current` first, `pandan board use 46` if it is not 46. Address cards only as `QCC-<n>`, never bare ids (a bare id is global and once hit a card on another board). Trust the code over the docs.
 
 ## How
 - `make install` / `make check` (ruff + mypy + fast tests; also the pre-push hook and CI) / `make hooks` (once)
