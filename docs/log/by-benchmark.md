@@ -7,6 +7,7 @@ Entries grouped by the benchmark they concern.
 ## invsqrt
 
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
+- 2026-11-21: [invsqrt port v17 Stage C0: the 220 executed modules of the 43-qubit builder are vendored byte for byte](entries/2026-11-21-invsqrt-v17-vendored.md) (positive)
 - 2026-11-21: [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) (positive)
 - 2026-11-21: [v17 invsqrt generator read: a 30-stage compiler plus lineage passes, and only 0.3% accuracy slack left](entries/2026-11-21-invsqrt-v17-generator-reading.md) (positive)
 - 2026-11-20: [S3 plan: table and loader co-design has a 1% target, but only on the 46-qubit port, below best/](entries/2026-11-20-spike-s3-plan.md) (n/a)
