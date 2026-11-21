@@ -134,3 +134,5 @@ same sandbox as the reference build (`scripts/invsqrt_port_stages.sh`, about 9 s
 ## v17 line (2026-11-21)
 
 The 43-qubit circuit `70fe5f79` (28.67x, in `best/`) has a generator we hold. Its sandboxed build reproduces it byte for byte (178 executed stage modules, 43 builder files; [log](../log/entries/2026-11-21-invsqrt-v17-reference-build.md)). Next: vendor the closure, wire our own driver stage by stage, ledger per stage, byte identity. The v12 work above remains the template for the wiring.
+
+Stage C0 (vendoring the 220 executed modules) and C1 (our driver `src/invsqrt_gen/port/v17.py`, `scripts/invsqrt_v17_port.sh`, byte-identical to `70fe5f79` with a ledger row per stage) are done ([driver log](../log/entries/2026-11-22-invsqrt-v17-driver.md)). Next: exchange rates per stage and the finishing passes on our own circuits.
