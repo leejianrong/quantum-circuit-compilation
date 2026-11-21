@@ -46,3 +46,11 @@ after; the exact proof status. All on the sandboxed port; the table and oracle c
 
 A table extractor and error oracle (own code, read-only on the archive, runs in the sandbox because the oracle needs `kickmix.so`),
 an ILP (HiGHS, already used in `docs/experiments/invsqrt-onepass.md`) and a small exact AND-program search (our own).
+
+## Update 2026-11-21: the frontier moved to 43 qubits with 0.3% slack
+
+syed3000's v17 circuit (`70fe5f79`, now in `best/`) reports a worst error over tolerance of 0.9969, so about 0.3% of the tolerance is
+unused against 2.7% on the 46-qubit line this plan was written for ([reading](../log/entries/2026-11-21-invsqrt-v17-generator-reading.md)).
+Stage 1 would almost certainly fail there (almost no single-bit table flip fits). S3 stays valid only on the 46-qubit port, which is
+below `best/`, so it is parked rather than started; QCC-61 moves to the owner's backlog unless the v17 generator is ported and
+the slack proves larger in its table stage.
