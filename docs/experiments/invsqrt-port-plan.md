@@ -130,3 +130,7 @@ same sandbox as the reference build (`scripts/invsqrt_port_stages.sh`, about 9 s
   (`scripts/invsqrt_port_finish.sh`, `docs/experiments/data/invsqrt_port_finish.json`; [log](../log/entries/2026-11-20-invsqrt-port-finish.md)). [M]
 * Stage D: S3 (exact optimisation of tables and loaders) on top of the working port.
 * Not covered: the 44-qubit circuits of v13 (no source; the dataset dropped the archives).
+
+## v17 line (2026-11-21)
+
+The 43-qubit circuit `70fe5f79` (28.67x, in `best/`) has a generator we hold. Its sandboxed build reproduces it byte for byte (178 executed stage modules, 43 builder files; [log](../log/entries/2026-11-21-invsqrt-v17-reference-build.md)). Next: vendor the closure, wire our own driver stage by stage, ledger per stage, byte identity. The v12 work above remains the template for the wiring.
