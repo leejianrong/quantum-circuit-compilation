@@ -69,6 +69,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## exchange-rates
 
+- 2026-11-22: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) (negative)
 - 2026-11-17: [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) (positive)
 
 ## fetch
@@ -325,3 +326,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## widgets
 
 - 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
+
+## width-profile
+
+- 2026-11-22: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) (negative)

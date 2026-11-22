@@ -6,6 +6,7 @@ Entries grouped by the benchmark they concern.
 
 ## invsqrt
 
+- 2026-11-22: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) (negative)
 - 2026-11-22: [invsqrt port v17 Stage C1: our driver reproduces 70fe5f79 byte for byte, with a ledger row per stage](entries/2026-11-22-invsqrt-v17-driver.md) (positive)
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
 - 2026-11-21: [invsqrt port v17 Stage C0: the 220 executed modules of the 43-qubit builder are vendored byte for byte](entries/2026-11-21-invsqrt-v17-vendored.md) (positive)
