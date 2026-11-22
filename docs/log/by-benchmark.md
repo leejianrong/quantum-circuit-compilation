@@ -30,6 +30,7 @@ Entries grouped by the benchmark they concern.
 
 ## dqi
 
+- 2026-11-22: [v17 dqi generator read: the circuit we hold is its stack100 profile, and its newest profile is only 0.085% better](entries/2026-11-22-dqi-v17-generator-reading.md) (negative)
 - 2026-11-21: [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) (positive)
 - 2026-11-19: [S6: the in-place Euclid history is moot; the frontier already scans at 11 Toffolis per position, the reciprocal scan needs 23](entries/2026-11-19-spike-s6-euclid-history.md) (negative)
 - 2026-11-19: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md) (negative)
