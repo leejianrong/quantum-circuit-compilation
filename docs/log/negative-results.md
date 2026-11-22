@@ -6,6 +6,7 @@ Ideas that were tried and did not work, with the reason. They are as useful as t
 
 - 2026-11-22, invsqrt: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md)
 - 2026-11-22, dqi: [v17 dqi generator read: the circuit we hold is its stack100 profile, and its newest profile is only 0.085% better](entries/2026-11-22-dqi-v17-generator-reading.md)
+- 2026-11-22, dfthcsos: [v17 dfthcsos generator read: the public 8-bit table is a code-constrained, weight-refit table, and the field is tied at parts per million](entries/2026-11-22-dfthcsos-v17-generator-reading.md)
 - 2026-11-19, dqi: [S6: the in-place Euclid history is moot; the frontier already scans at 11 Toffolis per position, the reciprocal scan needs 23](entries/2026-11-19-spike-s6-euclid-history.md)
 - 2026-11-19, dqi: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md)
 - 2026-11-17, infra: [S1: a static-count cost model is off by 4%; reduced-shot screening is exact to 1e-5 on invsqrt](entries/2026-11-17-spike-s1-cost-model.md)
