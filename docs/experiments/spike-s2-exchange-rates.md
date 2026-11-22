@@ -40,3 +40,14 @@ and qubits). Neither the `Lambda` penalty (S4) nor 8-bit rounding alone closes t
   structure (S3, tasks 3), DQI last (the whole remaining gap is under 0.5%).
 
 Reproduce: `PYTHONPATH=src python -c "from bench.rates import Point; ..."` (see `tests/unit/test_rates.py`).
+
+## Update 2026-11-22: the 43-qubit line (invsqrt `70fe5f79`)
+
+Rates at the new point (43 qubits, 72,440.35, 1,684.66 Toffoli-equivalents; cost = Q x E): one qubit is 2.33% of the cost, one Toffoli
+0.059%, so **one qubit = 39.2 Toffolis** [M, algebra]. Width profile of the final circuit
+([log](../log/entries/2026-11-22-invsqrt-v17-width-profile.md), `src/invsqrt_gen/port/width.py`, 256 sampled inputs, a lower bound on the
+width): the circuit sits at its peak of 43 for 8,893 of 32,911 steps (27%) in 287 separate segments, and at 42 or more for 47%. Those
+steps hold 694 of the 1,456 Toffolis. Dropping to 42 qubits therefore means removing one live wire in every one of those segments, which
+the 39-Toffoli budget cannot pay for (0.14 Toffoli per segment) unless a stage is redesigned. Four regions are not binding (peak width
+37, 38, 40 and 38 of 43, holding about 225 Toffolis): there, extra ancillas cost nothing in the score and could buy Toffolis (held
+products, as `hold_pass` does).
