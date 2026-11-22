@@ -4,6 +4,10 @@
 
 Entries grouped by the `methods` tags in their front matter.
 
+## brainstorm
+
+- 2026-11-22: [Broad pass over adjacent fields: our scores are AND-count and width minimisation, a problem cryptography and logic synthesis already know](entries/2026-11-22-adjacent-fields-ideas.md) (n/a)
+
 ## co-design
 
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
@@ -141,6 +145,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
 - 2026-11-17: [S4 stage 1: joint rotation lowers our dfthcsos lambda_eff 7.7% for free; the one-body part is not the gap, the weights are](entries/2026-11-17-spike-s4-lambda-gauge.md) (inconclusive)
+
+## literature
+
+- 2026-11-22: [Broad pass over adjacent fields: our scores are AND-count and width minimisation, a problem cryptography and logic synthesis already know](entries/2026-11-22-adjacent-fields-ideas.md) (n/a)
 
 ## loader
 
