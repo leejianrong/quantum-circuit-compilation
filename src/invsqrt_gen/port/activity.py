@@ -4,12 +4,13 @@ Runs the kmx text on every input of the domain (in chunks) with random HMR outco
 CCX/CCZ/CSWAP, the (input, outcome) samples on which the gate's enclosing conditions hold. A gate with
 zero count over the whole domain sits on a branch that never runs; the exact proof is still the gate.
 
-    activity.py FILE.kmx [--chunk N] [--limit N]
+    activity.py FILE.kmx [--chunk N] [--limit N] [--out counts.json]
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from pathlib import Path
 
@@ -82,6 +83,7 @@ def main() -> None:
     ap.add_argument("kmx")
     ap.add_argument("--chunk", type=int, default=262144)
     ap.add_argument("--limit", type=int, default=MAX_X)
+    ap.add_argument("--out", default=None, help="write {gate line index: firing count} as JSON")
     a = ap.parse_args()
     text = Path(a.kmx).read_text()
     total: dict[int, int] = {}
@@ -90,6 +92,8 @@ def main() -> None:
         for k, v in activity(text, xs, seed=lo).items():
             total[k] = total.get(k, 0) + v
         print(f"x up to {xs[-1]}: never-firing so far {sum(1 for v in total.values() if v == 0)}", flush=True)
+    if a.out:
+        Path(a.out).write_text(json.dumps({"inputs": a.limit, "counts": total}))
     dead = sorted(k for k, v in total.items() if v == 0)
     print(f"gates {len(total)}, never fire on the domain: {len(dead)}: {dead}")
 

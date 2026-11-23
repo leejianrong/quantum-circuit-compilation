@@ -81,6 +81,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-22: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) (negative)
 - 2026-11-17: [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) (positive)
 
+## expected-cost
+
+- 2026-11-24: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md) (negative)
+
 ## fetch
 
 - 2026-11-21: [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) (positive)
@@ -89,6 +93,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-16: [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) (positive)
 - 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
+
+## firing-fraction
+
+- 2026-11-24: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md) (negative)
 
 ## fit
 
@@ -277,6 +285,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## search-harness
 
+- 2026-11-24: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md) (negative)
 - 2026-11-23: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) (negative)
 
 ## small-instances

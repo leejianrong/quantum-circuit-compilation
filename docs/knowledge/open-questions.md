@@ -10,7 +10,7 @@ When one is answered, write a log entry and move it to the [claims register](cla
   sandboxed container ([stage ledgers](../log/entries/2026-11-15-dqi-stage-ledgers.md)); confirm the policy for the
   invsqrt and dfthcsos builders.
 * Is a GPU run of the dfthcsos fit with a `Lambda` penalty from the start worth the quota?
-* (v17 invsqrt container build: approved and done 2026-11-21, see the [log](../log/entries/2026-11-21-invsqrt-v17-reference-build.md). The v17 `dqi_generator` is read ([log](../log/entries/2026-11-22-dqi-v17-generator-reading.md)); building its `paired-plain` profile (0.085% better, 13 minutes, 5.5 GB) needs the owner's approval; the `dfthcsos_generator` is read ([log](../log/entries/2026-11-22-dfthcsos-v17-generator-reading.md)): the public 8-bit table needs parity codes and a weight refit, and the field is tied at ppm; whether to park QCC-16 and QCC-69 is for the owner.)
+* (v17 invsqrt container build: approved and done 2026-11-21, see the [log](../log/entries/2026-11-21-invsqrt-v17-reference-build.md). The v17 `dqi_generator` is read ([log](../log/entries/2026-11-22-dqi-v17-generator-reading.md)); its `paired-plain` profile was built and verified 2026-11-23 ([log](../log/entries/2026-11-23-dqi-paired-plain-verified-promoted.md)); the `dfthcsos_generator` is read ([log](../log/entries/2026-11-22-dfthcsos-v17-generator-reading.md)): the public 8-bit table needs parity codes and a weight refit, and the field is tied at ppm; QCC-16 and QCC-69 are parked on the owner's decision.)
 * Which licensed portfolio is submitted? Nothing is promoted or submitted without the owner
   ([PROVENANCE](../PROVENANCE.md), licence column).
 

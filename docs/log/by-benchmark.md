@@ -8,6 +8,7 @@ Entries grouped by the benchmark they concern.
 
 - 2026-11-24: [Correction: the public v17 generator does ship search code (window search and evolve_cuts); our vendored copy leaves it out](entries/2026-11-24-search-code-in-v17-correction.md) (correction)
 - 2026-11-24: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) (negative)
+- 2026-11-24: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md) (negative)
 - 2026-11-23: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) (negative)
 - 2026-11-22: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) (negative)
 - 2026-11-22: [invsqrt port v17 Stage C1: our driver reproduces 70fe5f79 byte for byte, with a ledger row per stage](entries/2026-11-22-invsqrt-v17-driver.md) (positive)
