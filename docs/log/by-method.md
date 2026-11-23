@@ -183,6 +183,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-24: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) (negative)
 
+## pebbling
+
+- 2026-11-24: [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md) (negative)
+
 ## penalised-fit
 
 - 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
@@ -258,6 +262,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-21: [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) (positive)
 - 2026-11-19: [invsqrt builder reproduced byte for byte in a sandbox; it executes 78 of its 255 Python files](entries/2026-11-19-invsqrt-reference-build.md) (positive)
+
+## rematerialisation
+
+- 2026-11-24: [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md) (negative)
 
 ## reproduction
 
@@ -380,4 +388,5 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## width-profile
 
+- 2026-11-24: [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md) (negative)
 - 2026-11-22: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) (negative)
