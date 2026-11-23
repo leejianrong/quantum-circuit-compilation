@@ -15,7 +15,8 @@ either is worth the same.
 | Our best (E023) | 12.34 | 93 | [uncompute](../log/entries/2026-11-13-invsqrt-uncompute.md) |
 | Public 62-qubit circuit | 21.95 | 62 | [environment restore](../log/entries/2026-11-14-environment-restore-and-promotion.md) |
 | Public 46-qubit circuit | 25.91 | 46 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
-| Public 43-qubit circuit (syed3000 v17, in `best/`) | 28.67 | 43 | [v17 promoted](../log/entries/2026-11-21-invsqrt-v17-verified-promoted.md) |
+| Public 37-qubit circuit (ozertuu 25-218 notebook, `bb676b95`, in `best/`) | 34.09 | 37 | [portfolio promoted](../log/entries/2026-11-24-public-portfolio-verified-promoted.md) |
+| Public 43-qubit circuit (syed3000 v17, earlier `best/`) | 28.67 | 43 | [v17 promoted](../log/entries/2026-11-21-invsqrt-v17-verified-promoted.md) |
 | Public 44-qubit circuit (koushik v54, earlier `best/`) | 27.77 | 44 | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 
 **What we know.** The reference spends 88% of its cost in schoolbook multiplications
@@ -44,7 +45,8 @@ idea ([HANDOFF](../HANDOFF.md)).
 | Our `fixed4` (back half of the newer lineage, promoted) | 67.30 | 889 | 384,762 | [back half](../log/entries/2026-11-16-dqi-backhalf-outer.md) |
 | Our `fixed3s` (nested-norm synthesis, promoted earlier) | 66.75 | 890 | 386,076 | [synthesis nested norm](../log/entries/2026-11-16-dqi-synthesis-nested-norm.md) |
 | Our `fixed3` (newer extractor, promoted) | 66.50 | 890 | 386,178 | [extractor v3](../log/entries/2026-11-16-dqi-extractor-v3.md) |
-| Best circuit in `best/` (syed3000 v17 `paired-plain` `fc2564c6`, built by us; `stack100` `a31716fa` was 72.2) | 72.26 | 890 | 356,677 mean; worst of 10 salts 338,105,618,600 | [paired-plain promoted](../log/entries/2026-11-23-dqi-paired-plain-verified-promoted.md) |
+| Best circuit in `best/` (ozertuu 25-218 notebook `141f02ac`, tonylica's 900-qubit decoder; worst of 10 salts 307,633,973,843) | 79.44 | 900 | not counted here | [portfolio promoted](../log/entries/2026-11-24-public-portfolio-verified-promoted.md) |
+| Previous `best/` (syed3000 v17 `paired-plain` `fc2564c6`, built by us; `stack100` `a31716fa` was 72.2) | 72.26 | 890 | 356,677 mean; worst of 10 salts 338,105,618,600 | [paired-plain promoted](../log/entries/2026-11-23-dqi-paired-plain-verified-promoted.md) |
 | Earlier best public circuit (v54 `00ac37d4`) | 70.04 | 890 | about 368,120 mean | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 | Earlier public circuit (syed3000 v12) | 67.44 | 889 | 384,003 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
 | Our dialog-free BM decoder | 7.86 | 1,855 | 740,602 | [BM](../log/entries/2026-11-13-dqi-bm.md) |

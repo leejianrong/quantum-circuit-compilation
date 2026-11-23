@@ -751,6 +751,13 @@
    "licence": "unstated",
    "text": "unstated or apache-2.0 as in their notices",
    "url": "as listed"
+  },
+  {
+   "author": "ozertuu",
+   "id": "S19",
+   "licence": "see source",
+   "text": "Apache-2.0 notice in the notebook (Provenance section), unstated in metadata",
+   "url": "kaggle.com/code/ozertuu/25-218-starter-notebook"
   }
  ]
 }

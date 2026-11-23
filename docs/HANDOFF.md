@@ -11,9 +11,9 @@ beside the public ones they have to beat.
 
 | Benchmark | Our own best (verified) | Public best we have measured | What is in `best/` |
 |---|---|---|---|
-| invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 28.67 (syed3000 v17, 72,440.4, 43 qubits; koushikrudra v54 27.77) | `70fe5f79`, 28.67 (promoted 2026-11-21; was `0af21cb8`, 27.77) |
+| invsqrt | 12.34 (E023, 10 salts; own sqrt-division V2 7.37) | 34.09 (ozertuu 25-218 notebook, 60,927.6, 37 qubits; syed3000 v17 28.67) | `bb676b95`, 34.09 (promoted 2026-11-24; was `70fe5f79`, 28.67) |
 | dqi | 67.30 (`--gen fixed4`, 889 qubits, 384,762 T, 10 salts, 0 failures, Kaggle kernel `qcc-dqi-gen`; `fixed` 65.77, `fixed3` 66.50, `fixed3s` 66.75) | 70.04 (koushikrudra v54 `00ac37d4`, 890 qubits, 10 salts 0 failures; syed3000 v13 69.93, balram 69.81) | `00ac37d4`, 70.04 (promoted 2026-11-17; replaced our `599cb515` fixed4 67.30) |
-| dfthcsos | 3.28 (`09324acd`, penalised-fit 11-bit ANF loader, 3 salts, 0 failures; E040 was 2.50) | 11.38 (koushikrudra v54 npz `703843d3`, 294.76M, 10 salts 0 failures; syed3000 v13 11.36) | `4c6e5963` (dir), 11.38 (promoted 2026-11-17) |
+| dfthcsos | 3.28 (`09324acd`, penalised-fit 11-bit ANF loader, 3 salts, 0 failures; E040 was 2.50) | 13.36 (ozertuu 25-218 notebook package `24516e97`, 251.09M, 10 salts 0 failures; koushikrudra v54 11.38) | `24516e97` (dir), 13.36 (promoted 2026-11-24; was `4c6e5963`, 11.38) |
 
 Own DQI (`fixed4`, 67.30) is 4% behind the public 70.04 that `best/` now holds. `fixed` was promoted on 2026-11-14 and `fixed3`, `fixed3s` and then `fixed4` replaced it on 2026-11-16 (10 salts, 0 failures,
 `ledger/promotions.jsonl`), so `best/dqi` holds our own `599cb515`, not the public `e9f54be3`. invsqrt and dfthcsos are
@@ -94,7 +94,7 @@ Git holds code, docs, ledgers (`ledger/*.jsonl`, append-only) and the vendored A
 |---|---|---|
 | `data/` (1 GB) | competition data: verifiers, kickmix, sample submissions, FCIDUMP, baseline circuits | `make fetch-data` (Kaggle CLI, competition `google-verifiable-quantum-circuit-compilation`). Never redistribute (rules B.4.b). |
 | `public/` (1.9 GB) | other participants' public circuits and `MANIFEST.tsv` (sha256) | `bash scripts/fetch_public.sh`; each file has a row in `docs/PROVENANCE.md`. Third-party, licences as stated there, never committed. |
-| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt 70fe5f79` (from 2026-11-21), `dqi fc2564c6` (syed3000 v17 `paired-plain`, built by us, from 2026-11-23; `a31716fa` before), `dfthcsos 4c6e5963` (koushikrudra's package, promoted 2026-11-17) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
+| `best/` (0.5 GB) | the circuits `bench pack` submits: `invsqrt bb676b95` (37 qubits), `dqi 141f02ac` and the dfthcsos package `24516e97`, all from the ozertuu 25-218 notebook output, promoted 2026-11-24 (before: `70fe5f79`, `fc2564c6`, `4c6e5963`) | populated by `bench promote` from the fetched public circuits (`public/`), with the hashes in `docs/PROVENANCE.md`. Re-promote on the new machine from `public/` after re-verifying at several salts; third-party, licences unresolved, never committed. |
 | `out/` | plots, `submission.zip`, scratch builds | `uv run bench plots`, `bench pack`; regenerable, safe to delete. |
 | `.venv/`, caches | environment | `make install`. |
 | `~/qcc-circuits/` (about 1 GB) | our built circuits and syed3000 references | see below. |
