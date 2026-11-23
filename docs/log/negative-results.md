@@ -4,6 +4,7 @@
 
 Ideas that were tried and did not work, with the reason. They are as useful as the wins: they tell the next person where not to dig.
 
+- 2026-11-23, invsqrt: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md)
 - 2026-11-22, invsqrt: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md)
 - 2026-11-22, dqi: [v17 dqi generator read: the circuit we hold is its stack100 profile, and its newest profile is only 0.085% better](entries/2026-11-22-dqi-v17-generator-reading.md)
 - 2026-11-22, dfthcsos: [v17 dfthcsos generator read: the public 8-bit table is a code-constrained, weight-refit table, and the field is tied at parts per million](entries/2026-11-22-dfthcsos-v17-generator-reading.md)

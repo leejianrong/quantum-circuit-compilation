@@ -40,6 +40,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
 - 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
 
+## dead-gate
+
+- 2026-11-23: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) (negative)
+
 ## decoder
 
 - 2026-11-13: [The 889-qubit DQI architecture re-derived: a Thiele-type in-place extraction over GF(2^24), and our own decoder reaches ratio 36.4 then about 66 on a narrow build](entries/2026-11-13-dqi-syed.md) (positive)
@@ -233,6 +237,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-16: [DQI: the 890th qubit is reached in the outer stages, not the extractor; v3 already brings the extractor to 889](entries/2026-11-16-dqi-qubit-peak.md) (positive)
 
+## reachability
+
+- 2026-11-23: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) (negative)
+
 ## reference-build
 
 - 2026-11-21: [Sandboxed build of syed3000's v17 invsqrt generator reproduces 70fe5f79 byte for byte; 178 stage modules executed](entries/2026-11-21-invsqrt-v17-reference-build.md) (positive)
@@ -257,6 +265,10 @@ Entries grouped by the `methods` tags in their front matter.
 ## screening
 
 - 2026-11-17: [S1: a static-count cost model is off by 4%; reduced-shot screening is exact to 1e-5 on invsqrt](entries/2026-11-17-spike-s1-cost-model.md) (negative)
+
+## search-harness
+
+- 2026-11-23: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) (negative)
 
 ## small-instances
 
