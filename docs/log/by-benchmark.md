@@ -85,6 +85,7 @@ Entries grouped by the benchmark they concern.
 
 ## docs
 
+- 2026-11-23: [Adjacent-fields note checked against the v17 sources and the literature: one claim corrected, search harness now ranked first](entries/2026-11-23-adjacent-fields-verified.md) (positive)
 - 2026-11-17: [Docs refresh after the promotion and S2/S4: README status, AGENTS resources and worktree gotcha, HANDOFF backlog](entries/2026-11-17-docs-refresh.md) (n/a)
 - 2026-11-16: [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) (positive)
 - 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)

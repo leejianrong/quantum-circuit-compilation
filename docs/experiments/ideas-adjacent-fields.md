@@ -24,8 +24,7 @@ Garbled-circuit and MPC protocols make XOR free and charge per AND, the same cos
 * Tower-field and normal-basis arithmetic (Canright-style inversion; Itoh-Tsujii inversion with addition chains; squarings free in a
   normal basis) **[partly used]**: the DQI inverse and the Forney/BM stage. Check what the D70 field chart already does before
   spending time.
-* Bilinear complexity and Karatsuba-type formulas for GF(2^k) multiplication, tensor-rank searches over GF(2) **[used]**: D70's rank-23
-  tensor for the 2x2 GF(8) outer product is this. Flip-graph and RL-guided tensor decomposition searches (AlphaTensor, flip graphs)
+* Bilinear complexity and Karatsuba-type formulas for GF(2^k) multiplication, tensor-rank searches over GF(2) **[Karatsuba used, tensor search not found]**: the v17 DQI generator uses GF(64)-Karatsuba masked multiplies (`design66`, `design68`). The "rank-23 tensor for the 2x2 GF(8) outer product" I wrote from memory is **not supported**: no source states it. Flip-graph and RL-guided tensor decomposition searches (AlphaTensor, flip graphs)
   **[tool]** can look for lower ranks for the specific multipliers (GF(8), GF(64), GF(4096) pieces).
 
 ## 2. Logic synthesis and electronic design automation
@@ -98,9 +97,35 @@ Garbled-circuit and MPC protocols make XOR free and charge per AND, the same cos
 | 1 | Exact or heuristic AND-minimisation of recurring small blocks (loaders, coefficient rows, table lookups) with don't-cares measured from the full domain | invsqrt, dfthcsos | one loader truth table into an exact/heuristic multiplicative-complexity tool; compare with 56/70 | the owner hand-searched these ("SAT-minimal AND programs"); gain probably a few ANDs |
 | 2 | Pebbling/rematerialisation optimiser over the width profile | invsqrt qubits | ILP/SAT on the four slack regions and on the 287 peak segments | one qubit is 39 Toffolis, so even a partial cut matters; hard, structural |
 | 3 | AlphaEvolve-style harness over the owned generators with the exact oracle | all | evolve one stage script of the v17 invsqrt driver (cost in seconds, proof in 12 s) | unknown; the harness is reusable and the public team does a manual version |
-| 4 | Tensor-rank and flip-graph search for the GF multipliers | DQI | decompose the GF(8) 2x2 outer product and check rank 23 can be beaten | D70 already beat the textbook bounds; a rank-22 would be news |
+| 4 | Tensor-rank and flip-graph search for the GF multipliers | DQI | decompose the GF(64) multiplier (Karatsuba is what the source uses) and look for a lower AND count | unknown; GF(2^k) multiplier ranks are tabulated, so a gain needs a rank below the table |
 | 5 | Incoherence (gauge) pre-rotation before rounding | dfthcsos (parked), any rounding | measure the Hessian diagonal spread before and after a gauge rotation | explains whether 8-bit words are ever reachable without codes |
 | 6 | Certified function-evaluation error budgets (ILP) | invsqrt | re-allocate the error budget across table, rows and rotations | bounded by 0.3% slack |
+
+## Verification pass (2026-11-23)
+
+Method: grep of the vendored v17 invsqrt tree, our sandbox copy of the v17 DQI generator and our dfthcsos decode notes; web search for the references (abstracts and snippets only, no paper read in full). **[V]** read from a source, **[I]** inferred.
+
+References that exist: Boyar and Peralta's AES S-box circuit work (SEA 2010, J. Cryptology 2013) and Soeken's SAT-based multiplicative-complexity paper ([arXiv 2005.01778](https://arxiv.org/pdf/2005.01778)); Kauers and Moosbauer's flip graphs ([arXiv 2212.01175](https://arxiv.org/pdf/2212.01175)); Meuli, Soeken et al., XAGs, multiplicative complexity and SAT-based reversible pebbling for quantum oracles ([arXiv 1908.01609](https://arxiv.org/pdf/1908.01609)); QuIP and QuIP# incoherence processing ([arXiv 2307.13304](https://arxiv.org/abs/2307.13304), [arXiv 2402.04396](https://arxiv.org/pdf/2402.04396)); FunSearch, AlphaEvolve and the open-source OpenEvolve line ([survey, arXiv 2510.14150](https://arxiv.org/pdf/2510.14150v3)). Soeken's method only scales to small functions or low multiplicative complexity, which fits our 5 to 8 input blocks and not whole stages. The mockturtle XAG-to-quantum strategies are reported in the EPFL papers; whether the current release exposes them was not checked. The AES S-box AND count was not confirmed.
+
+What the sources already contain:
+
+| Claim in this note | Finding |
+|---|---|
+| Exact AND-minimisation | **Used in part** [V]: the invsqrt lineage rebuilds history signs with "SAT-minimal AND programs"; the solver is not in the archive and no SAT library is imported anywhere in the vendored tree. The DQI generator has none. General use over all recurring blocks is untried. |
+| Search harness (stochastic, evolutionary) | **New** [V]: no annealing, tempering, evolutionary or random-restart code in the v17 invsqrt tree or the DQI generator. dfthcsos ships refit and word-move polish scripts as research code, "not rerunnable" from the package. |
+| Tensor rank / GF multipliers | **Karatsuba used, tensor search not found** [V]: GF(64)-Karatsuba in DQI. The "rank-23" claim was wrong or unsupported and is corrected above. |
+| Tower-field inversion | **Used** [V]: a `tower_inverse` module is imported across the DQI generator. |
+| Pebbling / rematerialisation optimiser | **New as an optimiser** [V]: the lineage does it by hand (retire, hold, recompute patches); no scheduler. |
+| Gauge pre-rotation before rounding | **Not found** in the dfthcsos package [V]; our own S4 gauge is untested for this use. |
+
+Revised first tests, with a cost estimate:
+
+1. Search harness (candidate 3), smallest version: a local-search loop over one existing hand patch's free choices, scored by modelled cost in seconds and gated by the 12 s proof. About 2 days; reusable. Now ranked first.
+2. Exact synthesis of one loader block (candidate 1) with don't-cares from the full domain, compared with the 56/70 ANDs. About 1 day if a solver is available offline; expected gain a few ANDs (0.06% per Toffoli at 43 qubits).
+3. Pebbling ILP on the four slack regions (candidate 2). About 3 days; ceiling about 0.65% from the width profile.
+4. Flip-graph search for the GF(64) multiplier (candidate 4). Lower expected value now that no rank figure is confirmed.
+5. Gauge/incoherence measurement (candidate 5), parked with QCC-16.
+6. Certified error budget (candidate 6), bounded by 0.3% slack.
 
 ## Caveats
 
