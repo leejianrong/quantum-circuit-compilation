@@ -80,6 +80,7 @@ Entries grouped by the benchmark they concern.
 
 ## infra
 
+- 2026-11-24: [New public portfolio verifies on all three benchmarks and is promoted: invsqrt 34.09x on 37 qubits, dqi 79.44x, dfthcsos 13.36x, geometric mean about 33.08](entries/2026-11-24-public-portfolio-verified-promoted.md) (positive)
 - 2026-11-22: [Broad pass over adjacent fields: our scores are AND-count and width minimisation, a problem cryptography and logic synthesis already know](entries/2026-11-22-adjacent-fields-ideas.md) (n/a)
 - 2026-11-21: [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) (positive)
 - 2026-11-17: [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) (positive)

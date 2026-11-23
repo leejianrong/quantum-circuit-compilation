@@ -9,6 +9,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
 | 2026-11-24 | correction | invsqrt | correction | [Correction: the public v17 generator does ship search code (window search and evolve_cuts); our vendored copy leaves it out](entries/2026-11-24-search-code-in-v17-correction.md) |  |
+| 2026-11-24 | run | infra | positive | [New public portfolio verifies on all three benchmarks and is promoted: invsqrt 34.09x on 37 qubits, dqi 79.44x, dfthcsos 13.36x, geometric mean about 33.08](entries/2026-11-24-public-portfolio-verified-promoted.md) |  |
 | 2026-11-24 | experiment | invsqrt | negative | [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) |  |
 | 2026-11-24 | experiment | invsqrt | negative | [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md) |  |
 | 2026-11-24 | experiment | invsqrt | negative | [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md) |  |
