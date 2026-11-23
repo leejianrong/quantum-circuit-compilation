@@ -30,6 +30,7 @@ Entries grouped by the benchmark they concern.
 
 ## dqi
 
+- 2026-11-23: [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) (positive)
 - 2026-11-22: [v17 dqi generator read: the circuit we hold is its stack100 profile, and its newest profile is only 0.085% better](entries/2026-11-22-dqi-v17-generator-reading.md) (negative)
 - 2026-11-21: [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) (positive)
 - 2026-11-19: [S6: the in-place Euclid history is moot; the frontier already scans at 11 Toffolis per position, the reciprocal scan needs 23](entries/2026-11-19-spike-s6-euclid-history.md) (negative)

@@ -44,7 +44,7 @@ idea ([HANDOFF](../HANDOFF.md)).
 | Our `fixed4` (back half of the newer lineage, promoted) | 67.30 | 889 | 384,762 | [back half](../log/entries/2026-11-16-dqi-backhalf-outer.md) |
 | Our `fixed3s` (nested-norm synthesis, promoted earlier) | 66.75 | 890 | 386,076 | [synthesis nested norm](../log/entries/2026-11-16-dqi-synthesis-nested-norm.md) |
 | Our `fixed3` (newer extractor, promoted) | 66.50 | 890 | 386,178 | [extractor v3](../log/entries/2026-11-16-dqi-extractor-v3.md) |
-| Best public circuit (syed3000 v17 `a31716fa`, in `best/`) | 72.2 | 890 | 356,981 mean (its newest profile `fc2564c6`: 356,677, 0.085% lower, not built by us) | [v17 promoted](../log/entries/2026-11-21-dqi-v17-verified-promoted.md) |
+| Best circuit in `best/` (syed3000 v17 `paired-plain` `fc2564c6`, built by us; `stack100` `a31716fa` was 72.2) | 72.26 | 890 | 356,677 mean; worst of 10 salts 338,105,618,600 | [paired-plain promoted](../log/entries/2026-11-23-dqi-paired-plain-verified-promoted.md) |
 | Earlier best public circuit (v54 `00ac37d4`) | 70.04 | 890 | about 368,120 mean | [v13 promoted](../log/entries/2026-11-17-public-v13-verified-promoted.md) |
 | Earlier public circuit (syed3000 v12) | 67.44 | 889 | 384,003 | [portfolio verified](../log/entries/2026-11-14-syed-portfolio-verified.md) |
 | Our dialog-free BM decoder | 7.86 | 1,855 | 740,602 | [BM](../log/entries/2026-11-13-dqi-bm.md) |
