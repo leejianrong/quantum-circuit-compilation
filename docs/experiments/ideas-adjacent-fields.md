@@ -122,7 +122,7 @@ Revised first tests, with a cost estimate:
 
 1. Search harness (candidate 3), smallest version (start from the public `window_search` task and validator format; stage 1 is in [the log](../log/entries/2026-11-23-search-harness-stage1-dead-gates.md)): a local-search loop over one existing hand patch's free choices, scored by modelled cost in seconds and gated by the 12 s proof. About 2 days; reusable. Now ranked first.
 2. **Closed 2026-11-24** ([entry](../log/entries/2026-11-24-loader-exact-synthesis-infeasible.md)): exact synthesis of the loader table. Each output bit needs at least 4 ANDs alone, and SAT stops scaling at k = 3. Was: exact synthesis of one loader block (candidate 1) with don't-cares from the full domain, compared with the 56/70 ANDs. About 1 day if a solver is available offline; expected gain a few ANDs (0.06% per Toffoli at 43 qubits).
-3. Pebbling ILP on the four slack regions (candidate 2). About 3 days; ceiling about 0.65% from the width profile.
+3. **Closed 2026-11-24** ([entry](../log/entries/2026-11-24-invsqrt-pebbling-bound.md)): all 473 repeated products span the peak width, so holding saves nothing. Was: pebbling ILP on the four slack regions (candidate 2). About 3 days; ceiling about 0.65% from the width profile.
 4. Flip-graph search for the GF(64) multiplier (candidate 4). Lower expected value now that no rank figure is confirmed.
 5. Gauge/incoherence measurement (candidate 5), parked with QCC-16.
 6. Certified error budget (candidate 6), bounded by 0.3% slack.

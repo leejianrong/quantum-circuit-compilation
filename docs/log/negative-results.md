@@ -5,6 +5,7 @@
 Ideas that were tried and did not work, with the reason. They are as useful as the wins: they tell the next person where not to dig.
 
 - 2026-11-24, invsqrt: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md)
+- 2026-11-24, invsqrt: [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md)
 - 2026-11-24, invsqrt: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md)
 - 2026-11-23, invsqrt: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md)
 - 2026-11-22, invsqrt: [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md)
