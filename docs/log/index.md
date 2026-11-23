@@ -8,6 +8,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-23 | run | dqi | positive | [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) | #245 |
 | 2026-11-22 | experiment | invsqrt | negative | [S2 on the v17 line: one qubit is 39 Toffolis, but the 43-qubit peak spans 27% of the steps in 287 segments](entries/2026-11-22-invsqrt-v17-width-profile.md) |  |
 | 2026-11-22 | run | invsqrt | positive | [invsqrt port v17 Stage C1: our driver reproduces 70fe5f79 byte for byte, with a ledger row per stage](entries/2026-11-22-invsqrt-v17-driver.md) |  |
 | 2026-11-22 | reading | dqi | negative | [v17 dqi generator read: the circuit we hold is its stack100 profile, and its newest profile is only 0.085% better](entries/2026-11-22-dqi-v17-generator-reading.md) |  |

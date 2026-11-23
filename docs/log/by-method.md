@@ -187,6 +187,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## promotion
 
+- 2026-11-23: [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) (positive)
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
 - 2026-11-21: [syed3000 v17 dqi verifies at 3.384e11 on 10 salts on Kaggle and is promoted: about 72.2x](entries/2026-11-21-dqi-v17-verified-promoted.md) (positive)
 - 2026-11-17: [Public frontier moved to GM 28.1: v13-class circuits verified at 10 salts and promoted, invsqrt 27.77x, DQI 70.04x, dfthcsos 11.38x](entries/2026-11-17-public-v13-verified-promoted.md) (positive)
@@ -247,6 +248,10 @@ Entries grouped by the `methods` tags in their front matter.
 ## rounding
 
 - 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
+
+## sandbox-build
+
+- 2026-11-23: [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) (positive)
 
 ## screening
 
