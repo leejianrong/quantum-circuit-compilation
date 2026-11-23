@@ -8,6 +8,8 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-24 | correction | invsqrt | correction | [Correction: the public v17 generator does ship search code (window search and evolve_cuts); our vendored copy leaves it out](entries/2026-11-24-search-code-in-v17-correction.md) |  |
+| 2026-11-24 | experiment | invsqrt | negative | [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) |  |
 | 2026-11-23 | experiment | invsqrt | negative | [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) |  |
 | 2026-11-23 | run | dqi | positive | [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) | #245 |
 | 2026-11-23 | reading | docs | positive | [Adjacent-fields note checked against the v17 sources and the literature: one claim corrected, search harness now ranked first](entries/2026-11-23-adjacent-fields-verified.md) |  |

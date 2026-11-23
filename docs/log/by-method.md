@@ -73,6 +73,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## exact-synthesis
 
+- 2026-11-24: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) (negative)
 - 2026-11-20: [S3 plan: table and loader co-design has a 1% target, but only on the 46-qubit port, below best/](entries/2026-11-20-spike-s3-plan.md) (n/a)
 
 ## exchange-rates
@@ -170,6 +171,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
 - 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
 
+## multiplicative-complexity
+
+- 2026-11-24: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) (negative)
+
 ## penalised-fit
 
 - 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
@@ -262,6 +267,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-23: [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) (positive)
 
+## sat
+
+- 2026-11-24: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md) (negative)
+
 ## screening
 
 - 2026-11-17: [S1: a static-count cost model is off by 4%; reduced-shot screening is exact to 1e-5 on invsqrt](entries/2026-11-17-spike-s1-cost-model.md) (negative)
@@ -291,6 +300,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## source-reading
 
+- 2026-11-24: [Correction: the public v17 generator does ship search code (window search and evolve_cuts); our vendored copy leaves it out](entries/2026-11-24-search-code-in-v17-correction.md) (correction)
 - 2026-11-23: [Adjacent-fields note checked against the v17 sources and the literature: one claim corrected, search harness now ranked first](entries/2026-11-23-adjacent-fields-verified.md) (positive)
 
 ## source-study

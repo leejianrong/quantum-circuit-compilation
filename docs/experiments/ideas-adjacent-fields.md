@@ -112,7 +112,7 @@ What the sources already contain:
 | Claim in this note | Finding |
 |---|---|
 | Exact AND-minimisation | **Used in part** [V]: the invsqrt lineage rebuilds history signs with "SAT-minimal AND programs"; the solver is not in the archive and no SAT library is imported anywhere in the vendored tree. The DQI generator has none. General use over all recurring blocks is untried. |
-| Search harness (stochastic, evolutionary) | **New** [V]: no annealing, tempering, evolutionary or random-restart code in the v17 invsqrt tree or the DQI generator. dfthcsos ships refit and word-move polish scripts as research code, "not rerunnable" from the package. |
+| Search harness (stochastic, evolutionary) | **Partly used** [V], corrected 2026-11-24 ([entry](../log/entries/2026-11-24-search-code-in-v17-correction.md)): the published invsqrt generator ships `search/window_search` (LLM-assisted window rewrites) and `search/evolve_cuts`; our vendored copy omits them. No such code in the DQI generator. dfthcsos ships refit and word-move polish scripts as research code, "not rerunnable" from the package. |
 | Tensor rank / GF multipliers | **Karatsuba used, tensor search not found** [V]: GF(64)-Karatsuba in DQI. The "rank-23" claim was wrong or unsupported and is corrected above. |
 | Tower-field inversion | **Used** [V]: a `tower_inverse` module is imported across the DQI generator. |
 | Pebbling / rematerialisation optimiser | **New as an optimiser** [V]: the lineage does it by hand (retire, hold, recompute patches); no scheduler. |
@@ -120,8 +120,8 @@ What the sources already contain:
 
 Revised first tests, with a cost estimate:
 
-1. Search harness (candidate 3), smallest version: a local-search loop over one existing hand patch's free choices, scored by modelled cost in seconds and gated by the 12 s proof. About 2 days; reusable. Now ranked first.
-2. Exact synthesis of one loader block (candidate 1) with don't-cares from the full domain, compared with the 56/70 ANDs. About 1 day if a solver is available offline; expected gain a few ANDs (0.06% per Toffoli at 43 qubits).
+1. Search harness (candidate 3), smallest version (start from the public `window_search` task and validator format; stage 1 is in [the log](../log/entries/2026-11-23-search-harness-stage1-dead-gates.md)): a local-search loop over one existing hand patch's free choices, scored by modelled cost in seconds and gated by the 12 s proof. About 2 days; reusable. Now ranked first.
+2. **Closed 2026-11-24** ([entry](../log/entries/2026-11-24-loader-exact-synthesis-infeasible.md)): exact synthesis of the loader table. Each output bit needs at least 4 ANDs alone, and SAT stops scaling at k = 3. Was: exact synthesis of one loader block (candidate 1) with don't-cares from the full domain, compared with the 56/70 ANDs. About 1 day if a solver is available offline; expected gain a few ANDs (0.06% per Toffoli at 43 qubits).
 3. Pebbling ILP on the four slack regions (candidate 2). About 3 days; ceiling about 0.65% from the width profile.
 4. Flip-graph search for the GF(64) multiplier (candidate 4). Lower expected value now that no rank figure is confirmed.
 5. Gauge/incoherence measurement (candidate 5), parked with QCC-16.
