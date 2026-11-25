@@ -8,6 +8,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-22: [Broad pass over adjacent fields: our scores are AND-count and width minimisation, a problem cryptography and logic synthesis already know](entries/2026-11-22-adjacent-fields-ideas.md) (n/a)
 
+## circuit-viewer
+
+- 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
+
 ## co-design
 
 - 2026-11-12: [A loader whose cost is the table's GF(2) rank works, but our fit stalls at 0.029 and a rank budget cannot be imposed after rounding](entries/2026-11-12-dfthcsos-codesign.md) (negative)
@@ -140,6 +144,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-16: [HANDOFF said our DQI was not promoted; the promotion ledger and best/ say it was, on 2026-11-14](entries/2026-11-16-handoff-dqi-promoted.md) (n/a)
 - 2026-11-16: [Docs sweep after the DQI promotions: README, HANDOFF, QUESTIONS and AGENTS brought in line; six dependency PRs merged](entries/2026-11-16-docs-sweep.md) (n/a)
+
+## indexing
+
+- 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
 
 ## kaggle-verify
 
