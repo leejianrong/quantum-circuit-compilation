@@ -49,17 +49,32 @@ def view_file(
     return dst
 
 
+def after_promotion(bench: str, best: pathlib.Path) -> None:
+    """Build the page for a circuit that was just promoted. Never fails the promotion."""
+    if bench != "invsqrt":
+        return
+    try:
+        for p in sorted((best / bench).glob("*.kmb")):
+            print("explorer page:", view_file(p))
+    except Exception as err:  # noqa: BLE001 - a viewer problem must not undo a verified promotion
+        print(f"note: explorer page not built: {err}")
+
+
 def add_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     p = sub.add_parser("view", help="write the Circuit Explorer page for circuit files (indexes them first)")
     p.add_argument("paths", nargs="*", type=pathlib.Path, help="default: best/invsqrt/*.kmb")
     p.add_argument("--index", type=pathlib.Path, default=circindex.DEFAULT_OUT)
     p.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
     p.add_argument("--force-index", action="store_true", help="rebuild the index entry first")
+    p.add_argument("--if-present", action="store_true", help="exit 0 quietly when there is nothing to view")
 
 
 def run(a: argparse.Namespace) -> int:
     paths = a.paths or sorted(pathlib.Path("best/invsqrt").glob("*.kmb"))
     if not paths:
+        if a.if_present:
+            print("no circuit files in best/invsqrt, nothing to view")
+            return 0
         print("error: no circuit files (best/invsqrt is empty)")
         return 2
     for p in paths:

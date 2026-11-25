@@ -9,6 +9,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
 | 2026-11-25 | run | infra | positive | [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) |  |
+| 2026-11-25 | run | infra | positive | [Circuits tab in the dashboard: make circuits runs before make dashboard, and bench promote builds the page for a promoted invsqrt circuit](entries/2026-11-25-circuits-tab.md) |  |
 | 2026-11-25 | experiment | infra | positive | [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) |  |
 | 2026-11-25 | run | infra | positive | [bench view: a self-contained explorer page with a module strip, gate mix, wire filter and paged gate list, for invsqrt bb676b95](entries/2026-11-25-bench-view-invsqrt.md) |  |
 | 2026-11-25 | run | infra | positive | [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) |  |

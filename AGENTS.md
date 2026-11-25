@@ -12,7 +12,7 @@ Board: Pandan `QCC`, id 46 (use the `pandan` skill). The pin expires after 12 h 
 
 ## How
 - `make install` / `make check` (ruff + mypy + fast tests; also the pre-push hook and CI) / `make hooks` (once)
-- `make dashboard` runs the local indah dashboard on the first free port (`uv sync --extra dashboard`; reads `ledger/` only; code in `dashboard/`)
+- `make dashboard` runs the local indah dashboard on the first free port (`uv sync --extra dashboard`; reads `ledger/` and the Circuit Explorer pages; it first runs `make circuits`, a cached no-op when `best/` is unchanged; code in `dashboard/`)
 - `make docs` builds the site; every ```python block in `docs/learn/` is executed by tests (` ```python no-run ` skips)
 - `make fetch-data` -> `data/` (about 1 GB, gitignored); `bash scripts/fetch_public.sh` -> `public/` (gitignored). Our own fits and circuits live outside git in `~/qcc-fits/` and `~/qcc-circuits/`; `docs/HANDOFF.md` says where each came from and how to regenerate it
 - `QCC_DATA=$PWD/data uv run bench verify <bench> <circuit-or-dfthcsos-dir> --salts N` appends a row to

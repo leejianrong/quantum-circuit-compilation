@@ -11,9 +11,11 @@ from typing import Any
 
 import indah
 from starlette.applications import Starlette
+from starlette.routing import Mount
+from starlette.staticfiles import StaticFiles
 
 from bench import experiments, ledger, plots
-from dashboard import cost_view, data, lineage_view, runs_view
+from dashboard import circuits, circuits_view, cost_view, data, lineage_view, runs_view
 
 OURS = plots.COLORS["score"]
 PUBLIC = plots.COLORS["frontier"]
@@ -293,6 +295,7 @@ TABS: list[tuple[str, Tab]] = [
     ("Cost explorer", lambda i: cost_view.cost_explorer()),
     ("Anatomy", lambda i: runs_view.anatomy_tab(i.rows)),
     ("Verifier theatre", lambda i: runs_view.theatre_tab(i.rows)),
+    ("Circuits", lambda i: circuits_view.circuits_tab()),
 ]
 
 
@@ -316,13 +319,17 @@ def create(
     ledger_path: pathlib.Path = ledger.DEFAULT_LEDGER,
     exp_path: pathlib.Path = experiments.DEFAULT_LOG,
     lineage_path: pathlib.Path = lineage_view.LINEAGE,
+    pages_dir: pathlib.Path = circuits.VIEW,
 ) -> Starlette:
-    return indah.create_app(
+    app = indah.create_app(
         # a factory: each viewer gets their own tab state and the ledger is re-read on connect
         session_factory=lambda: indah.Session(build_app(ledger_path, exp_path, lineage_path)),
         title="QCC dashboard",
         max_width="1200px",
     )
+    # the explorer pages are static files; first in the list so no catch-all route can shadow them
+    app.router.routes.insert(0, Mount(circuits.PAGES_URL, StaticFiles(directory=pages_dir, check_dir=False)))
+    return app
 
 
 def main() -> None:
