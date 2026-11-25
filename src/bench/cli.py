@@ -14,6 +14,7 @@ import numpy as np
 
 from bench import (
     circindex,
+    circview,
     engine,
     experiments,
     ledger,
@@ -192,6 +193,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     outside.add_parsers(sub)
     publicdiff.add_parser(sub)
     circindex.add_parser(sub)
+    circview.add_parser(sub)
     plots.add_parser(sub)
     sweep.add_parser(sub)
     a = p.parse_args(argv)
@@ -207,6 +209,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return outside.run(a)
     if a.cmd == "index":
         return circindex.run(a)
+    if a.cmd == "view":
+        return circview.run(a)
     if a.cmd == "public-diff":
         return publicdiff.run(a)
     if a.cmd == "exp":

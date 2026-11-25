@@ -82,6 +82,7 @@ Entries grouped by the benchmark they concern.
 
 - 2026-11-25: [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) (positive)
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
+- 2026-11-25: [bench view: a self-contained explorer page with a module strip, gate mix, wire filter and paged gate list, for invsqrt bb676b95](entries/2026-11-25-bench-view-invsqrt.md) (positive)
 - 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
 - 2026-11-24: [New public portfolio verifies on all three benchmarks and is promoted: invsqrt 34.09x on 37 qubits, dqi 79.44x, dfthcsos 13.36x, geometric mean about 33.08](entries/2026-11-24-public-portfolio-verified-promoted.md) (positive)
 - 2026-11-22: [Broad pass over adjacent fields: our scores are AND-count and width minimisation, a problem cryptography and logic synthesis already know](entries/2026-11-22-adjacent-fields-ideas.md) (n/a)
