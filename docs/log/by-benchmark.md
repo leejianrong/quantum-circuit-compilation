@@ -81,6 +81,7 @@ Entries grouped by the benchmark they concern.
 ## infra
 
 - 2026-11-25: [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) (positive)
+- 2026-11-25: [Circuits tab in the dashboard: make circuits runs before make dashboard, and bench promote builds the page for a promoted invsqrt circuit](entries/2026-11-25-circuits-tab.md) (positive)
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
 - 2026-11-25: [bench view: a self-contained explorer page with a module strip, gate mix, wire filter and paged gate list, for invsqrt bb676b95](entries/2026-11-25-bench-view-invsqrt.md) (positive)
 - 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)

@@ -204,7 +204,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if a.cmd == "kaggle":
         return remote.dispatch(a)
     if a.cmd == "promote":
-        return promote.run(a.bench, a.candidate, a.ledger, a.best, a.min_salts, a.dry_run)
+        rc = promote.run(a.bench, a.candidate, a.ledger, a.best, a.min_salts, a.dry_run)
+        if rc == 0 and not a.dry_run:
+            circview.after_promotion(a.bench, a.best)
+        return rc
     if a.cmd in ("backfill", "lb"):
         return outside.run(a)
     if a.cmd == "index":

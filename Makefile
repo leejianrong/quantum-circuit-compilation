@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve dashboard plots-readme report learn-figures log log-check log-prs
+.PHONY: help install lint typecheck test check hooks fetch-data docs docs-serve circuits dashboard plots-readme report learn-figures log log-check log-prs
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -42,7 +42,10 @@ docs-serve: ## Serve the learning site locally with live reload
 fetch-data: ## Download competition data into data/ (needs the Kaggle CLI)
 	bash scripts/fetch_data.sh
 
-dashboard: ## Run the local dashboard (needs `uv sync --extra dashboard`); prints a URL on the first free port
+circuits: ## Index the circuits in best/ and write their explorer pages (cached by sha256; no-op when up to date)
+	uv run bench view --if-present
+
+dashboard: circuits ## Run the local dashboard (needs `uv sync --extra dashboard`); prints a URL on the first free port
 	uv run python -m dashboard
 
 plots-readme: ## Redraw docs/img/*.png (plots and dashboard screenshots) from the live ledger; light, verifies nothing

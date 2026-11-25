@@ -10,6 +10,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## circuit-viewer
 
+- 2026-11-25: [Circuits tab in the dashboard: make circuits runs before make dashboard, and bench promote builds the page for a promoted invsqrt circuit](entries/2026-11-25-circuits-tab.md) (positive)
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
 - 2026-11-25: [bench view: a self-contained explorer page with a module strip, gate mix, wire filter and paged gate list, for invsqrt bb676b95](entries/2026-11-25-bench-view-invsqrt.md) (positive)
 - 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
@@ -45,6 +46,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-12: [Seven-bit angle words fail error_2 by 8.8x, and even a passing 7-bit table would save only about 3%](entries/2026-11-12-dfthcsos-low-brot.md) (negative)
 - 2026-11-12: [Our own unary angle loader verifies at ratio 6.85 on the public words, 1.64x behind the public loaders](entries/2026-11-12-dfthcsos-loader.md) (positive)
 - 2026-11-12: [A cost model reproduces the verifier's dfthcsos score to nine digits and shows the loaders, not the factorization shape, carry the 11.2x gain](entries/2026-11-12-dfthcsos-cost-model.md) (positive)
+
+## dashboard
+
+- 2026-11-25: [Circuits tab in the dashboard: make circuits runs before make dashboard, and bench promote builds the page for a promoted invsqrt circuit](entries/2026-11-25-circuits-tab.md) (positive)
 
 ## dead-gate
 
