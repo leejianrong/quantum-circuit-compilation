@@ -357,6 +357,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-17: [DQI: 79% of our gap to the public 70x circuit is 12,384 CSWAPs that the public circuit does not have](entries/2026-11-17-dqi-70x-study.md) (positive)
 - 2026-11-17: [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) (correction)
 
+## submission
+
+- 2026-11-25: [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) (positive)
+
 ## survey
 
 - 2026-11-14: [Our DQI circuit is 2.1% behind syed3000's, not where first guessed; the fused-finish switch fails with 1,512 of 3,072 phase errors](entries/2026-11-14-dqi-gap-survey.md) (inconclusive)
