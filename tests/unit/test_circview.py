@@ -31,7 +31,7 @@ def data_of(html: str) -> dict[str, object]:
 def test_page_inlines_summary_and_every_line(tmp_path: pathlib.Path) -> None:
     page = make(tmp_path)
     d = data_of(page.read_text())
-    assert d["rows"][0] == [0, "X q0", 0]  # type: ignore[index]
+    assert d["rows"][0] == [0, "X q0", 0, None]  # type: ignore[index]
     assert len(d["rows"]) == d["summary"]["instructions"]  # type: ignore[index,arg-type]
     assert page.name == d["summary"]["sha256"][:8] + ".html"  # type: ignore[index]
 

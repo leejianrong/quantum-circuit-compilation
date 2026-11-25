@@ -116,7 +116,36 @@ def test_index_file_caches_by_sha(tmp_path: pathlib.Path) -> None:
     assert out.name == summary["sha256"][:8]
     pages = sorted((out / "pages").glob("*.json"))
     assert len(pages) == summary["pages"]
-    assert json.loads(pages[0].read_text())["rows"][0] == [0, "X q0", 0]
+    assert json.loads(pages[0].read_text())["rows"][0] == [0, "X q0", 0, None]
     assert circindex.index_file(circ, root, bench="invsqrt", k=3, samples=32)[0] == "cached"
     assert circindex.index_file(circ, root, bench="invsqrt", force=True, k=3, samples=32)[0] == "built"
     assert not [p for p in root.iterdir() if p.name != out.name]  # the temporary text export is gone
+
+
+def test_exact_tier_adds_firing_fractions(tmp_path: pathlib.Path) -> None:
+    circ = tmp_path / "tiny.kmx"
+    circ.write_text(TEXT)
+    root = tmp_path / "idx"
+    assert circindex.index_file(circ, root, bench="invsqrt", k=3, samples=16)[0] == "built"
+    status, out = circindex.index_file(circ, root, bench="invsqrt", k=3, samples=16, exact=True, limit=64)
+    assert status == "built"  # a static entry is upgraded
+    summary = json.loads((out / "summary.json").read_text())
+    assert summary["cost_tier"] == "exact" and summary["firing_inputs"] == 64
+    rows = [r for p in sorted((out / "pages").glob("*.json")) for r in json.loads(p.read_text())["rows"]]
+    ccx = [r for r in rows if r[1].startswith("CCX")]
+    assert len(ccx) == 10 and all(r[3] is not None and 0 <= r[3] <= 1 for r in ccx)
+    total = sum(m["toffoli_expected"] for m in summary["modules"])
+    assert total == pytest.approx(summary["toffoli_expected"], abs=0.01)
+    again = circindex.index_file(circ, root, bench="invsqrt", k=3, samples=16, exact=True, limit=64)
+    assert again[0] == "cached"
+    assert (
+        circindex.index_file(circ, root, bench="invsqrt", k=3, samples=16)[0] == "cached"
+    )  # static asks less
+
+
+def test_exact_is_ignored_for_other_benchmarks(tmp_path: pathlib.Path) -> None:
+    circ = tmp_path / "tiny.kmx"
+    circ.write_text(TEXT)
+    root = tmp_path / "idx"
+    circindex.index_file(circ, root, bench="dqi", k=3)
+    assert circindex.index_file(circ, root, bench="dqi", k=3, exact=True)[0] == "cached"

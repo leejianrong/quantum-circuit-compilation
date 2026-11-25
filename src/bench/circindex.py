@@ -29,9 +29,10 @@ from typing import Any
 import numpy as np
 
 from bench import ledger
+from invsqrt_gen.port import activity as activitymod
 from invsqrt_gen.port import width as widthmod
 
-ANALYSER_VERSION = 3
+ANALYSER_VERSION = 5
 DEFAULT_OUT = pathlib.Path("out/circuit-index")
 BENCHES = ("invsqrt", "dqi", "dfthcsos")
 PAGE_SIZE = 2000
@@ -39,6 +40,7 @@ STRIP_POINTS = 600
 LIST_ALL_MAX = 200_000  # instructions; above this only priced gates are listed
 SEGMENT_BLOCKS = 20_000  # the series is block-averaged to at most this many points before segmentation
 MIN_MODULE = 50  # instructions
+FIRING_CHUNK = 262_144
 TOFFOLI_LIKE = frozenset({"CCX", "CCZ", "CSWAP"})
 CLASSICAL_ONLY = ("PUSH_CONDITION", "POP_CONDITION")
 
@@ -201,6 +203,21 @@ def sampled_width(s: Scan, samples: int, seed: int) -> np.ndarray:
     return out
 
 
+def exact_firing(s: Scan, limit: int = widthmod.MAX_X) -> dict[int, int]:
+    """invsqrt: per Toffoli-like gate, on how many of ``limit`` inputs it fires (one random HMR outcome each).
+
+    Runs the whole domain in chunks (about 40 s for ``bb676b95``). Keys are instruction indices.
+    """
+    assert s.listing == "all", "the firing pass needs every instruction"
+    text = "\n".join(r[1] for r in s.rows)
+    total: dict[int, int] = {}
+    for lo in range(1, limit + 1, FIRING_CHUNK):
+        xs = np.arange(lo, min(lo + FIRING_CHUNK, limit + 1), dtype=np.int64)
+        for k, v in activitymod.activity(text, xs, seed=lo).items():
+            total[k] = total.get(k, 0) + v
+    return total
+
+
 def build(
     s: Scan,
     *,
@@ -211,6 +228,8 @@ def build(
     samples: int = 256,
     seed: int = 0,
     page_size: int = PAGE_SIZE,
+    firing: dict[int, int] | None = None,
+    inputs: int = 0,
 ) -> dict[str, Any]:
     sampled = bench == "invsqrt"
     widths = sampled_width(s, samples, seed) if sampled else interval_width(s)
@@ -231,6 +250,10 @@ def build(
                 "wires": [int(q) for q in wires if q >= 0],
             }
         )
+        if firing is not None:
+            fired = [v / inputs for k, v in firing.items() if a <= k < b]
+            modules[-1]["toffoli_expected"] = round(sum(fired), 3)
+            modules[-1]["toffoli_never"] = sum(1 for x in fired if x == 0)
     step = max(1, -(-len(widths) // STRIP_POINTS))
     strip = [int(widths[i : i + step].max()) for i in range(0, len(widths), step)]
     total = np.bincount(s.ops, minlength=len(s.opnames))
@@ -245,11 +268,11 @@ def build(
         "ccx": all_ops.get("CCX", 0),
         "peak_width": int(widths.max()),
         "modules": modules,
-        "module_source": "inferred from sampled live width"
-        if sampled
-        else "inferred from touch-interval width",
+        "module_source": "inferred from width, Toffoli density and classical density",
         "width_method": "sampled simulation" if sampled else "touch interval (first to last use of a qubit)",
-        "cost_tier": "static",
+        "cost_tier": "exact" if firing is not None else "static",
+        "toffoli_expected": round(sum(firing.values()) / inputs, 3) if firing is not None else None,
+        "firing_inputs": inputs if firing is not None else None,
         "width_strip": {"step": step, "values": strip},
         "samples": samples if sampled else None,
         "seed": seed if sampled else None,
@@ -260,12 +283,27 @@ def build(
     }
 
 
-def write(out: pathlib.Path, summary: dict[str, Any], rows: list[tuple[int, str, bool]]) -> None:
+def write(
+    out: pathlib.Path,
+    summary: dict[str, Any],
+    rows: list[tuple[int, str, bool]],
+    firing: dict[int, int] | None = None,
+) -> None:
     pages = out / "pages"
     pages.mkdir(parents=True, exist_ok=True)
     size = summary["page_size"]
     for p in range(summary["pages"]):
-        chunk = [[ln, text, int(c)] for ln, text, c in rows[p * size : (p + 1) * size]]
+        chunk = [
+            [
+                ln,
+                text,
+                int(c),
+                None
+                if firing is None or ln not in firing
+                else round(firing[ln] / summary["firing_inputs"], 4),
+            ]
+            for ln, text, c in rows[p * size : (p + 1) * size]
+        ]
         (pages / f"{p:03d}.json").write_text(json.dumps({"rows": chunk}, separators=(",", ":")))
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
 
@@ -285,17 +323,23 @@ def index_file(
     force: bool = False,
     k: int = 24,
     samples: int = 256,
+    exact: bool = False,
+    limit: int = widthmod.MAX_X,
 ) -> tuple[str, pathlib.Path]:
     """Index one circuit file. Returns ``("cached" | "built", entry directory)``."""
     sha = ledger.sha256_path(path)
     out = root / sha[:8]
     summary = out / "summary.json"
+    bench = bench or bench_of(path)
+    exact = exact and bench == "invsqrt"  # only invsqrt has a firing pass
     if not force and summary.exists():
-        if json.loads(summary.read_text()).get("analyser_version") == ANALYSER_VERSION:
+        have = json.loads(summary.read_text())
+        if have.get("analyser_version") == ANALYSER_VERSION and (
+            not exact or have.get("cost_tier") == "exact"
+        ):
             return "cached", out
     import kickmix as km  # type: ignore[import-not-found,unused-ignore]
 
-    bench = bench or bench_of(path)
     root.mkdir(parents=True, exist_ok=True)
     circuit = km.Circuit.from_file(path)
     with tempfile.TemporaryDirectory(dir=root) as d:
@@ -303,8 +347,13 @@ def index_file(
         circuit.to_file(txt)
         with txt.open() as f:
             s = scan(f, list_all=len(circuit) <= LIST_ALL_MAX)
-    data = build(s, bench=bench, name=path.name, sha256=sha, k=k, samples=samples)
-    write(out, data, s.rows)
+    firing = None
+    if exact:
+        firing = exact_firing(s, limit)
+    data = build(
+        s, bench=bench, name=path.name, sha256=sha, k=k, samples=samples, firing=firing, inputs=limit
+    )
+    write(out, data, s.rows, firing)
     return "built", out
 
 
@@ -314,6 +363,9 @@ def add_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None
     p.add_argument("--bench", choices=BENCHES, help="default: the benchmark directory the file is in")
     p.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
     p.add_argument("--force", action="store_true", help="rebuild even if the entry is current")
+    p.add_argument(
+        "--exact", action="store_true", help="invsqrt: add the full-domain firing pass (about a minute)"
+    )
     p.add_argument("--modules", type=int, default=24, help="number of inferred modules")
     p.add_argument("--samples", type=int, default=256, help="inputs sampled for the invsqrt width series")
 
@@ -328,6 +380,8 @@ def run(a: argparse.Namespace) -> int:
         print("error: no circuit files (best/ has no .kmb files)")
         return 2
     for p in paths:
-        status, out = index_file(p, a.out, bench=a.bench, force=a.force, k=a.modules, samples=a.samples)
+        status, out = index_file(
+            p, a.out, bench=a.bench, force=a.force, k=a.modules, samples=a.samples, exact=a.exact
+        )
         print(f"{status}\t{out}")
     return 0

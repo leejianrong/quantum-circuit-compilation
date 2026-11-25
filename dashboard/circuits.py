@@ -69,11 +69,11 @@ def entries(
 
 
 def links_markdown(rows: list[dict[str, Any]]) -> str:
-    """One line per circuit with a page; plain markdown links, which open the standalone explorer."""
-    lines = [
-        f"- {r['bench']} `{r['circuit']}`{' (in best/)' if r['in_best'] else ''}: "
-        f"[open the explorer]({r['url']})"
-        for r in rows
-        if r["url"]
-    ]
+    """One bullet per benchmark, with a markdown link to the explorer page of each circuit."""
+    by_bench: dict[str, list[str]] = {}
+    for r in rows:
+        if r["url"]:
+            label = r["file"].removesuffix(".kmb") + (" (best/)" if r["in_best"] else "")
+            by_bench.setdefault(r["bench"], []).append(f"[{label}]({r['url']})")
+    lines = [f"- **{b}**: " + " · ".join(links) for b, links in by_bench.items()]
     return "\n".join(lines) if lines else "No explorer pages yet. Run `make circuits`."

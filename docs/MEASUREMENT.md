@@ -148,6 +148,8 @@ else. Tabs:
 
 ![Dashboard lineage](img/dashboard-lineage.png)
 
+![Dashboard circuits](img/dashboard-circuits.png)
+
 `make plots-readme` redraws these and the six plots above into `docs/img/` from the live ledger
 (`scripts/plots_readme.py`). The Scoreboard counts only fully own circuits: a run listed in
 `plots.NOT_FULLY_OWN` (our loader on the public words, E001) is shown in the ledger but not as ours.
