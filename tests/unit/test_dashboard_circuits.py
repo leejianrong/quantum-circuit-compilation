@@ -18,7 +18,7 @@ def build(tmp_path: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path, pathlib.P
     circ.parent.mkdir(parents=True)
     circ.write_text(TEXT)  # kickmix reads text by sniffing, whatever the suffix
     index, view = tmp_path / "idx", tmp_path / "view"
-    circview.view_file(circ, index, view)
+    circview.view_file(circ, index, view, bench="invsqrt")
     return index, view, tmp_path / "best"
 
 

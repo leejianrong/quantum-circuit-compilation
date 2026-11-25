@@ -92,6 +92,7 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
 <span class="muted" id="pinfo"></span>
 <label class="muted" for="goto" style="margin-left:auto">Go to line</label><input id="goto" type="number" min="0">
 </div>
+<div class="muted" id="listnote" style="margin-top:6px"></div>
 <div class="muted" style="margin-top:6px">Amber rows run only when a classical condition holds (inside PUSH_CONDITION, or with an <span class="mono">if</span> flag).</div>
 </section>
 </div>
@@ -101,16 +102,23 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
 <script>
 (function () {
   var D = JSON.parse(document.getElementById('data').textContent);
-  var S = D.summary, L = D.lines, N = L.length, M = S.modules;
+  var S = D.summary, R = D.rows, M = S.modules, NR = R.length;
+  var N = S.instructions;
   var PAGE = 50;
   var st = { sel: 0, mode: 'width', filter: 'all', wire: null, page: 0 };
-  var cond = new Array(N), depth = 0;
-  for (var i = 0; i < N; i++) {
-    var op = L[i].split(' ', 1)[0];
-    if (op === 'POP_CONDITION') depth--;
-    cond[i] = depth > 0 || (op !== 'PUSH_CONDITION' && / if b\d+/.test(L[i]));
-    if (op === 'PUSH_CONDITION') depth++;
-  }
+  // R rows are [line, text, conditioned]; rs/re give each module's row range (rows are sorted by line)
+  var rs = [], re = [];
+  (function () {
+    var r = 0;
+    M.forEach(function (m) {
+      while (r < NR && R[r][0] < m.start) r++;
+      rs.push(r);
+      var e = r;
+      while (e < NR && R[e][0] < m.end) e++;
+      re.push(e);
+      r = e;
+    });
+  })();
   var totalCcx = S.ccx || 1;
   var $ = function (id) { return document.getElementById(id); };
   var NS = 'http://www.w3.org/2000/svg';
@@ -130,7 +138,8 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
   $('title').textContent = S.bench + ' ' + S.sha256.slice(0, 8);
   $('sub').textContent = S.name + ' · ' + S.instructions.toLocaleString() + ' instructions · ' + S.ccx.toLocaleString() + ' CCX · peak width ' + S.peak_width + ' · ' + M.length + ' modules';
   [['cost: ' + S.cost_tier], ['modules: ' + S.module_source]].forEach(function (t) { $('tags').appendChild(el('span', { 'class': 'tag mono' }, t[0])); });
-  $('peaknote').textContent = 'Width series sampled on ' + S.samples + ' inputs (a lower bound on the true width).';
+  $('peaknote').textContent = 'Width: ' + S.width_method + (S.samples ? ', ' + S.samples + ' inputs (a lower bound on the true width)' : '') + '.';
+  if (S.listing !== 'all') $('listnote').textContent = 'This circuit is large, so the list shows only its Toffoli-like gates and non-Clifford rotations (' + S.listed.toLocaleString() + ' of ' + N.toLocaleString() + ' instructions). Clifford gates are counted in the gate mix.';
 
   var H = 190, TOP = 8;
   function yOf(v) { return H - (v / S.peak_width) * (H - TOP); }
@@ -212,9 +221,9 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
 
   var FILTERS = [['all', 'all'], ['ccx', 'CCX only'], ['cond', 'conditioned only']];
   function matches(i) {
-    var ln = L[i];
+    var ln = R[i][1];
     if (st.filter === 'ccx' && ln.slice(0, 4) !== 'CCX ') return false;
-    if (st.filter === 'cond' && !cond[i]) return false;
+    if (st.filter === 'cond' && !R[i][2]) return false;
     if (st.wire !== null && !new RegExp('\\bq' + st.wire + '\\b').test(ln)) return false;
     return true;
   }
@@ -223,7 +232,7 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
     var m = M[st.sel];
     if (!cache || cache.key !== st.sel + '|' + st.filter + '|' + st.wire) {
       var idx = [];
-      for (var i = m.start; i < m.end; i++) if (matches(i)) idx.push(i);
+      for (var i = rs[st.sel]; i < re[st.sel]; i++) if (matches(i)) idx.push(i);
       cache = { key: st.sel + '|' + st.filter + '|' + st.wire, idx: idx };
     }
     return cache.idx;
@@ -240,10 +249,10 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
     });
     var tb = $('rows'); tb.textContent = '';
     idx.slice(st.page * PAGE, (st.page + 1) * PAGE).forEach(function (i) {
-      var tr = el('tr', cond[i] ? { 'class': 'cond' } : {});
-      tr.appendChild(el('td', { 'class': 'ln' }, String(i)));
-      tr.appendChild(el('td', {}, L[i]));
-      tr.appendChild(el('td', { 'class': 'ln' }, cond[i] ? 'conditioned' : ''));
+      var tr = el('tr', R[i][2] ? { 'class': 'cond' } : {});
+      tr.appendChild(el('td', { 'class': 'ln' }, String(R[i][0])));
+      tr.appendChild(el('td', {}, R[i][1]));
+      tr.appendChild(el('td', { 'class': 'ln' }, R[i][2] ? 'conditioned' : ''));
       tb.appendChild(tr);
     });
     $('pinfo').textContent = idx.length ? 'Rows ' + (st.page * PAGE + 1) + ' to ' + Math.min(idx.length, (st.page + 1) * PAGE) + ' of ' + idx.length.toLocaleString() : 'No rows match';
@@ -265,7 +274,9 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
     var k = M.findIndex(function (m) { return n >= m.start && n < m.end; });
     st.filter = 'all'; st.wire = null; cache = null;
     if (k !== st.sel) select(k);
-    st.page = Math.floor((n - M[k].start) / PAGE);
+    var r = rs[k];
+    while (r < re[k] && R[r][0] < n) r++;
+    st.page = Math.floor((r - rs[k]) / PAGE);
     drawGates();
   });
   [['m-width', 'width'], ['m-ccx', 'ccx']].forEach(function (p) {

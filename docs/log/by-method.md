@@ -10,6 +10,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## circuit-viewer
 
+- 2026-11-25: [Circuit Explorer covers DQI and dfthcsos: DQI's 70 million instructions index in 71 s, and modules now come from width plus Toffoli and classical density](entries/2026-11-25-explorer-dqi-dfthcsos.md) (positive)
 - 2026-11-25: [Circuits tab in the dashboard: make circuits runs before make dashboard, and bench promote builds the page for a promoted invsqrt circuit](entries/2026-11-25-circuits-tab.md) (positive)
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
 - 2026-11-25: [bench view: a self-contained explorer page with a module strip, gate mix, wire filter and paged gate list, for invsqrt bb676b95](entries/2026-11-25-bench-view-invsqrt.md) (positive)
@@ -154,6 +155,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## indexing
 
+- 2026-11-25: [Circuit Explorer covers DQI and dfthcsos: DQI's 70 million instructions index in 71 s, and modules now come from width plus Toffoli and classical density](entries/2026-11-25-explorer-dqi-dfthcsos.md) (positive)
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
 - 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
 
@@ -316,6 +318,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## segmentation
 
+- 2026-11-25: [Circuit Explorer covers DQI and dfthcsos: DQI's 70 million instructions index in 71 s, and modules now come from width plus Toffoli and classical density](entries/2026-11-25-explorer-dqi-dfthcsos.md) (positive)
 - 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
 
 ## small-instances
