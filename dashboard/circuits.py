@@ -5,6 +5,7 @@ No indah import. ``bench index`` writes ``out/circuit-index/<sha8>/summary.json`
 mounts the page directory at ``PAGES_URL``, because indah's render protocol cannot embed a page.
 """
 
+import functools
 import json
 import pathlib
 from typing import Any
@@ -16,14 +17,21 @@ PAGES_URL = "/circuits"
 BENCH_ORDER = ("invsqrt", "dqi", "dfthcsos")
 
 
-def best_shas(best: pathlib.Path, benches: set[str]) -> set[str]:
-    """sha256 of the single-file circuits in ``best/<bench>/`` for the benches we need to compare."""
+@functools.cache
+def _sha(path: str, size: int, mtime_ns: int) -> str:
+    """sha256 of a file, remembered per (path, size, mtime) because DQI's circuit is 618 MB."""
     from bench import ledger
 
+    return ledger.sha256_path(pathlib.Path(path))
+
+
+def best_shas(best: pathlib.Path, benches: set[str]) -> set[str]:
+    """sha256 of the single-file circuits in ``best/<bench>/`` for the benches we need to compare."""
     out: set[str] = set()
     for b in benches:
         for f in sorted((best / b).glob("*.kmb")) if (best / b).is_dir() else []:
-            out.add(ledger.sha256_path(f))
+            st = f.stat()
+            out.add(_sha(str(f), st.st_size, st.st_mtime_ns))
     return out
 
 

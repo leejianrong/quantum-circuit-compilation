@@ -21,10 +21,10 @@ DEFAULT_OUT = pathlib.Path("out/circuit-view")
 
 def load_entry(entry: pathlib.Path) -> dict[str, object]:
     summary = json.loads((entry / "summary.json").read_text())
-    lines: list[str] = []
+    rows: list[list[object]] = []
     for p in range(summary["pages"]):
-        lines.extend(json.loads((entry / "pages" / f"{p:03d}.json").read_text())["lines"])
-    return {"summary": summary, "lines": lines}
+        rows.extend(json.loads((entry / "pages" / f"{p:03d}.json").read_text())["rows"])
+    return {"summary": summary, "rows": rows}
 
 
 def render(entry: pathlib.Path) -> str:
@@ -40,9 +40,10 @@ def view_file(
     index_root: pathlib.Path = circindex.DEFAULT_OUT,
     out_dir: pathlib.Path = DEFAULT_OUT,
     *,
+    bench: str | None = None,
     force_index: bool = False,
 ) -> pathlib.Path:
-    _, entry = circindex.index_file(path, index_root, force=force_index)
+    _, entry = circindex.index_file(path, index_root, bench=bench, force=force_index)
     out_dir.mkdir(parents=True, exist_ok=True)
     dst = out_dir / f"{entry.name}.html"
     dst.write_text(render(entry))
@@ -51,8 +52,6 @@ def view_file(
 
 def after_promotion(bench: str, best: pathlib.Path) -> None:
     """Build the page for a circuit that was just promoted. Never fails the promotion."""
-    if bench != "invsqrt":
-        return
     try:
         for p in sorted((best / bench).glob("*.kmb")):
             print("explorer page:", view_file(p))
@@ -62,7 +61,8 @@ def after_promotion(bench: str, best: pathlib.Path) -> None:
 
 def add_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     p = sub.add_parser("view", help="write the Circuit Explorer page for circuit files (indexes them first)")
-    p.add_argument("paths", nargs="*", type=pathlib.Path, help="default: best/invsqrt/*.kmb")
+    p.add_argument("paths", nargs="*", type=pathlib.Path, help="default: every .kmb in best/<bench>/")
+    p.add_argument("--bench", choices=circindex.BENCHES, help="default: the benchmark directory of the file")
     p.add_argument("--index", type=pathlib.Path, default=circindex.DEFAULT_OUT)
     p.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
     p.add_argument("--force-index", action="store_true", help="rebuild the index entry first")
@@ -70,13 +70,13 @@ def add_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None
 
 
 def run(a: argparse.Namespace) -> int:
-    paths = a.paths or sorted(pathlib.Path("best/invsqrt").glob("*.kmb"))
+    paths = a.paths or circindex.best_files()
     if not paths:
         if a.if_present:
-            print("no circuit files in best/invsqrt, nothing to view")
+            print("no circuit files in best/, nothing to view")
             return 0
-        print("error: no circuit files (best/invsqrt is empty)")
+        print("error: no circuit files (best/ has no .kmb files)")
         return 2
     for p in paths:
-        print(view_file(p, a.index, a.out, force_index=a.force_index))
+        print(view_file(p, a.index, a.out, bench=a.bench, force_index=a.force_index))
     return 0

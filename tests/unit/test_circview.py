@@ -19,7 +19,7 @@ TEXT = "\n".join(HEADER + BODY) + "\n"
 def make(tmp_path: pathlib.Path) -> pathlib.Path:
     circ = tmp_path / "tiny.kmx"
     circ.write_text(TEXT)
-    return circview.view_file(circ, tmp_path / "idx", tmp_path / "view")
+    return circview.view_file(circ, tmp_path / "idx", tmp_path / "view", bench="invsqrt")
 
 
 def data_of(html: str) -> dict[str, object]:
@@ -31,20 +31,20 @@ def data_of(html: str) -> dict[str, object]:
 def test_page_inlines_summary_and_every_line(tmp_path: pathlib.Path) -> None:
     page = make(tmp_path)
     d = data_of(page.read_text())
-    assert d["lines"][0] == "X q0"  # type: ignore[index]
-    assert len(d["lines"]) == d["summary"]["instructions"]  # type: ignore[index,arg-type]
+    assert d["rows"][0] == [0, "X q0", 0]  # type: ignore[index]
+    assert len(d["rows"]) == d["summary"]["instructions"]  # type: ignore[index,arg-type]
     assert page.name == d["summary"]["sha256"][:8] + ".html"  # type: ignore[index]
 
 
 def test_data_cannot_close_the_script(tmp_path: pathlib.Path) -> None:
-    entry = circindex.index_file(_circ(tmp_path), tmp_path / "idx", k=2, samples=16)[1]
+    entry = circindex.index_file(_circ(tmp_path), tmp_path / "idx", bench="invsqrt", k=2, samples=16)[1]
     page0 = entry / "pages" / "000.json"
     d = json.loads(page0.read_text())
-    d["lines"][0] = "X q0 </script><b>"
+    d["rows"][0][1] = "X q0 </script><b>"
     page0.write_text(json.dumps(d))
     html = circview.render(entry)
     assert html.count("</script>") == 2  # the data script and the page script, nothing injected
-    assert data_of(html)["lines"][0] == "X q0 </script><b>"  # type: ignore[index]
+    assert data_of(html)["rows"][0][1] == "X q0 </script><b>"  # type: ignore[index]
 
 
 def test_render_is_deterministic(tmp_path: pathlib.Path) -> None:
