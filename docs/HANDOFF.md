@@ -5,8 +5,8 @@ For a developer or agent taking over, for example on a machine with a GPU. Writt
 
 ## Where we are
 
-Ratios are `baseline_cost / cost` from the **official verifier** (worst salt). The leaderboard entry (25.218, submission
-58244710) is a portfolio of other participants' public circuits that we verified ourselves; our own circuits are listed
+Ratios are `baseline_cost / cost` from the **official verifier** (worst salt). The leaderboard entry (33.17031, submission
+58812685, 2026-11-24; earlier 28.71588 / 58673310 and 25.218 / 58244710) is a portfolio of other participants' public circuits that we verified ourselves; our own circuits are listed
 beside the public ones they have to beat.
 
 | Benchmark | Our own best (verified) | Public best we have measured | What is in `best/` |
