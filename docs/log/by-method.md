@@ -11,6 +11,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## circuit-viewer
 
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
+- 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
 
 ## co-design
 
@@ -148,6 +149,7 @@ Entries grouped by the `methods` tags in their front matter.
 ## indexing
 
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)
+- 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
 
 ## kaggle-verify
 
@@ -305,6 +307,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-24: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md) (negative)
 - 2026-11-23: [Harness stage 1 on the 43-qubit line: no redundant Toffoli, and 10 never-firing gates cost nothing to keep](entries/2026-11-23-search-harness-stage1-dead-gates.md) (negative)
+
+## segmentation
+
+- 2026-11-25: [bench index: a sha-keyed per-circuit index with inferred modules, built for invsqrt bb676b95 in 0.8 s](entries/2026-11-25-bench-index-invsqrt.md) (positive)
 
 ## small-instances
 
