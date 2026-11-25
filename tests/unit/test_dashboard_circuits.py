@@ -27,7 +27,8 @@ def test_entries_describe_the_index(tmp_path: pathlib.Path) -> None:
     (row,) = circuits.entries(index, view, best)
     assert row["bench"] == "invsqrt" and row["ccx"] == 10 and row["in_best"] == "yes"
     assert row["url"] == f"/circuits/{row['circuit']}.html"
-    assert f"[open the explorer]({row['url']})" in circuits.links_markdown([row])
+    assert f"](/circuits/{row['circuit']}.html)" in circuits.links_markdown([row])
+    assert circuits.links_markdown([row]).startswith("- **invsqrt**: [tiny (best/)]")
 
 
 def test_entry_without_a_page_has_no_link(tmp_path: pathlib.Path) -> None:

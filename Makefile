@@ -48,7 +48,7 @@ circuits: ## Index the circuits in best/ and write their explorer pages (cached 
 dashboard: circuits ## Run the local dashboard (needs `uv sync --extra dashboard`); prints a URL on the first free port
 	uv run python -m dashboard
 
-plots-readme: ## Redraw docs/img/*.png (plots and dashboard screenshots) from the live ledger; light, verifies nothing
+plots-readme: circuits ## Redraw docs/img/*.png (plots and dashboard screenshots) from the live ledger; light, verifies nothing
 	uv run --extra plots --extra dashboard --extra shots python scripts/plots_readme.py
 
 report: ## Analysis figures (docs/img/analysis) and the PDF report (out/reports) from analysis/data/*.json; needs the plots extra

@@ -2,7 +2,8 @@
 
 Draws the six matplotlib plots into docs/img/ (as `bench plots --out docs/img`), then starts the
 dashboard on a free port, takes one screenshot per tab with headless Chromium and stops the server.
-Cheap: it reads ledger/ and rebuilds one small generator circuit; it verifies nothing.
+Cheap: it reads ledger/ and the circuit index (`make circuits`) and rebuilds one small generator circuit; it
+verifies nothing.
 
 Needs `uv sync --extra plots --extra dashboard --extra shots` and, once, `uv run playwright install chromium`.
 """
@@ -23,6 +24,7 @@ TABS = {
     "Anatomy": "dashboard-anatomy.png",
     "Verifier theatre": "dashboard-theatre.png",
     "Lineage": "dashboard-lineage.png",
+    "Circuits": "dashboard-circuits.png",
 }
 
 

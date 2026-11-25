@@ -48,6 +48,8 @@ experiment log and where each circuit came from.
 
 ![Dashboard: lineage of public circuits and our generators](docs/img/dashboard-lineage.png)
 
+![Dashboard: indexed circuits, each linking to its explorer page](docs/img/dashboard-circuits.png)
+
 To refresh every image above from the current ledger, run `make plots-readme` (needs
 `uv sync --extra plots --extra dashboard --extra shots` and once `uv run playwright install chromium`; it
 verifies nothing and takes a few seconds), then commit `docs/img/`.

@@ -81,6 +81,7 @@ Entries grouped by the benchmark they concern.
 ## infra
 
 - 2026-11-25: [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) (positive)
+- 2026-11-25: [Circuit Explorer: invsqrt firing counts take 38 s, so the exact tier is cheap; the Circuits tab joins make plots-readme; no old analysis script is retired](entries/2026-11-25-explorer-exact-tier-and-plots.md) (positive)
 - 2026-11-25: [Circuit Explorer covers DQI and dfthcsos: DQI's 70 million instructions index in 71 s, and modules now come from width plus Toffoli and classical density](entries/2026-11-25-explorer-dqi-dfthcsos.md) (positive)
 - 2026-11-25: [Circuits tab in the dashboard: make circuits runs before make dashboard, and bench promote builds the page for a promoted invsqrt circuit](entries/2026-11-25-circuits-tab.md) (positive)
 - 2026-11-25: [Circuit Explorer spike: all three best/ circuits load in under a second, the circuits carry no module tags, and indah cannot embed a page](entries/2026-11-25-circuit-explorer-spike.md) (positive)

@@ -86,7 +86,7 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
 
 <section class="panel" aria-label="Gates">
 <div class="row"><strong id="gname"></strong><div class="filters" id="filters"></div></div>
-<div class="tablewrap"><table><thead><tr><th>line</th><th>instruction</th><th></th></tr></thead><tbody id="rows" class="mono"></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>line</th><th>instruction</th><th>fires</th><th></th></tr></thead><tbody id="rows" class="mono"></tbody></table></div>
 <div class="pager">
 <button id="prev">Previous</button><button id="next">Next</button>
 <span class="muted" id="pinfo"></span>
@@ -139,13 +139,14 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
   $('sub').textContent = S.name + ' · ' + S.instructions.toLocaleString() + ' instructions · ' + S.ccx.toLocaleString() + ' CCX · peak width ' + S.peak_width + ' · ' + M.length + ' modules';
   [['cost: ' + S.cost_tier], ['modules: ' + S.module_source]].forEach(function (t) { $('tags').appendChild(el('span', { 'class': 'tag mono' }, t[0])); });
   $('peaknote').textContent = 'Width: ' + S.width_method + (S.samples ? ', ' + S.samples + ' inputs (a lower bound on the true width)' : '') + '.';
+  if (S.firing_inputs) $('peaknote').textContent += ' Firing: ' + S.firing_inputs.toLocaleString() + ' inputs, one random measurement outcome each.';
   if (S.listing !== 'all') $('listnote').textContent = 'This circuit is large, so the list shows only its Toffoli-like gates and non-Clifford rotations (' + S.listed.toLocaleString() + ' of ' + N.toLocaleString() + ' instructions). Clifford gates are counted in the gate mix.';
 
   var H = 190, TOP = 8;
   function yOf(v) { return H - (v / S.peak_width) * (H - TOP); }
   function xOf(i) { return (i / N) * 1000; }
 
-  function dens(m) { return m.ccx / Math.max(1, m.end - m.start); }
+  function dens(m) { return (m.toffoli_expected !== undefined ? m.toffoli_expected : m.ccx) / Math.max(1, m.end - m.start); }
   var maxDens = Math.max.apply(null, M.map(dens)) || 1;
   var minPeak = Math.min.apply(null, M.map(function (m) { return m.peak_width; }));
   function tint(m) {
@@ -201,6 +202,11 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
     s.appendChild(stat('peak width', String(m.peak_width)));
     s.appendChild(stat('lowest width', String(m.min_width)));
     s.appendChild(stat('wires touched', String(m.wires.length)));
+    if (m.toffoli_expected !== undefined) {
+      s.appendChild(stat('expected Toffolis firing', m.toffoli_expected.toFixed(1)));
+      s.appendChild(stat('share of expected', (100 * m.toffoli_expected / S.toffoli_expected).toFixed(1) + '%'));
+      s.appendChild(stat('gates that never fire', String(m.toffoli_never)));
+    }
     var mix = $('mix'); mix.textContent = '';
     var entries = Object.keys(m.ops).map(function (k) { return [k, m.ops[k]]; });
     var mx = Math.max.apply(null, entries.map(function (e) { return e[1]; })) || 1;
@@ -252,6 +258,8 @@ input[type=number]{width:90px;background:var(--panel);border:1px solid var(--lin
       var tr = el('tr', R[i][2] ? { 'class': 'cond' } : {});
       tr.appendChild(el('td', { 'class': 'ln' }, String(R[i][0])));
       tr.appendChild(el('td', {}, R[i][1]));
+      var fv = R[i][3];
+      tr.appendChild(el('td', { 'class': 'ln' }, fv === null || fv === undefined ? '' : (fv === 0 ? 'never' : String(fv))));
       tr.appendChild(el('td', { 'class': 'ln' }, R[i][2] ? 'conditioned' : ''));
       tb.appendChild(tr);
     });

@@ -42,8 +42,9 @@ def view_file(
     *,
     bench: str | None = None,
     force_index: bool = False,
+    exact: bool = False,
 ) -> pathlib.Path:
-    _, entry = circindex.index_file(path, index_root, bench=bench, force=force_index)
+    _, entry = circindex.index_file(path, index_root, bench=bench, force=force_index, exact=exact)
     out_dir.mkdir(parents=True, exist_ok=True)
     dst = out_dir / f"{entry.name}.html"
     dst.write_text(render(entry))
@@ -54,7 +55,7 @@ def after_promotion(bench: str, best: pathlib.Path) -> None:
     """Build the page for a circuit that was just promoted. Never fails the promotion."""
     try:
         for p in sorted((best / bench).glob("*.kmb")):
-            print("explorer page:", view_file(p))
+            print("explorer page:", view_file(p, exact=True))
     except Exception as err:  # noqa: BLE001 - a viewer problem must not undo a verified promotion
         print(f"note: explorer page not built: {err}")
 
@@ -66,6 +67,7 @@ def add_parser(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None
     p.add_argument("--index", type=pathlib.Path, default=circindex.DEFAULT_OUT)
     p.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
     p.add_argument("--force-index", action="store_true", help="rebuild the index entry first")
+    p.add_argument("--exact", action="store_true", help="invsqrt: add the full-domain firing pass first")
     p.add_argument("--if-present", action="store_true", help="exit 0 quietly when there is nothing to view")
 
 
@@ -78,5 +80,5 @@ def run(a: argparse.Namespace) -> int:
         print("error: no circuit files (best/ has no .kmb files)")
         return 2
     for p in paths:
-        print(view_file(p, a.index, a.out, bench=a.bench, force_index=a.force_index))
+        print(view_file(p, a.index, a.out, bench=a.bench, force_index=a.force_index, exact=a.exact))
     return 0
