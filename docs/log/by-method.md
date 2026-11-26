@@ -40,6 +40,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## cost-model
 
+- 2026-11-26: [dfthcsos: the 4.07x gap to the public package is T x Q, and nearly all of it is brot 7 against 11](entries/2026-11-26-dfthcsos-gap-breakdown.md) (positive)
 - 2026-11-17: [S2: a qubit is 0.23% on DQI and dfthcsos but 2.3% on invsqrt; the dfthcsos gap is mostly the words, not the loader](entries/2026-11-17-spike-s2-exchange-rates.md) (positive)
 - 2026-11-17: [S1: a static-count cost model is off by 4%; reduced-shot screening is exact to 1e-5 on invsqrt](entries/2026-11-17-spike-s1-cost-model.md) (negative)
 - 2026-11-15: [syed3000's 11.31x table is output only; our loader code could load it at 9.06x today, and matching 11.31 is not a win](entries/2026-11-15-dfthcsos-syed-decode.md) (correction)
@@ -405,6 +406,10 @@ Entries grouped by the `methods` tags in their front matter.
 - 2026-11-21: [invsqrt port v17 Stage C0: the 220 executed modules of the 43-qubit builder are vendored byte for byte](entries/2026-11-21-invsqrt-v17-vendored.md) (positive)
 - 2026-11-19: [invsqrt port Stage C0: the 78 executed modules of the v12 builder vendored byte for byte](entries/2026-11-19-invsqrt-vendored.md) (positive)
 - 2026-11-16: [DQI: the newer extractor in our front half is 5,148 T cheaper and verifies; ratio 66.50 (from 65.77), still 67.44 to beat](entries/2026-11-16-dqi-extractor-v3.md) (positive)
+
+## verifier-breakdown
+
+- 2026-11-26: [dfthcsos: the 4.07x gap to the public package is T x Q, and nearly all of it is brot 7 against 11](entries/2026-11-26-dfthcsos-gap-breakdown.md) (positive)
 
 ## verify
 

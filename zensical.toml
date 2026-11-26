@@ -91,6 +91,7 @@ nav = [
     { "can our own table reach 8 bits?" = "experiments/dfthcsos-eight-bit.md" },
     { "our own angle loader" = "experiments/dfthcsos-loader.md" },
     { "fewer than 8 bits per angle word" = "experiments/dfthcsos-low-brot.md" },
+    { "dfthcsos gap breakdown (2026-11-26)" = "experiments/dfthcsos-gap-2026-11-26.md" },
     { "public ideas, our own seed" = "experiments/dfthcsos-stage2.md" },
     { "our own table passes the gates (M1) and the road to the fron" = "experiments/dfthcsos-structured.md" },
     { "decoding syed3000's 11.31x circuit, and whether to start fro" = "experiments/dfthcsos-syed-decode.md" },

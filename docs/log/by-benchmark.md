@@ -65,6 +65,7 @@ Entries grouped by the benchmark they concern.
 
 ## dfthcsos
 
+- 2026-11-26: [dfthcsos: the 4.07x gap to the public package is T x Q, and nearly all of it is brot 7 against 11](entries/2026-11-26-dfthcsos-gap-breakdown.md) (positive)
 - 2026-11-22: [v17 dfthcsos generator read: the public 8-bit table is a code-constrained, weight-refit table, and the field is tied at parts per million](entries/2026-11-22-dfthcsos-v17-generator-reading.md) (negative)
 - 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
 - 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
