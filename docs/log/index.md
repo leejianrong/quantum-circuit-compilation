@@ -8,6 +8,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-26 | experiment | dfthcsos | positive | [dfthcsos: the 4.07x gap to the public package is T x Q, and nearly all of it is brot 7 against 11](entries/2026-11-26-dfthcsos-gap-breakdown.md) |  |
 | 2026-11-25 | run | infra | positive | [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) |  |
 | 2026-11-25 | run | infra | positive | [Circuit Explorer: invsqrt firing counts take 38 s, so the exact tier is cheap; the Circuits tab joins make plots-readme; no old analysis script is retired](entries/2026-11-25-explorer-exact-tier-and-plots.md) |  |
 | 2026-11-25 | run | infra | positive | [Circuit Explorer covers DQI and dfthcsos: DQI's 70 million instructions index in 71 s, and modules now come from width plus Toffoli and classical density](entries/2026-11-25-explorer-dqi-dfthcsos.md) |  |
