@@ -4,6 +4,10 @@
 
 Entries grouped by the `methods` tags in their front matter.
 
+## 7-bit
+
+- 2026-11-28: [dfthcsos: a penalised fit at the public 7-bit shape (9, 127, 46) does not survive 7-bit or 8-bit rounding, 0.180 and 0.119 against a 0.02 gate](entries/2026-11-28-dfthcsos-7bit-negative.md) (negative)
+
 ## brainstorm
 
 - 2026-11-22: [Broad pass over adjacent fields: our scores are AND-count and width minimisation, a problem cryptography and logic synthesis already know](entries/2026-11-22-adjacent-fields-ideas.md) (n/a)
@@ -210,6 +214,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## penalised-fit
 
+- 2026-11-28: [dfthcsos: a penalised fit at the public 7-bit shape (9, 127, 46) does not survive 7-bit or 8-bit rounding, 0.180 and 0.119 against a 0.02 gate](entries/2026-11-28-dfthcsos-7bit-negative.md) (negative)
 - 2026-11-19: [S4 stage 2: a Lambda-penalised fit reaches the public Lambda (283.6 against 283.3); the Lambda gap was a basin](entries/2026-11-19-spike-s4-penalised-fit.md) (positive)
 
 ## phase-adder
@@ -253,6 +258,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## qat
 
+- 2026-11-28: [dfthcsos: a penalised fit at the public 7-bit shape (9, 127, 46) does not survive 7-bit or 8-bit rounding, 0.180 and 0.119 against a 0.02 gate](entries/2026-11-28-dfthcsos-7bit-negative.md) (negative)
 - 2026-11-19: [S4 stage 3: our own dfthcsos goes from 2.50x to 3.28x (verified); 8 and 10 bits still fail the gate](entries/2026-11-19-spike-s4-stage3-own-3x.md) (positive)
 - 2026-11-13: [With public ideas allowed, our own ANF loader lifts an 11-bit own table to ratio 2.50, but fit basin (Lambda) and 8-bit rounding still block the frontier](entries/2026-11-13-dfthcsos-stage2.md) (positive)
 - 2026-11-13: [Our own table cannot reach 8 bits: every rounding schedule leaves about 0.025 of noise, and the gentle end of the schedule is not the problem](entries/2026-11-13-dfthcsos-eight-bit.md) (negative)
