@@ -8,6 +8,7 @@ Project and infrastructure work (the harness, the dashboard, the Kaggle runners,
 
 | Date | Type | Benchmark | Outcome | Entry | PRs |
 |---|---|---|---|---|---|
+| 2026-11-28 | experiment | dfthcsos | negative | [dfthcsos: a penalised fit at the public 7-bit shape (9, 127, 46) does not survive 7-bit or 8-bit rounding, 0.180 and 0.119 against a 0.02 gate](entries/2026-11-28-dfthcsos-7bit-negative.md) |  |
 | 2026-11-26 | experiment | dfthcsos | positive | [dfthcsos: the 4.07x gap to the public package is T x Q, and nearly all of it is brot 7 against 11](entries/2026-11-26-dfthcsos-gap-breakdown.md) |  |
 | 2026-11-25 | run | infra | positive | [Submission 58812685 scores 33.17031 on the public leaderboard, as predicted from our own 10-salt verification](entries/2026-11-25-submission-33-17.md) |  |
 | 2026-11-25 | run | infra | positive | [Circuit Explorer: invsqrt firing counts take 38 s, so the exact tier is cheap; the Circuits tab joins make plots-readme; no old analysis script is retired](entries/2026-11-25-explorer-exact-tier-and-plots.md) |  |

@@ -4,6 +4,7 @@
 
 Ideas that were tried and did not work, with the reason. They are as useful as the wins: they tell the next person where not to dig.
 
+- 2026-11-28, dfthcsos: [dfthcsos: a penalised fit at the public 7-bit shape (9, 127, 46) does not survive 7-bit or 8-bit rounding, 0.180 and 0.119 against a 0.02 gate](entries/2026-11-28-dfthcsos-7bit-negative.md)
 - 2026-11-24, invsqrt: [Exact SAT synthesis of the 128-row invsqrt table: each output bit needs at least 4 ANDs, and the method stops scaling at k = 3](entries/2026-11-24-loader-exact-synthesis-infeasible.md)
 - 2026-11-24, invsqrt: [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md)
 - 2026-11-24, invsqrt: [Where the invsqrt Toffoli mass sits: 91% unconditioned, and the conditioned gates are all measurement corrections firing half the time](entries/2026-11-24-invsqrt-firing-fractions.md)
