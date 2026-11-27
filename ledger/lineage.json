@@ -758,6 +758,13 @@
    "licence": "see source",
    "text": "Apache-2.0 notice in the notebook (Provenance section), unstated in metadata",
    "url": "kaggle.com/code/ozertuu/25-218-starter-notebook"
+  },
+  {
+   "author": "ozertuu",
+   "id": "S20",
+   "licence": "see source",
+   "text": "as S18",
+   "url": "kaggle.com/code/ozertuu/vqcc-super-sota-verified-portfolio-28-091"
   }
  ]
 }

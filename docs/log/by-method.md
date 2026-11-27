@@ -235,6 +235,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## promotion
 
+- 2026-11-28: [The 2026-11-26 refetch: a new dfthcsos package is 0.77% cheaper and is promoted (13.46x); the new dqi differs from best/ by 9 Toffolis; the new invsqrt is a repack](entries/2026-11-28-public-refetch-1126-checked.md) (positive)
 - 2026-11-24: [New public portfolio verifies on all three benchmarks and is promoted: invsqrt 34.09x on 37 qubits, dqi 79.44x, dfthcsos 13.36x, geometric mean about 33.08](entries/2026-11-24-public-portfolio-verified-promoted.md) (positive)
 - 2026-11-23: [Our sandbox build of the DQI paired-plain profile verifies at 3.381e11 on 10 salts and is promoted: 0.085% under the stack100 circuit](entries/2026-11-23-dqi-paired-plain-verified-promoted.md) (positive)
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
@@ -246,6 +247,7 @@ Entries grouped by the `methods` tags in their front matter.
 
 ## public-diff
 
+- 2026-11-28: [The 2026-11-26 refetch: a new dfthcsos package is 0.77% cheaper and is promoted (13.46x); the new dqi differs from best/ by 9 Toffolis; the new invsqrt is a repack](entries/2026-11-28-public-refetch-1126-checked.md) (positive)
 - 2026-11-24: [New public portfolio verifies on all three benchmarks and is promoted: invsqrt 34.09x on 37 qubits, dqi 79.44x, dfthcsos 13.36x, geometric mean about 33.08](entries/2026-11-24-public-portfolio-verified-promoted.md) (positive)
 - 2026-11-21: [Public refetch: syed3000 v17 claims 28.71 (invsqrt 43 qubits) with generator sources; bench public-diff finds it](entries/2026-11-21-public-refetch-v17.md) (positive)
 - 2026-11-21: [syed3000 v17 invsqrt (43 qubits) verifies at 72,440.37 on 10 salts and is promoted: 28.67x](entries/2026-11-21-invsqrt-v17-verified-promoted.md) (positive)
