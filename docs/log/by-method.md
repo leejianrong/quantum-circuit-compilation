@@ -29,6 +29,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-19: [DQI: the public 70x circuit conditions its gates the same way we do; the gap is unconditioned Toffolis (our 12,384 CSWAPs)](entries/2026-11-19-dqi-condition-statistics.md) (negative)
 
+## constant-propagation
+
+- 2026-11-28: [No cheap cuts in the public invsqrt and DQI circuits in best/: no constant-control Toffolis, no cancelling pairs, qubit peak is a plateau](entries/2026-11-28-best-cheap-cuts-negative.md) (negative)
+
 ## correction
 
 - 2026-11-17: [Correction: routing under a measured flag is not a valid way to remove the DQI CSWAPs](entries/2026-11-17-dqi-70x-correction.md) (correction)
@@ -111,6 +115,10 @@ Entries grouped by the `methods` tags in their front matter.
 
 - 2026-11-16: [Primers and basics get figures from the same numbers as the text: 6 more figures, a compact circuit drawer, the adder diagram checked against kickmix](entries/2026-11-16-learning-track-primer-figures.md) (positive)
 - 2026-11-16: [Learning track made visual: 7 code-generated figures, 4 interactive widgets tested against the Python cost model, math, and a nav that reaches every page](entries/2026-11-16-learning-track-figures-and-widgets.md) (positive)
+
+## firing-counts
+
+- 2026-11-28: [No cheap cuts in the public invsqrt and DQI circuits in best/: no constant-control Toffolis, no cancelling pairs, qubit peak is a plateau](entries/2026-11-28-best-cheap-cuts-negative.md) (negative)
 
 ## firing-fraction
 
@@ -211,6 +219,10 @@ Entries grouped by the `methods` tags in their front matter.
 ## pebbling
 
 - 2026-11-24: [Pebbling bound on the 43-qubit line: all 473 repeated Toffoli products span the peak width, so holding saves nothing](entries/2026-11-24-invsqrt-pebbling-bound.md) (negative)
+
+## peephole
+
+- 2026-11-28: [No cheap cuts in the public invsqrt and DQI circuits in best/: no constant-control Toffolis, no cancelling pairs, qubit peak is a plateau](entries/2026-11-28-best-cheap-cuts-negative.md) (negative)
 
 ## penalised-fit
 
